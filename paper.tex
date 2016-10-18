@@ -1,31 +1,159 @@
 \documentclass{article}
+\usepackage{minted}
 
-\title{Boutiques: a flexible framework for automated pipeline integration in computing platforms}
+\newcommand{\note}[2]{\pdfmargincomment[color=yellow,author=#1,open=true]{#2}}
+
+\title{Boutiques: a flexible framework for automated application integration in computing platforms}
 
 \begin{document}
 
 \author{Tristan Glatard, Tristan Aumentado-Armstrong, Natacha Beck, \\
-        Pierre Bellec, Remi Bernard, John Flavin, Krzysztof J. Gorgolewski, \\
-        Nathaniel Kofalt, Pierre-Olivier Quirion, Pierre Rioux, \\
-        Gunnar Schaeffer, Marc-\'Etienne Rousseau, Alan C. Evans}
+  Pierre Bellec, Remi Bernard, Sorina Camarasu-Pop, \\
+  Fr\'ed\'eric Cervenansky, Rafael Ferreira da Silva, \\ 
+  John Flavin, Pascal Girard, Krzysztof J. Gorgolewski, \\
+  Nathaniel Kofalt, Pierre-Olivier Quirion, Pierre Rioux, \\
+  Gunnar Schaeffer, Marc-\'Etienne Rousseau, Alan C. Evans}
 
 \maketitle
 
 \section{Introduction}
 
+Why Linux. Define application. Define computing platforms. Explain the problem and why it is difficult.
+
 \section{System description}
+
+\begin{itemize}
+\item JSON manifest
+\item Link to container
+\item Invocation schema
+\end{itemize}
 
 \subsection{Command-line description}
 
+The core component of the tool JSON manifest is a flexible
+command-line description represented as a simple string complying to
+the syntax of the \texttt{bash} Linux shell interpreter. The
+command-line string may contain placeholders for input and output
+values. The placeholders may be any string, and the command line may
+actually encompass several commands, e.g., separated by semicolumns,
+pipes (\texttt{|}) or ampersands (\texttt{\&}). Such a flexible
+command-line specification is meant to facilitate minor adjustments on
+the command-line, for instance input decompression and output
+archival, avoiding the use of multiple ``shims'' to align mismatching
+applications in a pipeline~\cite{hull2004treating}.
+
+Here is an example of a typical command-line description:
+\begin{verbatim}
+exampleTool_1 [STRING_INPUT] [FILE_INPUT] [ENUM_INPUT] | \
+exampleTool_2 [FLAG_INPUT] [NUMBER_INPUT] >> [LOG].txt
+\end{verbatim}
+The command line description contains six command-line keys for input
+and output values. When the application is executed, such keys will be
+replaced by numerical values and file names according to the user
+input. No particular syntax is imposed for the command-line keys, they
+just have to be unique. Flags will also be added wherever
+appropriate. Note the use of the pipe operator to chain tools, and of
+the \texttt{>>} bash operator that allows to redirect the standard
+output in a particular file.
+
+\subsection{Input description}
+
+\paragraph{General properties.} Inputs must have a name, a unique
+identifier and a type. They may be optional, have a description, a
+command-line key (placeholder), a flag and flag separator, and a
+default value. Inputs may also be lists.
+
+\paragraph{Types.} Inputs may be of type \texttt{String},
+\texttt{Number}, \texttt{Flag} or \texttt{File}. Types can be
+restricted to a specific set of values (\texttt{String} and
+\texttt{Number} only), to a specific range (\texttt{Number} only) to
+integers or booleans (\texttt{Number} only). 
+
+\paragraph{Groups and dependencies.} Groups of inputs may be defined
+from a identifier, name and list of input identifiers. Groups may be
+used for presentation purposes in a graphical user interface and to
+specify the following constraints among inputs: (1)
+\texttt{mutually-exclusive}: only one input in the group may have a
+value (2) \texttt{one-is-required}: at least one of the inputs in the
+group must have a value. Dependencies among inputs may also be defined
+regardless of a particular group: a specific input may (1) require a
+list of other inputs to be active to be available and (2) define a
+list of inputs that are disabled when it is active.
+
+Listing~\ref{listing:input-example} shows the definition of an input
+in the command line exemplified above. According to this definition
+and assuming that the input value entered by the user is 0.3, the
+string \texttt{[NUMBER\_INPUT]} will be replaced by \texttt{-n=0.3} on
+the command line at execution time.
+\begin{listing}
+\begin{minted}[frame=single,
+               framesep=3mm,
+               linenos=false,
+               xleftmargin=21pt,
+               tabsize=4]{js}
+{
+    ``id'' : ``num_input'',
+    ``name'' : ``A number input'',
+    ``type'' : ``Number'',
+    ``command-line-key'' : ``[NUMBER_INPUT]'',
+    ``optional'' : true,
+    ``command-line-flag'' : ``-n'',
+    ``command-line-separator'' : ``='',
+    ``minimum'' : 0,
+    ``maximum'' : 1,
+    ``exclusive-minimum'' : true,
+    ``exclusive-maximum'' : false
+  }
+\end{minted}
+\caption{Input example} 
+\label{listing:input-example}
+\end{listing}
+
+\subsection{Output description}
+
 \subsection{Configuration files}
+
+\subsection{Workflow support}
 
 \subsection{Containers}
 
+The implementation of the application is defined in a container image
+in the Docker, Singularity or rootfs format. We intentionally support
+multiple container formats as we anticipate that they will be used for
+different purposes. For instance, Docker is well suited for
+application developers and users who want to use applications on their
+local workstation. It is very well documented, maintained and it has a
+rich ecosystem of tools to help build and run containers on most
+platforms, including Windows, MacOS and Linux. Singularity is more
+suited for users and platforms that need to run applications on shared
+computing clusters. Bridges exist among these containers formats to
+convert container images across frameworks. For instance, a platform
+dedicated to high-performance computing may accept manifests referring
+to Docker containers to facilitate application integration by
+developers, and internally convert container images to Singularity to
+run applications efficiently on clusters.
+
+Container images are defined from their URL (Singularity and rootfs)
+or name in a Docker index. Container images may specify a working
+directory where the application has to be run. A hash may also be
+reported to accurately identify container images and detect updates.
+
+\subsection{Custom properties}
+
+\section{Implementation and Evaluation}
+
+\subsection{Core tools} Validator, local executor, invocation schema generator.
+
+
+\subsection{Platforms}
+
+\paragraph{CBRAIN}
+
+\paragraph{Pegasus}
+
+\paragraph{VIP}
+
 \subsection{Repository}
-
-\section{Evaluation}
-
-\subsection{Implementation}
 
 \subsection{Ported pipelines}
 
@@ -35,6 +163,8 @@
 % exports from Nipype
 % SPM?
 
+A table summarizing which Boutiques features are used in which pipelines.
+
 \section{Related work}
 
 % CWL
@@ -43,6 +173,14 @@
 
 \section{Conclusion}
 
+\section{Acknowledgments}
+
+Amazon grant.
+
+
+\section{References}
+\bibliographystyle{plain}
+\bibliography{biblio}
 
 
 \end{document}
