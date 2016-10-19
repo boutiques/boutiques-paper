@@ -12,6 +12,8 @@ Use command ```\note``` in ```paper.tex``` as follows: ```\note{John}{This is a 
 
 # How to generate the pdf
 
+(You may edit ```paper.tex``` without generating the pdf if you don't manage to).
+
 0. Install ```pdflatex``` and ```bibtex```
 1. Compile the document: ```pdflatex -shell-escape paper ; pdflatex -shell-escape paper``` (yes, twice).
 2. Generate the bibliography: ```bibtex paper ; pdflatex -shell-escape paper``` (yes, once again).

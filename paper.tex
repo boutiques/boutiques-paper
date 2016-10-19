@@ -1,7 +1,10 @@
 \documentclass{article}
 \usepackage{minted}
+\usepackage{pdfcomment}
 
 \newcommand{\note}[2]{\pdfmargincomment[color=yellow,author=#1,open=true]{#2}}
+\newcommand{\todo}[2]{\pdfmargincomment[color=red,author=#1,open=true]{#2}}
+
 
 \title{Boutiques: a flexible framework for automated application integration in computing platforms}
 
@@ -18,7 +21,11 @@
 
 \section{Introduction}
 
-Why Linux. Define application. Define computing platforms. Explain the problem and why it is difficult.
+Why Linux. Define application. Define computing platforms. Explain the
+problem and why it is difficult. Approach: start simple and enrich the
+spec when new applications come. Refer to computing infrastructures
+and the need for parallelization. Define task vs. invocation. Who are
+the developers. Refer to neuroinformatics field.
 
 \section{System description}
 
@@ -61,13 +68,14 @@ output in a particular file.
 \paragraph{General properties.} Inputs must have a name, a unique
 identifier and a type. They may be optional, have a description, a
 command-line key (placeholder), a flag and flag separator, and a
-default value. Inputs may also be lists.
+default value. Inputs may also be ordered lists. 
 
 \paragraph{Types.} Inputs may be of type \texttt{String},
-\texttt{Number}, \texttt{Flag} or \texttt{File}. Types can be
-restricted to a specific set of values (\texttt{String} and
-\texttt{Number} only), to a specific range (\texttt{Number} only) to
-integers or booleans (\texttt{Number} only). 
+\texttt{Number}, \texttt{Flag} or \texttt{File}. \texttt{File} may
+also represent a directory. Types can be restricted to a specific set
+of values (\texttt{String} and \texttt{Number} only), to a specific
+range (\texttt{Number} only) to integers or booleans (\texttt{Number}
+only).
 
 \paragraph{Groups and dependencies.} Groups of inputs may be defined
 from a identifier, name and list of input identifiers. Groups may be
@@ -111,9 +119,131 @@ the command line at execution time.
 
 \subsection{Output description}
 
+Application outputs are the files or directories that need to be
+transferred and delivered to the user once the execution is
+complete. While it may not be required to distinguish inputs and
+outputs to build the application command line, this information is
+needed by computing platforms to determine what needs to be saved from
+the execution. 
+
+In Boutiques, output files are defined from a unique identifier, a
+name and a path template that specifies the file or directory
+name. Path templates may include input command-line keys when output
+files are named after the input values. Input values may be stripped
+from specific strings before being substituted in the path template,
+e.g., file extensions. Output files may also have a description, a
+command-line flag, a flag separator, and a command-line key in case
+they appear on the command line. They may be optional in case the file
+is not always produced by the application (for instance when it is
+produced only when a particular flag is activated). They may also be
+unordered lists; in this case, the path template must contain a
+wildcard (\texttt{*}) standing for any string of characters (as in
+\texttt{bash}) and defining the pattern used to match the output files
+in the list.
+
+Listing~\ref{listing:output-example} shows the definition of an output
+file in the command line exemplified before. According to this
+definition and assuming that the string input value entered by the
+user is "foo.csv", the string \texttt{[LOG]} will be
+replaced by \texttt{log-foo} on the command line at execution time.
+
+\begin{listing}
+\begin{minted}[frame=single,
+               framesep=3mm,
+               linenos=false,
+               xleftmargin=21pt,
+               tabsize=4]{js}
+
+{
+    "id" : "logfile",
+    "name" : "Log file",
+    "description" : "The output log file from the example tool",
+    "path-template" : "log-[STRING_INPUT]",
+    "command-line-key" : "[LOG]",
+    "path-template-stripped-extensions" : [".txt", ".csv"],
+    "optional" : false
+}
+\end{minted}
+\caption{Output file example} 
+\label{listing:output-example}
+\end{listing}
+
+\subsection{Invocation schema}
+\label{sec:invocation-schema}
+
+Input validation is an important motivation for common application
+descriptions. The obvious solution in our context is to rely on an
+application-specific JSON schema, called ``invocation schema'' to
+specify the correct input values that an application
+accepts. Platforms could leverage the invocation schema to validate
+inputs automatically and without having to develop specific code,
+using any JSON validator.
+
+Invocation schemas, however, are complex JSON objects. Basically, they
+must represent the properties described above in a formal way,
+including dependencies between inputs. To illustrate such complexity,
+listing~\ref{listing:invocation-schema-example} displays
+\todo{Tristan}{...}. % must support dependent invocation ids to allow for workflow support.
+
+It does not seem realistic to assume that
+developers will easily write correct JSON schemas for their
+applications. In addition, invocation schemas can actually be
+generated automatically from the basic application description. Thus,
+the invocation schema is an optional property of the Boutiques schema,
+that platforms or developers may generate automatically using a core
+tool provided by Boutiques.
+
 \subsection{Configuration files}
 
+A large number of applications actually rely on configuration files
+rather than command-line options to define their input and output
+parameters. Indeed, when the number of parameters increases,
+command-line may become long and cumbersome while configuration files
+allow for better structure and documentation.
+
+Configuration files may be complex though, and specified in any
+language.  As it does not seem reasonable to specify a particular
+template for configuration files, the Boutiques specification allows
+application developers to specify their own template, referring to
+input and output command-line keys \todo{Tristan}{Then they are not
+  command-line keys any more} to specify placeholders for input and
+output values. Listing~\ref{listing:configuration-file-example} shows
+an example. Configuration files also have a path template that defines
+how they must be named and where they must be written. They may also
+have a command line key and flag in case they need to be passed on the
+command-line. 
+\todo{Tristan}{See Github issue \#17}
+
 \subsection{Workflow support}
+
+Boutiques intentionally does not support the definition of complete
+workflows from individual applications. Indeed, we believe that
+workflow engines are specific tools that need complex languages to
+implement the particular functions that they target. Efforts to
+specify common workflow languages include the Common Workflow Language
+(CWL)~\cite{cwl} and the Interoperable Workflow Intermediate
+Representation (IWIR)~\cite{plankensteiner2011iwir}.
+
+Instead, Boutiques allows to wrap complete workflows as simple
+applications depending on particular workflow engine(s) installed in
+container images. In this model, workflows are executed as any other
+task on the infrastructure, which allows for basic data parallelism by
+iterating the workflow on a set of independent files (for instance:
+subjects in an analysis). Data parallelism, however, may not be
+sufficient when the analysis of a particular file has to be
+parallelized. To address this issue, a specific property of the
+Boutiques schema specifies that an application may submit new
+tasks. New tasks are created by the application by writing a JSON
+object in the execution directory, complying to the invocation schema
+described in Section~\ref{sec:invocation-schema}. The platform must
+read this object, submit the corresponding task, and write back the
+invocation identifier in the execution directory. The invocation
+identifier may be used by the workflow to specify dependencies between
+tasks in subsequent task submissions.
+
+The adopted ``workflow encapsulation'' model is very simple but it
+allows for a scalable and reliable execution of workflows expressed in
+a variety of languages, as detailed in ~\cite{glatard2016fgcs}.
 
 \subsection{Containers}
 
@@ -138,12 +268,37 @@ or name in a Docker index. Container images may specify a working
 directory where the application has to be run. A hash may also be
 reported to accurately identify container images and detect updates.
 
+Containers are adopted because they allow for an automated and
+lightweight integration of application implementations in
+platforms. They are extremely useful to improve the reproducibility of
+analyses as variations in the software environment may have an
+important impact on the computed results. They also have limitations,
+in particular they do not specify the hardware architecture required
+to execute an application, which can be an issue in some cases.
+
 \subsection{Custom properties}
+
+Custom properties may be added to the Boutiques specification without
+restriction. They may be useful to implement platform-specific
+features but they should be used with care to avoid making tools
+dependent on a particular platform. The following custom properties
+have been used so far:
+\begin{itemize}
+\item \texttt{cbrain:can-submit-new-tasks}: a boolean, true if the tool may submit new tasks to the platform. \todo{Tristan}{related to the workflow support section}
+\item \texttt{cbrain:inherits-from-class}: a string that defines the Ruby class that should be used as parent class for the
+ tool in CBRAIN. Used to define a progress bar for PSOM tools in CBRAIN.
+\item \texttt{vip:miccai-challenger-email} and
+  \texttt{vip:miccai-challenge-team-name}: strings helping VIP
+  categorize tools for the 2016 MICCAI challenges ``MSSEG'' and
+  ``PETSEG''.
+\end{itemize}
+
+\subsection{Command-line construction}
+
 
 \section{Implementation and Evaluation}
 
 \subsection{Core tools} Validator, local executor, invocation schema generator.
-
 
 \subsection{Platforms}
 
@@ -162,6 +317,7 @@ reported to accurately identify container images and detect updates.
 % MICCAI Challenges
 % exports from Nipype
 % SPM?
+% BIDS Apps
 
 A table summarizing which Boutiques features are used in which pipelines.
 
