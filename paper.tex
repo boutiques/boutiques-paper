@@ -12,7 +12,7 @@
 
 \author{Tristan Glatard, Tristan Aumentado-Armstrong, Natacha Beck, \\
   Pierre Bellec, Remi Bernard, Sorina Camarasu-Pop, \\
-  Fr\'ed\'eric Cervenansky, Rafael Ferreira da Silva, \\ 
+  Fr\'ed\'eric Cervenansky, Samir Das, Rafael Ferreira da Silva, \\ 
   John Flavin, Pascal Girard, Krzysztof J. Gorgolewski, \\
   Nathaniel Kofalt, Pierre-Olivier Quirion, Pierre Rioux, \\
   Gunnar Schaeffer, Marc-\'Etienne Rousseau, Alan C. Evans}
@@ -24,8 +24,15 @@
 Why Linux. Define application. Define computing platforms. Explain the
 problem and why it is difficult. Approach: start simple and enrich the
 spec when new applications come. Refer to computing infrastructures
-and the need for parallelization. Define task vs. invocation. Who are
-the developers. Refer to neuroinformatics field.
+and the need for parallelization. Who are
+the developers. Refer to neuroinformatics field. 
+
+Vocabulary (check consistency across the paper):
+\begin{itemize}
+\item tool vs. application.
+\item descriptor vs. manifest.
+\item task vs. invocation.
+\end{itemize}
 
 \section{System description}
 
@@ -214,7 +221,8 @@ have a command line key and flag in case they need to be passed on the
 command-line. 
 \todo{Tristan}{See Github issue \#17}
 
-\subsection{Workflow support}
+\subsection{Parallelization support}
+
 
 Boutiques intentionally does not support the definition of complete
 workflows from individual applications. Indeed, we believe that
@@ -244,6 +252,8 @@ tasks in subsequent task submissions.
 The adopted ``workflow encapsulation'' model is very simple but it
 allows for a scalable and reliable execution of workflows expressed in
 a variety of languages, as detailed in ~\cite{glatard2016fgcs}.
+
+%\todo{rewrite this section to focus more on parallelism. Start by mentioning data parallelism.}
 
 \subsection{Containers}
 
@@ -298,11 +308,49 @@ have been used so far:
 
 \section{Implementation and Evaluation}
 
-\subsection{Core tools} Validator, local executor, invocation schema generator.
+\subsection{Core tools} 
+
+The Boutiques validator checks conformance of JSON manifests to the
+Boutiques schema using a basic JSON validator. It also performs an
+additional set of checks that cannot be easily implemented in JSON
+schema: command-line keys are unique among inputs, input and output
+identifiers are unique, input and output command-line keys are all
+included in the command-line, command-line keys are not contained
+within each other (which would puzzle substitution), output path
+templates are unique (to avoid results to overwrite each other),
+inputs of type Flag have a command-line flag, are optional and are not
+lists, number and list constraints are sensible (e.g. min is lower
+than max), the default value of enum types is part of the enum, an
+input cannot both require and disable another input, required inputs
+cannot require or disable other parameters, group member identifiers
+must correspond to existing inputs and cannot appear in different
+groups, mutually exclusive groups cannot have members requiring other
+members, and that one-is-required groups should never have required
+members. The Boutiques validator is meant for application developers.
+
+The local executor can generate and execute command line from a
+Boutiques manifest and a set of input values represented in a CSV or
+JSON file complying with the invocation schema. It runs the
+command in a container provided that the required framework
+(e.g. Docker) is already installed. It can also generate hypothetical
+command lines from random values, for debugging purposes. The local
+executor can be used by application users, to run tools locally, or by
+platforms, to generate command lines to be run on the execution
+infrastructure.
+
+The invocation schema generator creates an invocation schema (see
+Section~\ref{sec:invocation-schema}) from a Boutiques manifest and
+validates data against it. It can be used by platform administrators
+to add invocation schemas to existing manifests, and by platforms to
+validate input data. Validation is done using a basic JSON
+validator.
 
 \subsection{Platforms}
 
 \paragraph{CBRAIN}
+
+
+
 
 \paragraph{Pegasus}
 
@@ -310,20 +358,79 @@ have been used so far:
 
 \subsection{Repository}
 
-\subsection{Ported pipelines}
+\subsection{Ported applications}
 
 % cbrain-plugins-neuro
+
+
+The Pipeline System for Octave and Matlab
+(PSOM)~\cite{bellec2012pipeline} has been integrated in CBRAIN using
+Boutiques. More precisely, a manifest has been written for a Niak
+pre-processing pipeline and PSOM workers. The integration uses the
+parallelization mechanism described in
+Section~\ref{sec:parallelization} so that even the tasks processing a
+given subject can be parallelized. As shown in~\cite{GLAT-16}, this
+allows CBRAIN to leverage the efficient agent model used in PSOM. The
+integration required some work in PSOM to facilitate its invocation as
+a non-interactive command-line application. The resulting CBRAIN
+plugin is available at
+\url{https://github.com/SIMEXP/cbrain-plugins-psom}. It could in
+principle be used in other platforms that support the parallelization
+property, although this has not been tested.
+
 % PSOM
-% MICCAI Challenges
+% MICCAI Challenges 
 % exports from Nipype
 % SPM?
 % BIDS Apps
 
 A table summarizing which Boutiques features are used in which pipelines.
 
+\begin{tabular}{ccccccccccccc}
+  Application & \multicolumn{3}{c}{Containers} & \multicolumn{7}{c}{Input/Output properties}                         & \multicolumn{2}{c}{Other properties}  \\
+              & Docker & Singularity & Rootfs  & Dependencies & Groups & Lists & Optional & Default & Enum & Min/max & Env vars & Min/Max \\
+
+
+PSOM & 
+\end{tabular}
+
 \section{Related work}
 
 % CWL
+The Common Workflow Language (CWL) is the closest related work to
+Boutiques, in the sense that it also allows the description of command
+lines executed in containers. According to Github, the CWL project
+started 6 months before Boutiques. The main conceptual differences
+between CWL and Boutiques are the following:
+\begin{itemize}
+\item CWL has a workflow language, Boutiques does not. CWL also has a
+  command line tool description language, but its specification is
+  influenced by the fact that command line tools are included in a
+  specific workflow languages. In Boutiques, the only available
+  workflow construct is sub-tasking (``a task may submit other
+  tasks''). This is intentional as we envisage that Boutiques tools
+  may be composed through any type of workflow engine and language. For instance, this leads to have multiple output types in CWL.
+\item CWL specifies command lines formally whereas in Boutiques they
+  are assembled from simple string templates. In short, a command line
+  in CWL is specified by an executable and an ordered list of
+  parameters. While this representation has the advantage of being
+  more formal, for instance the executable can be identified
+  automatically, it also removes flexibility by imposing that a tool
+  only runs a single command. On the contrary, Boutiques allows any
+  type of bash operators to be combined on the command line. This
+  level of flexibility is important and greatly reduces the ``shim
+  syndrome''. Boutiques' template approach allows for configuration files. 
+\item CWL is validated using SALAD, which makes the ecosystem slightly
+  more complex. For instance, CWL has ``import'' and ``include''
+  directives. Boutiques is validated using plain JSON schema. \todo{ontology layer}.
+\item In CWL, the applications need to be instrumented as follows, which is not the case in Boutiques:
+\begin{itemize}
+\item Applications must write in specific directories.
+\item Applications must produce a JSON object describing the output structure.
+\end{itemize}
+\end{itemize}
+
+\todo{Tristan}{Update from comparison summary on Google doc}
 
 \section{Discussion}
 
