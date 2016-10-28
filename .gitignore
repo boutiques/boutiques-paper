@@ -4,3 +4,8 @@
 *~
 *.bbl
 *.blg
+\#*#
+\.#*
+paper.out
+paper.upa
+paper.upb
