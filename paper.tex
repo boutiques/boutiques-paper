@@ -1,6 +1,7 @@
 \documentclass{article}
 \usepackage{minted}
 \usepackage{pdfcomment}
+\usepackage[margin=1in]{geometry}
 
 \newcommand{\note}[2]{\pdfmargincomment[color=yellow,author=#1,open=true]{#2}}
 \newcommand{\todo}[2]{\pdfmargincomment[color=red,author=#1,open=true]{#2}}
@@ -10,12 +11,11 @@
 
 \begin{document}
 
-\author{Tristan Glatard, Tristan Aumentado-Armstrong, Natacha Beck, \\
-  Pierre Bellec, Remi Bernard, Sorina Camarasu-Pop, \\
-  Fr\'ed\'eric Cervenansky, Samir Das, Rafael Ferreira da Silva, \\ 
-  John Flavin, Pascal Girard, Krzysztof J. Gorgolewski, \\
-  Nathaniel Kofalt, Pierre-Olivier Quirion, Pierre Rioux, \\
-  Gunnar Schaeffer, Marc-\'Etienne Rousseau, Alan C. Evans}
+\author{Tristan Glatard, Tristan Aumentado-Armstrong, Natacha Beck, Pierre Bellec,\\
+        Remi Bernard, Sorina Camarasu-Pop, Fr\'ed\'eric Cervenansky, Samir Das, \\
+        Rafael Ferreira da Silva,John Flavin, Pascal Girard, Krzysztof J. Gorgolewski, \\
+        Nathaniel Kofalt, Pierre-Olivier Quirion, Pierre Rioux, Gunnar Schaeffer,\\
+        Marc-\'Etienne Rousseau, Alan C. Evans}
 
 \maketitle
 
@@ -36,6 +36,7 @@ Vocabulary (check consistency across the paper):
 
 \section{System description}
 
+Define ``the platform'', i.e. the entity that will run applications.
 \begin{itemize}
 \item JSON manifest
 \item Link to container
@@ -44,56 +45,57 @@ Vocabulary (check consistency across the paper):
 
 \subsection{Command-line description}
 
-The core component of the tool JSON manifest is a flexible
-command-line description represented as a simple string complying to
-the syntax of the \texttt{bash} Linux shell interpreter. The
-command-line string may contain placeholders for input and output
-values. The placeholders may be any string, and the command line may
-actually encompass several commands, e.g., separated by semicolumns,
-pipes (\texttt{|}) or ampersands (\texttt{\&}). Such a flexible
-command-line specification is meant to facilitate minor adjustments on
-the command-line, for instance input decompression and output
-archival, avoiding the use of multiple ``shims'' to align mismatching
-applications in a pipeline~\cite{hull2004treating}.
+The core component of the JSON manifest is a flexible command-line
+description represented as a simple string template complying to the
+syntax of the \texttt{bash} Linux shell interpreter. The command line
+template may contain placeholders for input and output values, called
+value keys. The value keys may be any string, and the
+command line may actually encompass several commands, e.g., separated
+by semicolumns, pipes (\texttt{|}) or ampersands (\texttt{\&}). Such a
+flexible command-line specification is meant to facilitate the
+embedding of minor operations on the command line, for instance input
+decompression and output archival, avoiding the use of multiple
+``shims'' to align mismatching applications in a
+pipeline~\cite{hull2004treating}.
 
-Here is an example of a typical command-line description:
+Here is an example of a typical command-line template:
 \begin{verbatim}
 exampleTool_1 [STRING_INPUT] [FILE_INPUT] [ENUM_INPUT] | \
-exampleTool_2 [FLAG_INPUT] [NUMBER_INPUT] >> [LOG].txt
+                              exampleTool_2 [FLAG_INPUT] [NUMBER_INPUT] >> [LOG].txt
 \end{verbatim}
-The command line description contains six command-line keys for input
-and output values. When the application is executed, such keys will be
-replaced by numerical values and file names according to the user
-input. No particular syntax is imposed for the command-line keys, they
-just have to be unique. Flags will also be added wherever
-appropriate. Note the use of the pipe operator to chain tools, and of
-the \texttt{>>} bash operator that allows to redirect the standard
-output in a particular file.
+The template contains six value keys for input and output
+values. When the application is executed, such keys will be replaced
+by values and file names according to the user input. Flags will also
+be added wherever appropriate, with customizable separators. No
+particular syntax is imposed for the value keys, they just have
+to be unique.  Note the use of the pipe (\texttt{|}) operator to chain
+tools, and of the \texttt{>>} operator to redirect the standard output
+to a file.
 
 \subsection{Input description}
 
 \paragraph{General properties.} Inputs must have a name, a unique
 identifier and a type. They may be optional, have a description, a
-command-line key (placeholder), a flag and flag separator, and a
-default value. Inputs may also be ordered lists. 
+value key, a flag and flag separator, and a default
+value. Inputs may also be ordered lists; in this case, value
+keys are substituted by the space-separated list of input values.
 
 \paragraph{Types.} Inputs may be of type \texttt{String},
 \texttt{Number}, \texttt{Flag} or \texttt{File}. \texttt{File} may
 also represent a directory. Types can be restricted to a specific set
 of values (\texttt{String} and \texttt{Number} only), to a specific
-range (\texttt{Number} only) to integers or booleans (\texttt{Number}
+range (\texttt{Number} only), to integers or to booleans (\texttt{Number}
 only).
 
 \paragraph{Groups and dependencies.} Groups of inputs may be defined
 from a identifier, name and list of input identifiers. Groups may be
-used for presentation purposes in a graphical user interface and to
+used to improve the presentation in a graphical user interface and to
 specify the following constraints among inputs: (1)
 \texttt{mutually-exclusive}: only one input in the group may have a
-value (2) \texttt{one-is-required}: at least one of the inputs in the
-group must have a value. Dependencies among inputs may also be defined
-regardless of a particular group: a specific input may (1) require a
-list of other inputs to be active to be available and (2) define a
-list of inputs that are disabled when it is active.
+value; (2) \texttt{one-is-required}: at least one input in the group
+must have a value. Dependencies among inputs may also be defined
+regardless of a particular group: an input may (1) require a list of
+inputs (2) disable a list of inputs.
 
 Listing~\ref{listing:input-example} shows the definition of an input
 in the command line exemplified above. According to this definition
@@ -107,20 +109,20 @@ the command line at execution time.
                xleftmargin=21pt,
                tabsize=4]{js}
 {
-    ``id'' : ``num_input'',
-    ``name'' : ``A number input'',
-    ``type'' : ``Number'',
-    ``command-line-key'' : ``[NUMBER_INPUT]'',
-    ``optional'' : true,
-    ``command-line-flag'' : ``-n'',
-    ``command-line-separator'' : ``='',
-    ``minimum'' : 0,
-    ``maximum'' : 1,
-    ``exclusive-minimum'' : true,
-    ``exclusive-maximum'' : false
+    "id" : "num_input",
+    "name" : "A number input",
+    "type" : "Number",
+    "value-key" : "[NUMBER_INPUT]",
+    "optional" : true,
+    "command-line-flag" : "-n",
+    "command-line-separator" : "=",
+    "minimum" : 0,
+    "maximum" : 1,
+    "exclusive-minimum" : true,
+    "exclusive-maximum" : false
   }
 \end{minted}
-\caption{Input example} 
+\caption{Input example.} 
 \label{listing:input-example}
 \end{listing}
 
@@ -128,25 +130,25 @@ the command line at execution time.
 
 Application outputs are the files or directories that need to be
 transferred and delivered to the user once the execution is
-complete. While it may not be required to distinguish inputs and
+complete. Although it may not be required to distinguish inputs from
 outputs to build the application command line, this information is
-needed by computing platforms to determine what needs to be saved from
-the execution. 
+needed by computing platforms to identify the files that must be
+saved after the execution.
 
 In Boutiques, output files are defined from a unique identifier, a
 name and a path template that specifies the file or directory
-name. Path templates may include input command-line keys when output
-files are named after the input values. Input values may be stripped
-from specific strings before being substituted in the path template,
-e.g., file extensions. Output files may also have a description, a
-command-line flag, a flag separator, and a command-line key in case
-they appear on the command line. They may be optional in case the file
-is not always produced by the application (for instance when it is
-produced only when a particular flag is activated). They may also be
-unordered lists; in this case, the path template must contain a
-wildcard (\texttt{*}) standing for any string of characters (as in
-\texttt{bash}) and defining the pattern used to match the output files
-in the list.
+name. Path templates may include input value keys in case
+output files are named after the input values. Input values may be
+stripped from specific strings, e.g., file extensions before being
+substituted in the path template. Output files may also have a
+description, a command-line flag, a flag separator, and a value
+key in case they appear on the command line. They may be optional in
+case the file is not always produced by the application, for instance
+when it is produced only when a particular flag is activated. They
+may also be (un-ordered) lists; in this case, the path template must
+contain a wildcard (\texttt{*}) matching any string of characters
+and defining the pattern used to match the
+output files in the list.
 
 Listing~\ref{listing:output-example} shows the definition of an output
 file in the command line exemplified before. According to this
@@ -166,7 +168,7 @@ replaced by \texttt{log-foo} on the command line at execution time.
     "name" : "Log file",
     "description" : "The output log file from the example tool",
     "path-template" : "log-[STRING_INPUT]",
-    "command-line-key" : "[LOG]",
+    "value-key" : "[LOG]",
     "path-template-stripped-extensions" : [".txt", ".csv"],
     "optional" : false
 }
@@ -175,85 +177,138 @@ replaced by \texttt{log-foo} on the command line at execution time.
 \label{listing:output-example}
 \end{listing}
 
-\subsection{Invocation schema}
-\label{sec:invocation-schema}
-
-Input validation is an important motivation for common application
-descriptions. The obvious solution in our context is to rely on an
-application-specific JSON schema, called ``invocation schema'' to
-specify the correct input values that an application
-accepts. Platforms could leverage the invocation schema to validate
-inputs automatically and without having to develop specific code,
-using any JSON validator.
-
-Invocation schemas, however, are complex JSON objects. Basically, they
-must represent the properties described above in a formal way,
-including dependencies between inputs. To illustrate such complexity,
-listing~\ref{listing:invocation-schema-example} displays
-\todo{Tristan}{...}. % must support dependent invocation ids to allow for workflow support.
-
-It does not seem realistic to assume that
-developers will easily write correct JSON schemas for their
-applications. In addition, invocation schemas can actually be
-generated automatically from the basic application description. Thus,
-the invocation schema is an optional property of the Boutiques schema,
-that platforms or developers may generate automatically using a core
-tool provided by Boutiques.
-
 \subsection{Configuration files}
 
-A large number of applications actually rely on configuration files
-rather than command-line options to define their input and output
-parameters. Indeed, when the number of parameters increases,
-command-line may become long and cumbersome while configuration files
+A large number of applications rely on configuration files rather than
+command-line options to define their input and output
+parameters. Indeed, as the number of parameters increases, command
+lines rapidly become long and cumbersome whereas configuration files
 allow for better structure and documentation.
 
 Configuration files may be complex though, and specified in any
-language.  As it does not seem reasonable to specify a particular
+language.  As it does not seem reasonable to adopt a particular
 template for configuration files, the Boutiques specification allows
 application developers to specify their own template, referring to
-input and output command-line keys \todo{Tristan}{Then they are not
-  command-line keys any more} to specify placeholders for input and
-output values. Listing~\ref{listing:configuration-file-example} shows
-an example. Configuration files also have a path template that defines
+input and output value keys. Configuration files are specific types of
+output files that have a
+ file template defined. As output files, 
+they must have a path template that defines
 how they must be named and where they must be written. They may also
-have a command line key and flag in case they need to be passed on the
-command-line. 
-\todo{Tristan}{See Github issue \#17}
+have a value key and a flag in case they need to be passed on the
+command line. 
+
+
+Listing~\ref{listing:configuration-file-example} shows an example.
+\begin{listing}
+\begin{minted}[frame=single,
+               framesep=3mm,
+               linenos=false,
+               xleftmargin=21pt,
+               tabsize=4]{js}
+               {
+                   "id": "config_file",
+                   "name": "Configuration file",
+                   "type": "Configuration File",
+                   "value-key": "[CONFIG_FILE]",
+                   "path-template": "config.txt",
+                   "file-template": [
+                   "# This input is hard-coded",
+                   "stringInput=foo",
+                   "fileInput=[FILE-INPUT]",
+                   "# And here is the result",
+                   "fileOutput=[OUTPUT-FILE]",
+                   ""
+                   ]
+                 }
+\end{minted}
+\caption{Configuration file example. The file template is defined as
+  an array of strings to allow for multi-line strings in JSON.}
+\label{listing:configuration-file-example}
+\end{listing}
+
+\subsection{Invocation schema}
+\label{sec:invocation-schema}
+
+Rigorous input validation is an important motivation for
+Boutiques. The obvious solution in our context is to rely on an
+application-specific JSON schema, called ``invocation schema'', to
+specify the correct input values that an application
+accepts. Platforms could rely on the invocation schema to validate
+inputs automatically using any JSON validator, without having to
+develop specific code.
+
+Invocation schemas, however, are complex JSON objects. Basically, they
+must represent the properties described above in a formal way,
+including dependencies between
+inputs. Listing~\ref{listing:invocation-schema-example} shows an
+example of how dependencies between mutually exclusive parameters are
+defined in the invocation schema.
+
+The invocation schema also has a \texttt{task-dependencies} array that
+specifies that the new invocation to start only when all the
+invocations in this array have completed. This property is used in the
+parallelization model described hereafter.
+
+\begin{listing}
+\begin{minted}[frame=single,
+               framesep=3mm,
+               linenos=false,
+               xleftmargin=21pt,
+               tabsize=4]{js}
+"dependencies" : {
+      "num_input" : {
+         "properties" : {
+            "str_input" : {
+               "not" : {}
+            }
+         }
+      },
+      "str_input" : {
+         "properties" : {
+            "num_input" : {
+               "not" : {}
+            }
+         }
+      }
+   }
+\end{minted}
+\caption{Excerpt from invocation schema showing dependencies between
+  two mutually exclusive parameters \texttt{num\_input} and
+  \texttt{str\_input}.}
+\label{listing:invocation-schema-example}
+\end{listing}
+
+
+It does not seem realistic to assume that developers will easily write
+correct JSON schemas for their applications. Instead, invocation
+schemas should be generated automatically using a core Boutiques
+tool. Accordingly, invocation schema is an optional property of the
+Boutiques manifest, that platforms or developers may generate using
+the appropriate tool.
 
 \subsection{Parallelization support}
+\label{sec:parallelization}
+Boutiques support parallelism by allowing applications to submit new
+tasks through the following protocol:
+\begin{enumerate}
+\item Applications write a JSON object complying to the invocation schema in the directory where there were launched.
+\item The platform reads the JSON object, creates the corresponding task, and writes back the task id in the same directory.
+% The platform could also support status requests.
+\end{enumerate}
+Several invocations can be submitted at once, possibly using the
+\texttt{task-dependencies} array to specify dependencies among
+them. This mechanism is implemented in the Boutiques schema using a
+single property, \texttt{can-submit-tasks}.
 
+Although very simple, this model allows wrapping complete
+workflows. Workflows are wrapped as any other application, and they
+can be executed using any engine such as Nipype, PSOM and others,
+provided that such engines are installed in the container image
+referred in the application manifest. 
 
-Boutiques intentionally does not support the definition of complete
-workflows from individual applications. Indeed, we believe that
-workflow engines are specific tools that need complex languages to
-implement the particular functions that they target. Efforts to
-specify common workflow languages include the Common Workflow Language
-(CWL)~\cite{cwl} and the Interoperable Workflow Intermediate
-Representation (IWIR)~\cite{plankensteiner2011iwir}.
-
-Instead, Boutiques allows to wrap complete workflows as simple
-applications depending on particular workflow engine(s) installed in
-container images. In this model, workflows are executed as any other
-task on the infrastructure, which allows for basic data parallelism by
-iterating the workflow on a set of independent files (for instance:
-subjects in an analysis). Data parallelism, however, may not be
-sufficient when the analysis of a particular file has to be
-parallelized. To address this issue, a specific property of the
-Boutiques schema specifies that an application may submit new
-tasks. New tasks are created by the application by writing a JSON
-object in the execution directory, complying to the invocation schema
-described in Section~\ref{sec:invocation-schema}. The platform must
-read this object, submit the corresponding task, and write back the
-invocation identifier in the execution directory. The invocation
-identifier may be used by the workflow to specify dependencies between
-tasks in subsequent task submissions.
-
-The adopted ``workflow encapsulation'' model is very simple but it
+The adopted ``task encapsulation'' model is very simple but it
 allows for a scalable and reliable execution of workflows expressed in
 a variety of languages, as detailed in ~\cite{glatard2016fgcs}.
-
-%\todo{rewrite this section to focus more on parallelism. Start by mentioning data parallelism.}
 
 \subsection{Containers}
 
@@ -294,7 +349,6 @@ features but they should be used with care to avoid making tools
 dependent on a particular platform. The following custom properties
 have been used so far:
 \begin{itemize}
-\item \texttt{cbrain:can-submit-new-tasks}: a boolean, true if the tool may submit new tasks to the platform. \todo{Tristan}{related to the workflow support section}
 \item \texttt{cbrain:inherits-from-class}: a string that defines the Ruby class that should be used as parent class for the
  tool in CBRAIN. Used to define a progress bar for PSOM tools in CBRAIN.
 \item \texttt{vip:miccai-challenger-email} and
@@ -306,6 +360,7 @@ have been used so far:
 \subsection{Command-line construction}
 
 
+
 \section{Implementation and Evaluation}
 
 \subsection{Core tools} 
@@ -313,9 +368,9 @@ have been used so far:
 The Boutiques validator checks conformance of JSON manifests to the
 Boutiques schema using a basic JSON validator. It also performs an
 additional set of checks that cannot be easily implemented in JSON
-schema: command-line keys are unique among inputs, input and output
-identifiers are unique, input and output command-line keys are all
-included in the command-line, command-line keys are not contained
+schema: value keys are unique among inputs, input and output
+identifiers are unique, input and output value keys are all
+included in the command line, value keys are not contained
 within each other (which would puzzle substitution), output path
 templates are unique (to avoid results to overwrite each other),
 inputs of type Flag have a command-line flag, are optional and are not
@@ -396,6 +451,15 @@ PSOM &
 
 \section{Related work}
 
+Boutiques intentionally does not support the definition of complete
+workflows from individual applications. Indeed, we believe that
+workflow engines are specific tools that need complex languages to
+implement the particular functions that they target. Efforts to
+specify common workflow languages include the Common Workflow Language
+(CWL)~\cite{cwl} and the Interoperable Workflow Intermediate
+Representation (IWIR)~\cite{plankensteiner2011iwir}.
+
+
 % CWL
 The Common Workflow Language (CWL) is the closest related work to
 Boutiques, in the sense that it also allows the description of command
@@ -434,16 +498,15 @@ between CWL and Boutiques are the following:
 
 \section{Discussion}
 
+% How to build modular container images for workflows.
+
 \section{Conclusion}
 
 \section{Acknowledgments}
 
 Amazon grant.
 
-
-\section{References}
 \bibliographystyle{plain}
 \bibliography{biblio}
-
 
 \end{document}
