@@ -2,6 +2,8 @@
 \usepackage{minted}
 \usepackage{pdfcomment}
 \usepackage[margin=1in]{geometry}
+\usepackage{lscape}
+\usepackage[table]{xcolor}
 
 \newcommand{\note}[2]{\pdfmargincomment[color=yellow,author=#1,open=true]{#2}}
 \newcommand{\todo}[2]{\pdfmargincomment[color=red,author=#1,open=true]{#2}}
@@ -291,8 +293,10 @@ the appropriate tool.
 Boutiques support parallelism by allowing applications to submit new
 tasks through the following protocol:
 \begin{enumerate}
-\item Applications write a JSON object complying to the invocation schema in the directory where there were launched.
-\item The platform reads the JSON object, creates the corresponding task, and writes back the task id in the same directory.
+\item Applications write a JSON object complying to the invocation
+  schema in the directory where there were launched.
+\item The platform reads the JSON object, creates the corresponding
+  task, and writes back the task id in the same directory.
 % The platform could also support status requests.
 \end{enumerate}
 Several invocations can be submitted at once, possibly using the
@@ -341,6 +345,10 @@ important impact on the computed results. They also have limitations,
 in particular they do not specify the hardware architecture required
 to execute an application, which can be an issue in some cases.
 
+Containers are not mandatory though. If an application manifest does
+not contain any reference to a container, the platform will assume
+that the application is pre-installed on the execution infrastructure. 
+
 \subsection{Custom properties}
 
 Custom properties may be added to the Boutiques specification without
@@ -349,8 +357,9 @@ features but they should be used with care to avoid making tools
 dependent on a particular platform. The following custom properties
 have been used so far:
 \begin{itemize}
-\item \texttt{cbrain:inherits-from-class}: a string that defines the Ruby class that should be used as parent class for the
- tool in CBRAIN. Used to define a progress bar for PSOM tools in CBRAIN.
+\item \texttt{cbrain:inherits-from-class}: a string that defines the
+  Ruby class that should be used as parent class for the tool in
+  CBRAIN. Used to define a progress bar for PSOM tools in CBRAIN.
 \item \texttt{vip:miccai-challenger-email} and
   \texttt{vip:miccai-challenge-team-name}: strings helping VIP
   categorize tools for the 2016 MICCAI challenges ``MSSEG'' and
@@ -404,7 +413,7 @@ validator.
 
 \paragraph{CBRAIN}
 
-
+New list mechanism.
 
 
 \paragraph{Pegasus}
@@ -416,7 +425,6 @@ validator.
 \subsection{Ported applications}
 
 % cbrain-plugins-neuro
-
 
 The Pipeline System for Octave and Matlab
 (PSOM)~\cite{bellec2012pipeline} has been integrated in CBRAIN using
@@ -439,15 +447,31 @@ property, although this has not been tested.
 % SPM?
 % BIDS Apps
 
-A table summarizing which Boutiques features are used in which pipelines.
-
-\begin{tabular}{ccccccccccccc}
-  Application & \multicolumn{3}{c}{Containers} & \multicolumn{7}{c}{Input/Output properties}                         & \multicolumn{2}{c}{Other properties}  \\
-              & Docker & Singularity & Rootfs  & Dependencies & Groups & Lists & Optional & Default & Enum & Min/max & Env vars & Min/Max \\
-
-
-PSOM & 
+Table~\ref{table:applications} summarizes the applications described
+with Boutiques and the main features used.
+\begin{landscape}
+  \begin{table}
+  \rowcolors{2}{gray!25}{white}
+  \begin{tabular}{l|ccc|ccccccc|cc}
+    Application               &\multicolumn{3}{c|}{Containers} & \multicolumn{7}{c|}{Input/Output properties}                         & \multicolumn{2}{c}{Other properties}  \\
+                              &Docker              & Singularity & Rootfs  & Dependencies      &Groups             & Lists             & Optional          &Default            & Enum              & Min/max           & Config. file & Env vars     \\
+    \hline
+    Niak pre-processing       &\cellcolor{gray!75} &            &         &                   &\cellcolor{gray!75}&                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&              &\cellcolor{gray!75}\\
+    ICA AROMA                 &\cellcolor{gray!75} &            &         &\cellcolor{gray!75}&\cellcolor{gray!75}&                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&              &\\
+    FSL tools &&&&&&&&&&&&\\
+    \multicolumn{1}{r|}{anat} &                    &            &         &\cellcolor{gray!75}&\cellcolor{gray!75}&                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&              &\\
+    \multicolumn{1}{r|}{bet}  &                    &            &         &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&                   &                   &\cellcolor{gray!75}&              &\\      
+    \multicolumn{1}{r|}{fast} &                    &            &         &\cellcolor{gray!75}&                   &                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&              &\\
+    \multicolumn{1}{r|}{first}&                    &            &         &                   &                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&                   &                   &              &\\
+    FSL Nipype interfaces     \\
+    HCP PreFreesurfer         &\cellcolor{gray!75} &            &         &                   &                   &                   &                   &                   &                   &                   &              &\\
+    MSSEG MICCAI pipelines    \\
+    PETSEG MICCAI pipelines   \\
 \end{tabular}
+\caption{Applications available in Boutiques with manifest features used.}
+\label{table:applications}
+  \end{table}
+  \end{landscape}
 
 \section{Related work}
 
