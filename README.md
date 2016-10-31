@@ -18,3 +18,7 @@ Use command ```\note``` in ```paper.tex``` as follows: ```\note{John}{This is a 
 1. Compile the document: ```pdflatex -shell-escape paper ; pdflatex -shell-escape paper``` (yes, twice).
 2. Generate the bibliography: ```bibtex paper ; pdflatex -shell-escape paper``` (yes, once again).
 
+# Latex installation
+
+* On Linux Fedora 24: ```dnf install texlive-bin texlive-bibtex-bin texlive-minted texlive-pdfcomment texlive-collection-fontsrecommended```. 
+
