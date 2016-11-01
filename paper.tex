@@ -44,12 +44,18 @@ Vocabulary (check consistency across the paper):
 
 \section{System description}
 
-Define ``the platform'', i.e. the entity that will run applications.
-\begin{itemize}
-\item JSON manifest
-\item Link to container
-\item Invocation schema
-\end{itemize}
+The application is described with a \emph{manifest} that specifies the
+command-line template, inputs and outputs. The manifest may point to a
+container where the application and all its dependencies are
+installed. It may also contain an invocation schema used for input
+validation. At runtime, the execution \emph{platform} builds the
+application command line from the manifest and values entered by the
+user. The platform runs the command line on the execution
+infrastructure, e.g., a server, a cluster or a cloud, within a
+container whenever available. To build and run the command line, the
+platform may rely on the Boutiques \emph{core tools}, in particular on
+the Boutiques validator and local executor. Application manifests may
+be stored in the \emph{repository}, which provides additional features.
 
 \subsection{Command-line description}
 
@@ -434,8 +440,6 @@ configuration files.
 \end{algorithmic}
 \end{algorithm}
 
-\section{Implementation and Evaluation}
-
 \subsection{Core tools} 
 
 The Boutiques validator checks conformance of JSON manifests to the
@@ -474,6 +478,8 @@ validate input data. Validation is done using a basic JSON
 validator.
 
 \subsection{Repository}
+
+\section{Results}
 
 \subsection{Ported applications}
 
@@ -544,7 +550,7 @@ with Boutiques and the main features used.
   \label{table:applications}
 \end{table}
   
-\subsection{Platforms}
+\subsection{Supported platforms}
 
 \paragraph{CBRAIN}
 
