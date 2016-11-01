@@ -366,17 +366,7 @@ that the application is pre-installed on the execution infrastructure.
 Custom properties may be added to the Boutiques specification without
 restriction. They may be useful to implement platform-specific
 features but they should be used with care to avoid making tools
-dependent on a particular platform. The following custom properties
-have been used so far:
-\begin{itemize}
-\item \texttt{cbrain:inherits-from-class}: a string that defines the
-  Ruby class that should be used as parent class for the tool in
-  CBRAIN. Used to define a progress bar for PSOM tools in CBRAIN.
-\item \texttt{vip:miccai-challenger-email} and
-  \texttt{vip:miccai-challenge-team-name}: strings helping VIP
-  categorize tools for the 2016 MICCAI challenges ``MSSEG'' and
-  ``PETSEG''.
-\end{itemize}
+dependent on a particular platform. 
 
 \subsection{Command-line construction}
 
@@ -485,15 +475,79 @@ validator.
 
 \subsection{Supported platforms}
 
-\paragraph{CBRAIN}
+The following platforms are able to integrate and execute Boutiques
+applications. 
 
-New list mechanism.
+\subsubsection{CBRAIN}
+
+CBRAIN~\cite{SHER-14} is a web platform that can process data
+distributed into multiple storage locations on computing clusters and
+clouds. CBRAIN offers transparent access to remote data sources,
+distributed computing sites, and an array of processing and
+visualization tools within a controlled, secure environment.  The
+CBRAIN service deployed at the Montreal Neurological Institute relies
+on the infrastructure provided by Compute Canada~\cite{das2016mni}. It
+currently provides 460+ collaborators in 20 countries with web access
+to several systems, including 6 clusters of the Compute Canada
+high-performance computing infrastructure (totalling more than 100,000
+computing cores and 40PB of disk storage) and Amazon EC2. CBRAIN
+transiently stores about 10 million files representing over 50TB
+distributed in 42 servers. 56 data processing tools are integrated and
+over 340,000 processing batches have been submitted since 2010.
+
+Applications in CBRAIN are integrated as Ruby classes that create web
+forms, validation and execution code. The Boutiques support in CBRAIN
+is based on a set of templates that generate such classes from the
+application manifest. Two integration modes are available to integrate
+Boutiques applications: (1) the application manifest is stored in a
+CBRAIN plugin, and the Ruby classes are generated on-the-fly when
+CBRAIN starts. This mode allows CBRAIN developers to add new features
+to all Boutiques applications (e.g. improved error message reporting)
+by updating the Ruby templates. It is, however, constrained to the
+Boutiques manifest schema: features not supported in Boutiques, e.g.,
+cluster-specific adjustments, cannot be supported. (2) CBRAIN Ruby
+classes are generated from the Boutiques manifest in an offline
+process and integrated in CBRAIN as any other application. This mode
+allows developers to customize applications by editing the generated
+Ruby classes, but the resulting applications are difficult to maintain
+in the long term, in particular when the manifests are updated. 
+
+A custom property (\texttt{cbrain:inherits-from-class}) was added to
+the Boutiques manifest to define the Ruby class that should be used as
+parent class for the application in CBRAIN. It provides more
+flexibility to the first integration model described previously. For
+instance, it was used to define a progress bar for PSOM pipelines in
+CBRAIN.
+
+CBRAIN was also extended to support the parallelization mechanism
+available in Boutiques: the CBRAIN execution agent periodically scans
+the execution directories of the parallelized applications and it submits
+the invocations defined in the JSON objects written by the
+application in this directory.
+
+A new list mechanism was also introduced in CBRAIN to facilitate the
+iteration of Boutiques applications on large sets of files. CBRAIN
+lists are specific files that contain references to other CBRAIN
+files. When a list is passed to a Boutiques application, the elements
+in the list are either concatenated in a single command line (when the
+corresponding Boutiques input is a list), or a new command line is
+generated for every element in the list (when the input is not a
+list). Supporting lists as a specific CBRAIN file type allows for
+improved validation, e.g. lists that contain references to
+non-existent or deleted files can be detected. It also allows users to
+edit lists using their own tools such as scripts or spreadsheet
+applications.
 
 \paragraph{Pegasus}
 
+\todo{Rafael}
+
 \paragraph{SPINE}
 
+\todo{Charles}
+
 \paragraph{VIP}
+
 
 \subsection{Ported applications}
 
@@ -540,7 +594,11 @@ once ported to the platform for the following reasons:
 \end{enumerate}
 The pipelines did not use much of the expressiveness features offered
 by Boutiques since the instructions given to the challengers required
-that all the pipeline parameters were fixed, to facilitate execution.
+that all the pipeline parameters were fixed, to facilitate
+execution. Two custom properties (\texttt{vip:miccai-challenger-email}
+and \texttt{vip:miccai-challenge-team-name}) were added to the
+Boutiques manifest to help VIP handle pipeline results for the 2016
+MICCAI challenges.
 
 The Nipype workflow engine~\cite{gorgolewski2011nipype} was
 instrumented to export to Boutiques applications described in its
@@ -614,7 +672,8 @@ pipelines of the Human Connectome Project (HCP) are at
   has some overhead (in particular, the containers provided by the
   developers cannot be used directly).
 \item Testing is critical.
-  \item Workflow engines can be platforms (they can run Boutiques tools), workflows can be applications (they can be described in Boutiques). 
+\item Workflow engines can be platforms (they can run Boutiques tools), workflows can be applications (they can be described in Boutiques).
+\item With Boutiques, developers can port their application once and execute it in several platforms. It removes the technological dependency to a particular platform and facilitates migration. 
 \end{itemize}
 
 \section{Related work}
