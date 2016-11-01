@@ -12,7 +12,7 @@
 %%%% Commands %%%%
 
 \newcommand{\note}[2]{\pdfmargincomment[color=yellow,author=#1,open=true]{#2}}
-\newcommand{\todo}[2]{\pdfmargincomment[color=red,author=#1,open=true]{#2}}
+\newcommand{\todo}[2]{\color{red}TODO: #1\color{black}}
 \algrenewcommand{\algorithmiccomment}[1]{\# \textit{#1}} % so that comments in algorithms are preprended by '#' instead of a small right arrow
 
 \title{Boutiques: a flexible framework for automated application integration in computing platforms}
@@ -21,7 +21,7 @@
 
 \author{Tristan Glatard, Tristan Aumentado-Armstrong, Natacha Beck, Pierre Bellec,\\
         Remi Bernard, Sorina Camarasu-Pop, Fr\'ed\'eric Cervenansky, Samir Das, \\
-        Rafael Ferreira da Silva,John Flavin, Pascal Girard, Krzysztof J. Gorgolewski, \\
+        Rafael Ferreira da Silva, John Flavin, Pascal Girard, Krzysztof J. Gorgolewski, \\
         Charles G. Guttmann, Nathaniel Kofalt, Pierre-Olivier Quirion, Pierre Rioux,\\
         Gunnar Schaeffer, Marc-\'Etienne Rousseau, Alan C. Evans}
 
@@ -479,77 +479,10 @@ validator.
 
 \subsection{Repository}
 
+\todo{Gunnar, Nathaniel, John}
+
 \section{Results}
 
-\subsection{Ported applications}
-
-% cbrain-plugins-neuro
-
-The Pipeline System for Octave and Matlab
-(PSOM)~\cite{bellec2012pipeline} has been integrated in CBRAIN using
-Boutiques. More precisely, a manifest has been written for a Niak
-pre-processing pipeline and PSOM workers. The integration uses the
-parallelization mechanism described in
-Section~\ref{sec:parallelization} so that even the tasks processing a
-given subject can be parallelized. As shown in~\cite{GLAT-16}, this
-allows CBRAIN to leverage the efficient agent model used in PSOM. The
-integration required some work in PSOM to facilitate its invocation as
-a non-interactive command-line application. The resulting CBRAIN
-plugin is available at
-\url{https://github.com/SIMEXP/cbrain-plugins-psom}. It could in
-principle be used in other platforms that support the parallelization
-property, although this has not been tested.
-
-% SPM?
-% BIDS Apps
-
-Table~\ref{table:applications} summarizes the applications described
-with Boutiques and the main features used.
-
-\begin{table}
-  \begin{tabular}{l|ccccccc}
-    \rowcolor[gray]{0.9}
-    Application               &\multicolumn{7}{c}{Input/Output properties} \\
-    \rowcolor[gray]{0.9}
-    & Dependencies      &Groups             & Lists             & Optional          &Default            & Enum              & Min/max\\
-    
-    \hline
-    Niak pre-processing       &                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\\
-    ICA AROMA                 &\cellcolor{gray!75}&\cellcolor{gray!75}&                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}\\
-    FSL tools &&&&&&\\
-    \multicolumn{1}{r|}{anat} &\cellcolor{gray!75}&\cellcolor{gray!75}&                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}\\
-    \multicolumn{1}{r|}{bet}  &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&                   &                   &\cellcolor{gray!75}\\      
-    \multicolumn{1}{r|}{fast} &\cellcolor{gray!75}&                   &                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}\\
-    \multicolumn{1}{r|}{first}&                   &                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&                   &                   \\
-    FSL Nipype interfaces     \\
-    HCP PreFreesurfer         &                   &                   &                   &                   &                   &                   &                   \\
-    MSSEG MICCAI pipelines    \\
-    PETSEG MICCAI pipelines   \\
-    \end{tabular}
-  \vspace*{0.5cm}
-  \begin{tabular}{l|ccc|ccc}
-    \hline
-    \rowcolor[gray]{0.9}
-    Application               &\multicolumn{3}{c|}{Containers} &  \multicolumn{3}{c}{Other properties}  \\
-    \rowcolor[gray]{0.9}
-    &Docker              & Singularity & Rootfs  & Config. file & Env vars  & Parallelization   \\
-    \hline
-    Niak pre-processing       &\cellcolor{gray!75} &            &         &              &\cellcolor{gray!75}&\cellcolor{gray!75}\\
-    ICA AROMA                 &\cellcolor{gray!75} &            &         &              &&\\
-    FSL tools &&&&&\\
-    \multicolumn{1}{r|}{anat} &                    &            &         &              &&\\
-    \multicolumn{1}{r|}{bet}  &                    &            &         &              &&\\
-    \multicolumn{1}{r|}{fast} &                    &            &         &              &&\\
-    \multicolumn{1}{r|}{first}&                    &            &         &              &&\\
-    FSL Nipype interfaces     \\
-    HCP PreFreesurfer         &\cellcolor{gray!75} &            &         &             &&\\
-    MSSEG MICCAI pipelines    \\
-    PETSEG MICCAI pipelines   \\
-  \end{tabular} 
-  \caption{Applications available in Boutiques with manifest features used.}
-  \label{table:applications}
-\end{table}
-  
 \subsection{Supported platforms}
 
 \paragraph{CBRAIN}
@@ -562,6 +495,127 @@ New list mechanism.
 
 \paragraph{VIP}
 
+\subsection{Ported applications}
+
+% cbrain-plugins-neuro
+
+Table~\ref{table:applications} summarizes the applications described
+with Boutiques and the main features used.
+
+The Niak pre-processing pipeline, executed with the Pipeline System
+for Octave and Matlab (PSOM)~\cite{bellec2012pipeline}, was integrated
+in CBRAIN using Boutiques. The integration uses the parallelization
+mechanism described in Section~\ref{sec:parallelization} so that even
+the tasks processing a single subject can be parallelized. It also
+allows CBRAIN to leverage the efficient agent model used in PSOM, as
+described in~\cite{GLAT-16}. The integration required some work in
+PSOM to facilitate its invocation as a non-interactive command-line
+application. The resulting CBRAIN plugin is available at
+\url{https://github.com/SIMEXP/cbrain-plugins-psom}. It could in
+principle be used in other platforms that support the parallelization
+property, although this has not been tested.
+
+Boutiques was also used to port to the VIP platform the 23 pipelines
+involved in two computational challenges organized by the MICCAI
+conference in 2016, related to the segmentation of multiple-sclerosis
+lesions in MR images and of tumor volumes in PET images. The pipeline
+developers created Boutiques manifests and wrapped their applications
+in Docker containers. The pipelines were ported to VIP and executed on
+205 subjects in a few weeks only. Some pipelines had to be adjusted
+once ported to the platform for the following reasons:
+\begin{enumerate}
+\item A pipeline
+  required a GPU, which we enabled through the
+  \texttt{nvidia-docker}\footnote{\url{https://github.com/NVIDIA/nvidia-docker}}
+  tool not supported in Boutiques by default although it could be a possible extension.
+\item A pipeline required
+  more than 10 GB of data dependencies (atlas data) which exceeded the
+  maximum size allowed for Docker containers in our setup; we solved the
+  issue by installing the data on a directory of the host server that we
+  mounted in the container. This could not possibly be supported by
+  Boutiques since it is very dependent on the platform.
+\item A pipeline wrote more than 10 GB of intermediate data in a
+  temporary directory of the container located on a 2 GB partition. We
+  solved the issue by mounting a host directory in the temporary directory.
+\end{enumerate}
+The pipelines did not use much of the expressiveness features offered
+by Boutiques since the instructions given to the challengers required
+that all the pipeline parameters were fixed, to facilitate execution.
+
+The Nipype workflow engine~\cite{gorgolewski2011nipype} was
+instrumented to export to Boutiques applications described in its
+internal Python description language. \todo{Update nipype\_cmd to
+  support the latest Boutiques schema and complete this paragraph.}
+
+Other neuroinformatics tools were ported to CBRAIN using Boutiques:
+FSL tools and ICA AROMA are available at
+\url{https://github.com/aces/cbrain-plugins-neuro} and some
+pipelines of the Human Connectome Project (HCP) are at
+\url{https://github.com/big-data-lab-team/cbrain-plugins-hcp}.
+
+\todo{SPM}
+
+\todo{Chris, something on BIDS apps?}
+
+\todo{Sorina, a paragraph on other applications in VIP?}
+
+\begin{table}
+  \begin{tabular}{l|ccccccc}
+    \rowcolor[gray]{0.9}
+    Application                      & \multicolumn{7}{c}{Input/Output properties} \\
+    \rowcolor[gray]{0.9}
+                                     & Dependencies      &Groups             & Lists             & Optional          &Default            & Enum              & Min/max\\
+    
+    \hline
+    Niak pre-processing              &                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\\
+    ICA AROMA                        &\cellcolor{gray!75}&\cellcolor{gray!75}&                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}\\
+    FSL tools &&&&&&\\
+    \multicolumn{1}{r|}{anat}        &\cellcolor{gray!75}&\cellcolor{gray!75}&                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}\\
+    \multicolumn{1}{r|}{bet}         &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&                   &                   &\cellcolor{gray!75}\\      
+    \multicolumn{1}{r|}{fast}        &\cellcolor{gray!75}&                   &                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}\\
+    \multicolumn{1}{r|}{first}       &                   &                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&                   &                   \\
+    FSL Nipype interfaces     \\
+    HCP PreFreesurfer                &                   &                   &                   &                   &                   &                   &                   \\
+    MICCAI challenge (23 pipelines)\\&                   &                   &                   &                   &                   &                   & \\
+    \end{tabular}
+  \vspace*{0.5cm}
+  \begin{tabular}{l|ccc|ccc}
+    \hline
+    \rowcolor[gray]{0.9}
+    Application                     &\multicolumn{3}{c|}{Containers}            &  \multicolumn{3}{c}{Other properties}  \\
+    \rowcolor[gray]{0.9}
+                                    &Docker              & Singularity& Rootfs  & Config. file & Env vars  & Parallelization   \\
+    \hline
+    Niak pre-processing             &\cellcolor{gray!75} &            &         &              &\cellcolor{gray!75}&\cellcolor{gray!75}\\
+    ICA AROMA                       &\cellcolor{gray!75} &            &         &              &&\\
+    FSL tools &&&&&\\
+    \multicolumn{1}{r|}{anat}       &                    &            &         &              &&\\
+    \multicolumn{1}{r|}{bet}        &                    &            &         &              &&\\
+    \multicolumn{1}{r|}{fast}       &                    &            &         &              &&\\
+    \multicolumn{1}{r|}{first}      &                    &            &         &              &&\\
+    FSL Nipype interfaces     \\
+    HCP PreFreesurfer               &\cellcolor{gray!75} &            &         &             &&\\
+    MICCAI challenge (23 pipelines) &\cellcolor{gray!75} &            &         &             &&\\
+  \end{tabular} 
+  \caption{Applications available in Boutiques with manifest features used.}
+  \label{table:applications}
+\end{table}
+
+\section{Discussion}
+
+\begin{itemize}
+\item Security: containers may be updated after being integrated in the platforms.
+\item The manifest specification is getting increasingly complex, but
+  this complexity is required to describe real-world
+  applications. When something cannot be described using the manifest,
+  it is always possible to change the command line format by writing a
+  wrapper script for the application. However, when containers are
+  used, the wrapper script needs to be added to the container, which
+  has some overhead (in particular, the containers provided by the
+  developers cannot be used directly).
+\item Testing is critical.
+  \item Workflow engines can be platforms (they can run Boutiques tools), workflows can be applications (they can be described in Boutiques). 
+\end{itemize}
 
 \section{Related work}
 
@@ -608,9 +662,7 @@ between CWL and Boutiques are the following:
 \end{itemize}
 \end{itemize}
 
-\todo{Tristan}{Update from comparison summary on Google doc}
-
-\section{Discussion}
+\todo{Update from comparison summary on Google doc}
 
 % How to build modular container images for workflows.
 
