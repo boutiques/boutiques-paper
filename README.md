@@ -20,5 +20,5 @@ Use command ```\note``` in ```paper.tex``` as follows: ```\note{John}{This is a 
 
 # Latex installation
 
-* On Linux Fedora 24: ```dnf install texlive-bin texlive-bibtex-bin texlive-minted texlive-pdfcomment texlive-collection-fontsrecommended```. 
+* On Linux Fedora 24: ```dnf install texlive-bin texlive-bibtex-bin texlive-minted texlive-pdfcomment texlive-collection-fontsrecommended texlive-algorithmicx```. 
 
