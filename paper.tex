@@ -5,7 +5,6 @@
 \usepackage{minted} % Used for JSON highlighting
 \usepackage{pdfcomment} % Used for notes and todos
 \usepackage[margin=1in]{geometry} % Increases margins
-\usepackage{lscape} % Used to put a section in landscape mode
 \usepackage[table]{xcolor} % Color definitions
 \usepackage{algorithm} % Algorithm float
 \usepackage{algpseudocode} % Algorithmic environment
@@ -388,8 +387,7 @@ line is constructed from the application manifest and values entered
 by the user. It substitutes all the value keys in the command line,
 output path templates and configuration files, and writes the
 configuration files.
-
-\begin{algorithm}[htb]
+\begin{algorithm}[h!]
 \caption{Command-line construction}
 \label{algo:command-line}
 \begin{algorithmic}
@@ -501,30 +499,51 @@ property, although this has not been tested.
 
 Table~\ref{table:applications} summarizes the applications described
 with Boutiques and the main features used.
-\begin{landscape}
-  \begin{table}
-  \rowcolors{2}{gray!25}{white}
-  \begin{tabular}{l|ccc|ccccccc|cc}
-    Application               &\multicolumn{3}{c|}{Containers} & \multicolumn{7}{c|}{Input/Output properties}                         & \multicolumn{2}{c}{Other properties}  \\
-                              &Docker              & Singularity & Rootfs  & Dependencies      &Groups             & Lists             & Optional          &Default            & Enum              & Min/max           & Config. file & Env vars     \\
+
+\begin{table}
+  \begin{tabular}{l|ccccccc}
+    \rowcolor[gray]{0.9}
+    Application               &\multicolumn{7}{c}{Input/Output properties} \\
+    \rowcolor[gray]{0.9}
+    & Dependencies      &Groups             & Lists             & Optional          &Default            & Enum              & Min/max\\
+    
     \hline
-    Niak pre-processing       &\cellcolor{gray!75} &            &         &                   &\cellcolor{gray!75}&                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&              &\cellcolor{gray!75}\\
-    ICA AROMA                 &\cellcolor{gray!75} &            &         &\cellcolor{gray!75}&\cellcolor{gray!75}&                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&              &\\
-    FSL tools &&&&&&&&&&&&\\
-    \multicolumn{1}{r|}{anat} &                    &            &         &\cellcolor{gray!75}&\cellcolor{gray!75}&                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&              &\\
-    \multicolumn{1}{r|}{bet}  &                    &            &         &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&                   &                   &\cellcolor{gray!75}&              &\\      
-    \multicolumn{1}{r|}{fast} &                    &            &         &\cellcolor{gray!75}&                   &                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&              &\\
-    \multicolumn{1}{r|}{first}&                    &            &         &                   &                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&                   &                   &              &\\
+    Niak pre-processing       &                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\\
+    ICA AROMA                 &\cellcolor{gray!75}&\cellcolor{gray!75}&                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}\\
+    FSL tools &&&&&&\\
+    \multicolumn{1}{r|}{anat} &\cellcolor{gray!75}&\cellcolor{gray!75}&                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}\\
+    \multicolumn{1}{r|}{bet}  &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&                   &                   &\cellcolor{gray!75}\\      
+    \multicolumn{1}{r|}{fast} &\cellcolor{gray!75}&                   &                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}\\
+    \multicolumn{1}{r|}{first}&                   &                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&                   &                   \\
     FSL Nipype interfaces     \\
-    HCP PreFreesurfer         &\cellcolor{gray!75} &            &         &                   &                   &                   &                   &                   &                   &                   &              &\\
+    HCP PreFreesurfer         &                   &                   &                   &                   &                   &                   &                   \\
     MSSEG MICCAI pipelines    \\
     PETSEG MICCAI pipelines   \\
-\end{tabular}
-\caption{Applications available in Boutiques with manifest features used.}
-\label{table:applications}
-  \end{table}
-  \end{landscape}
-
+    \end{tabular}
+  \vspace*{0.5cm}
+  \begin{tabular}{l|ccc|ccc}
+    \hline
+    \rowcolor[gray]{0.9}
+    Application               &\multicolumn{3}{c|}{Containers} &  \multicolumn{3}{c}{Other properties}  \\
+    \rowcolor[gray]{0.9}
+    &Docker              & Singularity & Rootfs  & Config. file & Env vars  & Parallelization   \\
+    \hline
+    Niak pre-processing       &\cellcolor{gray!75} &            &         &              &\cellcolor{gray!75}&\cellcolor{gray!75}\\
+    ICA AROMA                 &\cellcolor{gray!75} &            &         &              &&\\
+    FSL tools &&&&&\\
+    \multicolumn{1}{r|}{anat} &                    &            &         &              &&\\
+    \multicolumn{1}{r|}{bet}  &                    &            &         &              &&\\
+    \multicolumn{1}{r|}{fast} &                    &            &         &              &&\\
+    \multicolumn{1}{r|}{first}&                    &            &         &              &&\\
+    FSL Nipype interfaces     \\
+    HCP PreFreesurfer         &\cellcolor{gray!75} &            &         &             &&\\
+    MSSEG MICCAI pipelines    \\
+    PETSEG MICCAI pipelines   \\
+  \end{tabular} 
+  \caption{Applications available in Boutiques with manifest features used.}
+  \label{table:applications}
+\end{table}
+  
 \subsection{Platforms}
 
 \paragraph{CBRAIN}
