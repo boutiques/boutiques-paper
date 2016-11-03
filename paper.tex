@@ -8,11 +8,13 @@
 \usepackage[table]{xcolor} % Color definitions
 \usepackage{algorithm} % Algorithm float
 \usepackage{algpseudocode} % Algorithmic environment
+\usepackage{xspace}
 
 %%%% Commands %%%%
 
 \newcommand{\note}[2]{\pdfmargincomment[color=yellow,author=#1,open=true]{#2}}
-\newcommand{\todo}[2]{\color{red}TODO: #1\color{black}}
+\newcommand{\todo}[1]{\color{red}TODO: #1\color{black}}
+\newcommand{\boutiques}{Boutiques\xspace}
 \algrenewcommand{\algorithmiccomment}[1]{\# \textit{#1}} % so that comments in algorithms are preprended by '#' instead of a small right arrow
 
 \title{Boutiques: a flexible framework for automated application integration in computing platforms}
@@ -27,22 +29,77 @@
 
 \maketitle
 
+\abstract{Porting applications to execution platforms is a critical
+  step to enable their sharing among scientific communities and their
+  efficient execution on computing infrastructures. However,
+  application porting remains a costly human effort that consists of
+  1)~installing the application on the target infrastructure,
+  2)~describing the application in a format compatible with the
+  execution platform, and 3)~generating proper user interfaces. Due to
+  the variety of platforms, application porting efforts are often
+  replicated several times while mutualization would save cost and
+  improve the quality of the ported applications. We describe
+  \emph{boutiques}, a system that allows for automatic import and
+  exchange of applications across platforms. Boutiques relies on Linux
+  containers to solve the problem of application installation in a
+  lightweight manner. It also adopts a rich and flexible application
+  description format which is versatile enough to be used in various
+  platforms. Boutiques is currently supported by \todo{X} platforms
+  and was used to describe \todo{Y} applications.
+}
+
 \section{Introduction}
 
-Why Linux. Define application. Define computing platforms. Explain the
-problem and why it is difficult. Approach: start simple and enrich the
-spec when new applications come. Refer to computing infrastructures
-and the need for parallelization. Who are
-the developers. Refer to neuroinformatics field. 
+Platforms such as web services, portals, virtual research
+environments, science gateways and workflow engines often rely on
+third-party data processing and simulation applications to deliver
+services to their users. Such applications are often repeatedly and
+manually ported to various platforms whereas this porting effort would
+greatly benefit from being mutualized. Virtual container systems such
+as Docker and Singularity greatly facilitate the sharing of
+applications executed in Linux systems, and improve the
+reproducibility of analyses by defining immutable, reusable execution
+environments. However, containers need to be properly annotated to
+allow platforms to leverage the applications that they
+contain. Basically, the command lines that can be run in a container
+must be formally described so that they can be automatically created
+and executed by platforms. Describing command lines is not
+straightforward since they often contain implicit semantics specified
+in human-readable documents such as manuals.
 
-Vocabulary (check consistency across the paper):
-\begin{itemize}
-\item tool vs. application.
-\item descriptor vs. manifest.
-\item task vs. invocation.
-\end{itemize}
+In Section~\ref{sec:system}, we describe \boutiques, a system to share
+command-line applications across platforms. In \boutiques, a command
+line is described from a flexible template referring to the inputs it
+requires and the outputs it produces. Inputs may be inter-dependent,
+e.g., input A is available only if input B was defined and passed in
+configuration files or directly on the command line. Such formal
+descriptions, also called \emph{manifests}, allows for advanced
+validation of input values, which is useful error detection. Manifests
+refer to containers where applications and all their dependencies are
+installed. \boutiques also provides a simple parallelization framework
+that allows applications such as workflow engines to execute multiple
+tasks concurrently. A set of core tools facilitates the construction,
+validation and execution of \boutiques manifests. A repository
+orchestrates these tools together.
+
+\boutiques was created using a bottom-up approach in which new
+features were progressively added as applications and platforms
+required. It was used to describe \todo{Y} applications and it is
+supported by \todo{X} platforms, which we report in
+Section~\ref{sec:results}.
+
+\boutiques manifests are intented to be produced by scientific
+application developers, to be published in common repositories, and to
+be consumed by execution platforms. Although the motivating use cases
+were taken from neuroinformatics, our primary field of interest,
+nothing prevents the system from being used in a variety of other
+fields.
+
+\note{Tristan}{Vocabulary (check consistency across the paper): tool vs. application; descriptor vs. manifest; task vs. invocation}
+\note{Tristan}{Targeted journals: Scientific Data, Giga Science, Frontiers in Neuroinformatics, Future Generation Computer Systems}
 
 \section{System description}
+\label{sec:system}
 
 The application is described with a \emph{manifest} that specifies the
 command-line template, inputs and outputs. The manifest may point to a
@@ -467,11 +524,14 @@ to add invocation schemas to existing manifests, and by platforms to
 validate input data. Validation is done using a basic JSON
 validator.
 
+\todo{json editor}
+
 \subsection{Repository}
 
 \todo{Gunnar, Nathaniel, John}
 
 \section{Results}
+\label{sec:results}
 
 \subsection{Supported platforms}
 
@@ -538,15 +598,19 @@ non-existent or deleted files can be detected. It also allows users to
 edit lists using their own tools such as scripts or spreadsheet
 applications.
 
-\paragraph{Pegasus}
+\subsection{Flywheel}
+
+\todo{Gunnar, Nathanael, John}
+
+\subsection{Pegasus}
 
 \todo{Rafael}
 
-\paragraph{SPINE}
+\subsection{SPINE}
 
 \todo{Charles}
 
-\paragraph{VIP}
+\subsection{VIP}
 
 
 \subsection{Ported applications}
