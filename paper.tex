@@ -21,9 +21,9 @@
 
 \author{Tristan Glatard, Tristan Aumentado-Armstrong, Natacha Beck, Pierre Bellec,\\
         Remi Bernard, Sorina Camarasu-Pop, Fr\'ed\'eric Cervenansky, Samir Das, \\
-        Rafael Ferreira da Silva, John Flavin, Pascal Girard, Krzysztof J. Gorgolewski, \\
-        Charles G. Guttmann, Nathaniel Kofalt, Pierre-Olivier Quirion, Pierre Rioux,\\
-        Gunnar Schaeffer, Marc-\'Etienne Rousseau, Alan C. Evans}
+        Rafael Ferreira da Silva, Guillaume Flandin, John Flavin, Pascal Girard, \\
+         Krzysztof J. Gorgolewski, Charles G. Guttmann, Nathaniel Kofalt, Pierre-Olivier Quirion,\\
+         Pierre Rioux, Gunnar Schaeffer, Marc-\'Etienne Rousseau, Alan C. Evans}
 
 \maketitle
 
@@ -556,7 +556,7 @@ applications.
 Table~\ref{table:applications} summarizes the applications described
 with Boutiques and the main features used.
 
-The Niak pre-processing pipeline, executed with the Pipeline System
+\paragraph{Niak.} The Niak pre-processing pipeline, executed with the Pipeline System
 for Octave and Matlab (PSOM)~\cite{bellec2012pipeline}, was integrated
 in CBRAIN using Boutiques. The integration uses the parallelization
 mechanism described in Section~\ref{sec:parallelization} so that even
@@ -569,7 +569,18 @@ application. The resulting CBRAIN plugin is available at
 principle be used in other platforms that support the parallelization
 property, although this has not been tested.
 
-Boutiques was also used to port to the VIP platform the 23 pipelines
+\paragraph{Nipype.} The Nipype workflow engine~\cite{gorgolewski2011nipype} was
+instrumented to export to Boutiques applications described in its
+internal Python description language. \todo{Update nipype\_cmd to
+  support the latest Boutiques schema and complete this paragraph.}
+
+\paragraph{SPM.} The Statistical Parameter Mapping toolbox (SPM)~\cite{penny2011statistical}
+was exported to Boutiques through a specific \texttt{spm2boutiques}
+tool that writes Boutiques manifests from configuration files of SPM
+functions (object declarations). \todo{More on that when it is
+  completed.}
+
+\paragraph{MICCAI challenges.} Boutiques was also used to port to the VIP platform the 23 pipelines
 involved in two computational challenges organized by the MICCAI
 conference in 2016, related to the segmentation of multiple-sclerosis
 lesions in MR images and of tumor volumes in PET images. The pipeline
@@ -600,20 +611,16 @@ and \texttt{vip:miccai-challenge-team-name}) were added to the
 Boutiques manifest to help VIP handle pipeline results for the 2016
 MICCAI challenges.
 
-The Nipype workflow engine~\cite{gorgolewski2011nipype} was
-instrumented to export to Boutiques applications described in its
-internal Python description language. \todo{Update nipype\_cmd to
-  support the latest Boutiques schema and complete this paragraph.}
-
-Other neuroinformatics tools were ported to CBRAIN using Boutiques:
+\paragraph{Other tools.} Other neuroinformatics tools were ported to CBRAIN using Boutiques:
 FSL tools and ICA AROMA are available at
-\url{https://github.com/aces/cbrain-plugins-neuro} and some
-pipelines of the Human Connectome Project (HCP) are at
+\url{https://github.com/aces/cbrain-plugins-neuro} and some pipelines
+of the Human Connectome Project (HCP) are at
 \url{https://github.com/big-data-lab-team/cbrain-plugins-hcp}.
 
-\todo{SPM}
 
 \todo{Chris, something on BIDS apps?}
+
+
 
 \todo{Sorina, a paragraph on other applications in VIP?}
 
