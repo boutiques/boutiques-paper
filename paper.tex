@@ -15,6 +15,7 @@
 \newcommand{\note}[2]{\pdfmargincomment[color=yellow,author=#1,open=true]{#2}}
 \newcommand{\todo}[1]{\color{red}TODO: #1\color{black}}
 \newcommand{\boutiques}{Boutiques\xspace}
+\newcommand{\notimplementedyet}[1]{\color{blue}\emph{#1}\footnote{Still needs to be implemented}\color{black}\xspace}
 \algrenewcommand{\algorithmiccomment}[1]{\# \textit{#1}} % so that comments in algorithms are preprended by '#' instead of a small right arrow
 
 \title{Boutiques: a flexible framework for automated application integration in computing platforms}
@@ -29,24 +30,23 @@
 
 \maketitle
 
-\abstract{Porting applications to execution platforms is a critical
-  step to enable their sharing among scientific communities and their
-  efficient execution on computing infrastructures. However,
-  application porting remains a costly human effort that consists of
-  1)~installing the application on the target infrastructure,
-  2)~describing the application in a format compatible with the
-  execution platform, and 3)~generating proper user interfaces. Due to
-  the variety of platforms, application porting efforts are often
-  replicated several times while mutualization would save cost and
-  improve the quality of the ported applications. We describe
-  \emph{boutiques}, a system that allows for automatic import and
-  exchange of applications across platforms. Boutiques relies on Linux
-  containers to solve the problem of application installation in a
-  lightweight manner. It also adopts a rich and flexible application
-  description format which is versatile enough to be used in various
-  platforms. Boutiques is currently supported by \todo{X} platforms
-  and was used to describe \todo{Y} applications.
-}
+\abstract{Porting applications to execution platforms such as web
+  portals and workflow engines is critical to enable their sharing
+  among scientific communities and their efficient execution on
+  computing infrastructures. However, application porting remains a
+  costly human effort that consists of 1)~installing the application
+  on the target infrastructure, 2)~describing the application in a
+  format compatible with the execution platform, and 3)~generating
+  proper user interfaces. Due to the variety of platforms, application
+  porting efforts are often replicated several times while
+  mutualization would save cost and improve the quality of the ported
+  applications. We describe \boutiques, a system that allows for
+  automatic import and exchange of applications across
+  platforms. \boutiques adopts a rich, flexible application
+  description format and it relies on Linux containers to install
+  applications across platforms in a lightweight manner. It is
+  currently supported by \todo{X} platforms and was used to describe
+  \todo{Y} applications.  }
 
 \section{Introduction}
 
@@ -55,118 +55,111 @@ environments, science gateways and workflow engines often rely on
 third-party data processing and simulation applications to deliver
 services to their users. Such applications are often repeatedly and
 manually ported to various platforms whereas this porting effort would
-greatly benefit from being mutualized. Virtual container systems such
-as Docker and Singularity greatly facilitate the sharing of
-applications executed in Linux systems, and improve the
-reproducibility of analyses by defining immutable, reusable execution
-environments. However, containers need to be properly annotated to
-allow platforms to leverage the applications that they
-contain. Basically, the command lines that can be run in a container
-must be formally described so that they can be automatically created
-and executed by platforms. Describing command lines is not
+greatly benefit from being mutualized. Meanwhile, virtual container
+systems such as Docker and Singularity greatly facilitate the sharing
+of software and improve the reproducibility of analyses by defining
+immutable, reusable execution environments. However, containers need
+to be properly annotated to allow platforms to leverage the software
+they contain. Basically, the command lines that can be run in a
+container must be formally described so that they can be automatically
+created and executed by platforms. Describing command lines is not
 straightforward since they often contain implicit semantics specified
 in human-readable documents such as manuals.
 
-In Section~\ref{sec:system}, we describe \boutiques, a system to share
-command-line applications across platforms. In \boutiques, a command
-line is described from a flexible template referring to the inputs it
-requires and the outputs it produces. Inputs may be inter-dependent,
-e.g., input A is available only if input B was defined and passed in
-configuration files or directly on the command line. Such formal
-descriptions, also called \emph{manifests}, allows for advanced
-validation of input values, which is useful error detection. Manifests
-refer to containers where applications and all their dependencies are
-installed. \boutiques also provides a simple parallelization framework
-that allows applications such as workflow engines to execute multiple
-tasks concurrently. A set of core tools facilitates the construction,
-validation and execution of \boutiques manifests. A repository
-orchestrates these tools together.
+\boutiques is a system to share command-line applications across
+platforms. In \boutiques, a command line is described using a flexible
+template comprising the inputs it requires and the outputs it
+produces. Inputs may be inter-dependent, e.g., input A cannot be used
+if input B is used, and passed in configuration files or directly on
+the command line. Such formal descriptions, also called
+\emph{manifests}, allow for advanced validation of input values to
+prevent errors. Manifests refer to containers where applications and
+all their dependencies are installed. \boutiques also provides a
+simple parallelization framework that allows applications such as
+workflow engines to concurrently execute multiple tasks (in the
+remainder, tasks are called \emph{invocations}). A set of core tools
+facilitate the construction, validation and execution of \boutiques
+manifests. A repository orchestrates these tools together. \boutiques
+manifests are intented to be produced by scientific application
+developers, to be published in common repositories and to be consumed
+by execution platforms.
 
-\boutiques was created using a bottom-up approach in which new
-features were progressively added as applications and platforms
-required. It was used to describe \todo{Y} applications and it is
-supported by \todo{X} platforms, which we report in
-Section~\ref{sec:results}.
+The remainder of this paper describes the \boutiques system
+(Section~\ref{sec:system}) and reports on its adoption by platforms
+and applications in the neuroinformatics domain, our primary field of
+interest (Section~\ref{sec:results}). It closes on a discussion and
+comparison with related systems.
 
-\boutiques manifests are intented to be produced by scientific
-application developers, to be published in common repositories, and to
-be consumed by execution platforms. Although the motivating use cases
-were taken from neuroinformatics, our primary field of interest,
-nothing prevents the system from being used in a variety of other
-fields.
-
-\note{Tristan}{Vocabulary (check consistency across the paper): tool vs. application; descriptor vs. manifest; task vs. invocation}
+\note{Tristan}{Vocabulary (check consistency across the paper): tool vs. application}
 \note{Tristan}{Targeted journals: Scientific Data, Giga Science, Frontiers in Neuroinformatics, Future Generation Computer Systems}
 
 \section{System description}
 \label{sec:system}
 
-The application is described with a \emph{manifest} that specifies the
+Applications are described with a JSON manifest that specifies the
 command-line template, inputs and outputs. The manifest may point to a
 container where the application and all its dependencies are
 installed. It may also contain an invocation schema used for input
-validation. At runtime, the execution \emph{platform} builds the
-application command line from the manifest and values entered by the
-user. The platform runs the command line on the execution
-infrastructure, e.g., a server, a cluster or a cloud, within a
-container whenever available. To build and run the command line, the
-platform may rely on the Boutiques \emph{core tools}, in particular on
-the Boutiques validator and local executor. Application manifests may
-be stored in the \emph{repository}, which provides additional features.
+validation. At runtime, the execution platform builds the command line
+from the manifest and values entered by the user. The platform runs
+the command line on the execution infrastructure, e.g., a server, a
+cluster or a cloud, within a container whenever available. To build
+and run the command line, the platform may rely on the \boutiques core
+tools, in particular on the validator and local executor. Application
+manifests may be stored in the repository which provides additional
+features.
 
 \subsection{Command-line description}
 
-The core component of the JSON manifest is a flexible command-line
+The core component of the manifest is a flexible command-line
 description represented as a simple string template complying to the
-syntax of the \texttt{bash} Linux shell interpreter. The command line
+syntax of the \texttt{bash} UNIX shell. \texttt{bash} is the default
+shell on the major Linux distributions and OS X. The command-line
 template may contain placeholders for input and output values, called
-value keys. The value keys may be any string, and the
-command line may actually encompass several commands, e.g., separated
-by semicolumns, pipes (\texttt{|}) or ampersands (\texttt{\&}). Such a
-flexible command-line specification is meant to facilitate the
-embedding of minor operations on the command line, for instance input
-decompression and output archival, avoiding the use of multiple
-``shims'' to align mismatching applications in a
-pipeline~\cite{hull2004treating}.
+value keys. The command line may actually
+encompass several commands separated, e.g., by semicolumns, pipes
+(\texttt{|}) or ampersands (\texttt{\&}). Such a flexible command-line
+specification is meant to facilitate the embedding of minor mundane
+operations on the command line, for instance directory creation, input
+decompression or output archival.
 
 Here is an example of a typical command-line template:
 \begin{verbatim}
 exampleTool_1 [STRING_INPUT] [FILE_INPUT] [ENUM_INPUT] | \
                               exampleTool_2 [FLAG_INPUT] [NUMBER_INPUT] >> [LOG].txt
 \end{verbatim}
-The template contains six value keys for input and output
-values. When the application is executed, such keys will be replaced
-by values and file names according to the user input. Flags will also
-be added wherever appropriate, with customizable separators. No
-particular syntax is imposed for the value keys, they just have
-to be unique.  Note the use of the pipe (\texttt{|}) operator to chain
-tools, and of the \texttt{>>} operator to redirect the standard output
-to a file.
+The template contains six value keys for input and output values, that
+will be replaced by values and file names according to the user input
+when the application is executed. Flags will also be added wherever
+appropriate, with customizable separators. No particular syntax is
+imposed for the value keys, they just have to be unique.  Note the use
+of the pipe (\texttt{|}) operator to chain applications, and of the
+\texttt{>>} operator to redirect the standard output to a file.
 
 \subsection{Input description}
 
 \paragraph{General properties.} Inputs must have a name, a unique
 identifier and a type. They may be optional, have a description, a
-value key, a flag and flag separator, and a default
-value. Inputs may also be ordered lists; in this case, value
-keys are substituted by the space-separated list of input values.
+value key, a flag and flag separator, and a default value. Inputs may
+also be ordered lists: in this case, value keys are substituted by the
+space-separated list of input values.
 
 \paragraph{Types.} Inputs may be of type \texttt{String},
 \texttt{Number}, \texttt{Flag} or \texttt{File}. \texttt{File} may
-also represent a directory. Types can be restricted to a specific set
+also represents a directory. Types can be restricted to a specific set
 of values (\texttt{String} and \texttt{Number} only), to a specific
 range (\texttt{Number} only), to integers or to booleans (\texttt{Number}
 only).
 
 \paragraph{Groups and dependencies.} Groups of inputs may be defined
-from a identifier, name and list of input identifiers. Groups may be
+with a identifier, name and list of input identifiers. Groups may be
 used to improve the presentation in a graphical user interface and to
 specify the following constraints among inputs: (1)
 \texttt{mutually-exclusive}: only one input in the group may have a
 value; (2) \texttt{one-is-required}: at least one input in the group
 must have a value. Dependencies among inputs may also be defined
 regardless of a particular group: an input may (1) require a list of
-inputs (2) disable a list of inputs.
+inputs and (2) disable a list of inputs.
 
 Listing~\ref{listing:input-example} shows the definition of an input
 in the command line exemplified above. According to this definition
@@ -199,27 +192,26 @@ the command line at execution time.
 
 \subsection{Output description}
 
-Application outputs are the files or directories that need to be
+Application outputs are files and directories that need to be
 transferred and delivered to the user once the execution is
 complete. Although it may not be required to distinguish inputs from
 outputs to build the application command line, this information is
-needed by computing platforms to identify the files that must be
-saved after the execution.
+needed by computing platforms to identify the files that must be saved
+after the execution.
 
-In Boutiques, output files are defined from a unique identifier, a
-name and a path template that specifies the file or directory
-name. Path templates may include input value keys in case
-output files are named after the input values. Input values may be
-stripped from specific strings, e.g., file extensions before being
-substituted in the path template. Output files may also have a
-description, a command-line flag, a flag separator, and a value
-key in case they appear on the command line. They may be optional in
-case the file is not always produced by the application, for instance
-when it is produced only when a particular flag is activated. They
-may also be (un-ordered) lists; in this case, the path template must
-contain a wildcard (\texttt{*}) matching any string of characters
-and defining the pattern used to match the
-output files in the list.
+In \boutiques, output files must have a unique identifier, a name and
+a path template that specifies the file or directory name. Path
+templates may include input value keys in case output files are named
+after the input values. In this case, input values may be stripped
+from specific strings, e.g., file extensions before being substituted
+in the path template. Output files may also have a description, a
+command-line flag, a flag separator, and a value key in case they
+appear on the command line. They may be optional in case the file is
+not always produced by the application, for instance when it is
+produced only when a particular flag is activated. They may also be
+(un-ordered) lists: in this case, the path template must contain a
+wildcard (\texttt{*}) matching any string of characters and defining
+the pattern used to match the output files in the list.
 
 Listing~\ref{listing:output-example} shows the definition of an output
 file in the command line exemplified before. According to this
@@ -237,7 +229,7 @@ replaced by \texttt{log-foo} on the command line at execution time.
 {
     "id" : "logfile",
     "name" : "Log file",
-    "description" : "The output log file from the example tool",
+    "description" : "The output log file from the example application",
     "path-template" : "log-[STRING_INPUT]",
     "value-key" : "[LOG]",
     "path-template-stripped-extensions" : [".txt", ".csv"],
@@ -258,18 +250,15 @@ allow for better structure and documentation.
 
 Configuration files may be complex though, and specified in any
 language.  As it does not seem reasonable to adopt a particular
-template for configuration files, the Boutiques specification allows
-application developers to specify their own template, referring to
-input and output value keys. Configuration files are specific types of
-output files that have a
- file template defined. As output files, 
-they must have a path template that defines
-how they must be named and where they must be written. They may also
-have a value key and a flag in case they need to be passed on the
-command line. 
-
-
-Listing~\ref{listing:configuration-file-example} shows an example.
+template for configuration files, the \boutiques specification allows
+application developers to specify their own template containing input
+and output value keys. Configuration files are specific types of
+output files that must have a file template in addition to a path
+template that defines how they will be named and where they will be
+written. They may also have a value key and a flag in case they need
+to be passed on the command
+line. Listing~\ref{listing:configuration-file-example} shows an
+example.
 \begin{listing}
 \begin{minted}[frame=single,
                framesep=3mm,
@@ -297,149 +286,20 @@ Listing~\ref{listing:configuration-file-example} shows an example.
 \label{listing:configuration-file-example}
 \end{listing}
 
-\subsection{Invocation schema}
-\label{sec:invocation-schema}
-
-Rigorous input validation is an important motivation for
-Boutiques. The obvious solution in our context is to rely on an
-application-specific JSON schema, called ``invocation schema'', to
-specify the correct input values that an application
-accepts. Platforms could rely on the invocation schema to validate
-inputs automatically using any JSON validator, without having to
-develop specific code.
-
-Invocation schemas, however, are complex JSON objects. Basically, they
-must represent the properties described above in a formal way,
-including dependencies between
-inputs. Listing~\ref{listing:invocation-schema-example} shows an
-example of how dependencies between mutually exclusive parameters are
-defined in the invocation schema.
-
-The invocation schema also has a \texttt{task-dependencies} array that
-specifies that the new invocation to start only when all the
-invocations in this array have completed. This property is used in the
-parallelization model described hereafter.
-
-\begin{listing}
-\begin{minted}[frame=single,
-               framesep=3mm,
-               linenos=false,
-               xleftmargin=21pt,
-               tabsize=4]{js}
-"dependencies" : {
-      "num_input" : {
-         "properties" : {
-            "str_input" : {
-               "not" : {}
-            }
-         }
-      },
-      "str_input" : {
-         "properties" : {
-            "num_input" : {
-               "not" : {}
-            }
-         }
-      }
-   }
-\end{minted}
-\caption{Excerpt from invocation schema showing dependencies between
-  two mutually exclusive parameters \texttt{num\_input} and
-  \texttt{str\_input}.}
-\label{listing:invocation-schema-example}
-\end{listing}
-
-
-It does not seem realistic to assume that developers will easily write
-correct JSON schemas for their applications. Instead, invocation
-schemas should be generated automatically using a core Boutiques
-tool. Accordingly, invocation schema is an optional property of the
-Boutiques manifest, that platforms or developers may generate using
-the appropriate tool.
-
-\subsection{Parallelization support}
-\label{sec:parallelization}
-Boutiques support parallelism by allowing applications to submit new
-tasks through the following protocol:
-\begin{enumerate}
-\item Applications write a JSON object complying to the invocation
-  schema in the directory where there were launched.
-\item The platform reads the JSON object, creates the corresponding
-  task, and writes back the task id in the same directory.
-% The platform could also support status requests.
-\end{enumerate}
-Several invocations can be submitted at once, possibly using the
-\texttt{task-dependencies} array to specify dependencies among
-them. This mechanism is implemented in the Boutiques schema using a
-single property, \texttt{can-submit-tasks}.
-
-Although very simple, this model allows wrapping complete
-workflows. Workflows are wrapped as any other application, and they
-can be executed using any engine such as Nipype, PSOM and others,
-provided that such engines are installed in the container image
-referred in the application manifest. 
-
-The adopted ``task encapsulation'' model is very simple but it
-allows for a scalable and reliable execution of workflows expressed in
-a variety of languages, as detailed in ~\cite{glatard2016fgcs}.
-
-\subsection{Containers}
-
-The implementation of the application is defined in a container image
-in the Docker, Singularity or rootfs format. We intentionally support
-multiple container formats as we anticipate that they will be used for
-different purposes. For instance, Docker is well suited for
-application developers and users who want to use applications on their
-local workstation. It is very well documented, maintained and it has a
-rich ecosystem of tools to help build and run containers on most
-platforms, including Windows, MacOS and Linux. Singularity is more
-suited for users and platforms that need to run applications on shared
-computing clusters. Bridges exist among these containers formats to
-convert container images across frameworks. For instance, a platform
-dedicated to high-performance computing may accept manifests referring
-to Docker containers to facilitate application integration by
-developers, and internally convert container images to Singularity to
-run applications efficiently on clusters.
-
-Container images are defined from their URL (Singularity and rootfs)
-or name in a Docker index. Container images may specify a working
-directory where the application has to be run. A hash may also be
-reported to accurately identify container images and detect updates.
-
-Containers are adopted because they allow for an automated and
-lightweight integration of application implementations in
-platforms. They are extremely useful to improve the reproducibility of
-analyses as variations in the software environment may have an
-important impact on the computed results. They also have limitations,
-in particular they do not specify the hardware architecture required
-to execute an application, which can be an issue in some cases.
-
-Containers are not mandatory though. If an application manifest does
-not contain any reference to a container, the platform will assume
-that the application is pre-installed on the execution infrastructure. 
-
-\subsection{Custom properties}
-
-Custom properties may be added to the Boutiques specification without
-restriction. They may be useful to implement platform-specific
-features but they should be used with care to avoid making tools
-dependent on a particular platform. 
-
 \subsection{Command-line construction}
 
 At runtime, a value is assigned to all the mandatory and some of the
-optional inputs. Inputs of type "String" may contain any string,
-inputs of type "Number" must contain a string representing a number,
-inputs of type "File" must contain a string representing a file path
-(absolute or relative to the execution directory) and inputs of type
-"Flag" must contain a boolean. When input is a list, the value
-contains the concatenation of all strings in the list.
-
-Algorithm~\ref{algo:command-line} shows how the application command
-line is constructed from the application manifest and values entered
-by the user. It substitutes all the value keys in the command line,
-output path templates and configuration files, and writes the
-configuration files.
+optional inputs. %% Inputs of type ``String'' may contain any string,
+%% inputs of type "Number" must contain a string representing a number,
+%% inputs of type "File" must contain a string representing a file path
+%% (absolute or relative to the execution directory) and inputs of type
+%% "Flag" must contain a boolean. 
+%% When input is a list, the value contains the concatenation of all the
+%%values in the list.
+Algorithm~\ref{algo:command-line} shows how the command line is
+constructed from the manifest and the values entered by the user. It
+substitutes all the value keys in the command line, output path
+templates and configuration files, and writes the configuration files.
 \begin{algorithm}[h!]
 \caption{Command-line construction}
 \label{algo:command-line}
@@ -487,44 +347,167 @@ configuration files.
 \end{algorithmic}
 \end{algorithm}
 
+\subsection{Invocation schema}
+\label{sec:invocation-schema}
+
+Rigorous input validation is an important motivation for
+\boutiques. The obvious solution for JSON documents is to rely on an
+application-specific JSON schema, called \emph{invocation schema}, to
+specify the input values accepted by an application. Platforms can
+rely on invocation schemas to validate inputs using
+any JSON validator, without having to develop specific code.
+
+Invocation schemas, however, are complex JSON objects. Basically, they
+must represent the properties described above in a formal way,
+including dependencies between
+inputs. Listing~\ref{listing:invocation-schema-example} shows an
+example of how dependencies between mutually exclusive parameters are
+defined in the invocation schema. As it does not seem realistic to
+assume that developers will easily write correct invocations schemas
+even for their own applications, invocation schemas can be generated
+automatically using a core \boutiques tool. The invocation schema is
+stored as an optional property of the Boutiques manifest.
+
+\notimplementedyet{The invocation schema also has a
+  \texttt{task-dependencies} array that allows specifying that the new
+  invocation may start only when previously-submitted invocations have
+  completed. This property is used in the parallelization model
+  described hereafter.}
+
+\begin{listing}
+\begin{minted}[frame=single,
+               framesep=3mm,
+               linenos=false,
+               xleftmargin=21pt,
+               tabsize=4]{js}
+"dependencies" : {
+      "num_input" : {
+         "properties" : {
+            "str_input" : {
+               "not" : {}
+            }
+         }
+      },
+      "str_input" : {
+         "properties" : {
+            "num_input" : {
+               "not" : {}
+            }
+         }
+      }
+   }
+\end{minted}
+\caption{Excerpt from invocation schema showing dependencies between
+  two mutually exclusive parameters \texttt{num\_input} and
+  \texttt{str\_input}.}
+\label{listing:invocation-schema-example}
+\end{listing}
+
+\subsection{Parallelization support}
+\label{sec:parallelization}
+\boutiques supports parallelism by allowing applications to submit new
+invocations through the following protocol \todo{Needs to be
+  documented on Github}:
+\begin{enumerate}
+\item Applications write a JSON object complying to the invocation
+  schema in their execution directory.
+\item The platform reads the JSON object, creates the corresponding
+  invocation, and writes back the invocation id in the same directory.
+% The platform could also support status requests.
+\end{enumerate}
+Several invocations can be submitted at once, possibly using the
+\texttt{task-dependencies} array to specify dependencies among
+them. This mechanism is implemented in the Boutiques schema using a
+single property, \texttt{can-submit-tasks}.
+
+Although very simple, this model allows wrapping complete
+workflows. Workflows are wrapped as any other application, and they
+can be executed using any engine provided that it is installed in the
+container image referred in the application manifest. Such a ``task
+encapsulation'' model allows for a scalable and reliable execution of
+workflows expressed in a variety of languages, as detailed in
+~\cite{glatard2016fgcs}.
+
+\subsection{Containers}
+
+Applications are installed in a container image complying to the
+Docker, Singularity or rootfs format. We intentionally support
+multiple container formats as we anticipate that they will be used for
+different purposes. For instance, Docker is well suited for developers
+and users who manipulate applications on their local workstation. It
+is well documented, maintained and it has a rich ecosystem of tools to
+help build and run containers on most operating systems. Singularity
+is more suited for users and platforms that need to run applications
+on shared computing clusters. Bridges exist among these containers
+formats to convert container images across frameworks. For instance, a
+platform dedicated to high-performance computing may accept manifests
+referring to Docker containers to facilitate application integration
+by developers, and internally convert container images to Singularity
+to run applications efficiently on clusters.
+
+Container images are defined from their URL (Singularity and rootfs)
+or name in a Docker index. Container images may specify a working
+directory where the application has to be run. A hash may also be
+reported to accurately identify container images and detect updates.
+
+Containers were adopted because they allow for an automated and
+lightweight integration of application implementations in
+platforms. They are extremely useful to improve the reproducibility of
+analyses as variations in the software environment may have an
+important impact on the computed results. They also have limitations,
+in particular they do not specify the hardware architecture required
+to execute an application, which can be an issue in some cases.
+
+Containers are not mandatory though. If an application manifest does
+not contain any reference to a container, the platform will assume
+that the application is pre-installed on the execution infrastructure. 
+
+\subsection{Custom properties}
+
+Custom properties may be added to the Boutiques specification without
+restriction. Custom properties are corralled in a specific JSON object
+to facilitate validation. They may be useful to implement
+platform-specific features but they should be used with care to avoid
+making applications dependent on a particular platform.
+
 \subsection{Core tools} 
 
 The Boutiques validator checks conformance of JSON manifests to the
-Boutiques schema using a basic JSON validator. It also performs an
-additional set of checks that cannot be easily implemented in JSON
-schema: value keys are unique among inputs, input and output
-identifiers are unique, input and output value keys are all
-included in the command line, value keys are not contained
-within each other (which would puzzle substitution), output path
-templates are unique (to avoid results to overwrite each other),
-inputs of type Flag have a command-line flag, are optional and are not
-lists, number and list constraints are sensible (e.g. min is lower
-than max), the default value of enum types is part of the enum, an
-input cannot both require and disable another input, required inputs
-cannot require or disable other parameters, group member identifiers
-must correspond to existing inputs and cannot appear in different
-groups, mutually exclusive groups cannot have members requiring other
-members, and that one-is-required groups should never have required
-members. The Boutiques validator is meant for application developers.
+Boutiques schema using a basic JSON validator. It also performs the
+following checks that cannot be easily implemented in JSON schema:
+value keys are unique among inputs, input and output identifiers are
+unique, input and output value keys are all included in the command
+line, value keys are not contained within each other (which would
+puzzle substitution), output path templates are unique (to avoid
+results to overwrite each other), inputs of type Flag have a
+command-line flag, are optional and are not lists, number and list
+constraints are sensible (e.g. min is lower than max), the default
+value of enum types is part of the enum, an input cannot both require
+and disable another input, required inputs cannot require or disable
+other parameters, group member identifiers must correspond to existing
+inputs and cannot appear in different groups, mutually exclusive
+groups cannot have members requiring other members, and
+one-is-required groups should never have required members. The
+Boutiques validator is meant for application developers; platforms
+should rely on regular JSON validation to avoid depending on a
+third-party tool.
 
 The local executor can generate and execute command line from a
 Boutiques manifest and a set of input values represented in a CSV or
-JSON file complying with the invocation schema. It runs the
-command in a container provided that the required framework
-(e.g. Docker) is already installed. It can also generate hypothetical
-command lines from random values, for debugging purposes. The local
-executor can be used by application users, to run tools locally, or by
-platforms, to generate command lines to be run on the execution
-infrastructure.
+JSON file complying with the invocation schema. It runs the command in
+a container provided that the required framework (e.g. Docker) is
+already installed. It can also generate hypothetical command lines
+from random values for debugging purposes. The local executor can be
+used by application users to run applications locally, or by platforms
+to generate command lines to be run on the execution infrastructure.
 
-The invocation schema generator creates an invocation schema (see
-Section~\ref{sec:invocation-schema}) from a Boutiques manifest and
-validates data against it. It can be used by platform administrators
-to add invocation schemas to existing manifests, and by platforms to
-validate input data. Validation is done using a basic JSON
-validator.
+The invocation schema generator can create an invocation schema (see
+Section~\ref{sec:invocation-schema}) from a \boutiques manifest and
+validate input data against it using a regular JSON validator. It can
+be used to add invocation schemas to existing manifests.
 
-\todo{json editor}
+Finally, a JSON editor facilitates the writing of \boutiques manifests
+through a web interface.
 
 \subsection{Repository}
 
@@ -552,7 +535,7 @@ to several systems, including 6 clusters of the Compute Canada
 high-performance computing infrastructure (totalling more than 100,000
 computing cores and 40PB of disk storage) and Amazon EC2. CBRAIN
 transiently stores about 10 million files representing over 50TB
-distributed in 42 servers. 56 data processing tools are integrated and
+distributed in 42 servers. 56 data processing applications are integrated and
 over 340,000 processing batches have been submitted since 2010.
 
 Applications in CBRAIN are integrated as Ruby classes that create web
@@ -624,7 +607,7 @@ with Boutiques and the main features used.
 for Octave and Matlab (PSOM)~\cite{bellec2012pipeline}, was integrated
 in CBRAIN using Boutiques. The integration uses the parallelization
 mechanism described in Section~\ref{sec:parallelization} so that even
-the tasks processing a single subject can be parallelized. It also
+the invocations processing a single subject can be parallelized. It also
 allows CBRAIN to leverage the efficient agent model used in PSOM, as
 described in~\cite{GLAT-16}. The integration required some work in
 PSOM to facilitate its invocation as a non-interactive command-line
@@ -675,7 +658,7 @@ and \texttt{vip:miccai-challenge-team-name}) were added to the
 Boutiques manifest to help VIP handle pipeline results for the 2016
 MICCAI challenges.
 
-\paragraph{Other tools.} Other neuroinformatics tools were ported to CBRAIN using Boutiques:
+\paragraph{Other applications.} Other neuroinformatics applications were ported to CBRAIN using Boutiques:
 FSL tools and ICA AROMA are available at
 \url{https://github.com/aces/cbrain-plugins-neuro} and some pipelines
 of the Human Connectome Project (HCP) are at
@@ -743,15 +726,25 @@ of the Human Connectome Project (HCP) are at
   has some overhead (in particular, the containers provided by the
   developers cannot be used directly).
 \item Testing is critical.
-\item Workflow engines can be platforms (they can run Boutiques tools), workflows can be applications (they can be described in Boutiques).
+\item Workflow engines can be platforms (they can run Boutiques applications), workflows can be applications (they can be described in Boutiques).
 \item With Boutiques, developers can port their application once and execute it in several platforms. It removes the technological dependency to a particular platform and facilitates migration. 
 \end{itemize}
+
+The \boutiques specification adopts a bottom-up approach where new
+features are progressively added when applications or platforms
+require them. It is currently supported by \todo{X} platforms and  \todo{Y} applications
+were described.
+
+ Although the motivating use cases
+were taken from neuroinformatics, our primary field of interest,
+nothing prevents the system from being used in a variety of other
+fields.
 
 \section{Related work}
 
 Boutiques intentionally does not support the definition of complete
 workflows from individual applications. Indeed, we believe that
-workflow engines are specific tools that need complex languages to
+workflow engines are specific applications that need complex languages to
 implement the particular functions that they target. Efforts to
 specify common workflow languages include the Common Workflow Language
 (CWL)~\cite{cwl} and the Interoperable Workflow Intermediate
