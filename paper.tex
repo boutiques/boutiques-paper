@@ -532,35 +532,35 @@ CBRAIN service deployed at the Montreal Neurological Institute relies
 on the infrastructure provided by Compute Canada~\cite{das2016mni}. It
 currently provides 460+ collaborators in 20 countries with web access
 to several systems, including 6 clusters of the Compute Canada
-high-performance computing infrastructure (totalling more than 100,000
+high-performance computing infrastructure (totaling more than 100,000
 computing cores and 40PB of disk storage) and Amazon EC2. CBRAIN
 transiently stores about 10 million files representing over 50TB
 distributed in 42 servers. 56 data processing applications are integrated and
 over 340,000 processing batches have been submitted since 2010.
 
 Applications in CBRAIN are integrated as Ruby classes that create web
-forms, validation and execution code. The Boutiques support in CBRAIN
-is based on a set of templates that generate such classes from the
-application manifest. Two integration modes are available to integrate
-Boutiques applications: (1) the application manifest is stored in a
-CBRAIN plugin, and the Ruby classes are generated on-the-fly when
-CBRAIN starts. This mode allows CBRAIN developers to add new features
-to all Boutiques applications (e.g. improved error message reporting)
-by updating the Ruby templates. It is, however, constrained to the
-Boutiques manifest schema: features not supported in Boutiques, e.g.,
-cluster-specific adjustments, cannot be supported. (2) CBRAIN Ruby
-classes are generated from the Boutiques manifest in an offline
-process and integrated in CBRAIN as any other application. This mode
-allows developers to customize applications by editing the generated
-Ruby classes, but the resulting applications are difficult to maintain
-in the long term, in particular when the manifests are updated. 
+forms, validate parameters and run command lines on computing
+resources. \boutiques is supported through a set of templates that
+generate such classes from the application manifest. Two application
+integration modes are available:
+\begin{enumerate}
+  \item The manifest is stored in a CBRAIN plugin and the Ruby classes
+    are generated on-the-fly when CBRAIN starts. This mode allows
+    CBRAIN developers update all Boutiques applications at once by
+    editing the templates. However, it does not allow for
+    customization beyond the Boutiques schema.
+  \item Ruby classes are generated from manifests
+    through an offline process and integrated in CBRAIN as any other
+    application. This mode allows developers to customize applications
+    by editing the generated Ruby classes, but the resulting
+    applications are difficult to maintain in the long term, in
+    particular when the manifests are updated.
+\end{enumerate}
 
 A custom property (\texttt{cbrain:inherits-from-class}) was added to
 the Boutiques manifest to define the Ruby class that should be used as
 parent class for the application in CBRAIN. It provides more
-flexibility to the first integration model described previously. For
-instance, it was used to define a progress bar for PSOM pipelines in
-CBRAIN.
+flexibility to the first integration model described previously.
 
 CBRAIN was also extended to support the parallelization mechanism
 available in Boutiques: the CBRAIN execution agent periodically scans
@@ -576,24 +576,24 @@ in the list are either concatenated in a single command line (when the
 corresponding Boutiques input is a list), or a new command line is
 generated for every element in the list (when the input is not a
 list). Supporting lists as a specific CBRAIN file type allows for
-improved validation, e.g. lists that contain references to
+improved validation. For instance, lists that contain references to
 non-existent or deleted files can be detected. It also allows users to
 edit lists using their own tools such as scripts or spreadsheet
 applications.
 
-\subsection{Flywheel}
+\subsubsection{Flywheel}
 
 \todo{Gunnar, Nathanael, John}
 
-\subsection{Pegasus}
+\subsubsection{Pegasus}
 
 \todo{Rafael}
 
-\subsection{SPINE}
+\subsubsection{SPINE}
 
 \todo{Charles}
 
-\subsection{VIP}
+\subsubsection{VIP}
 
 
 \subsection{Ported applications}
