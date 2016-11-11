@@ -715,32 +715,29 @@ of the Human Connectome Project (HCP) are at
 
 \section{Discussion}
 
-With Boutiques, developers can port their application once and execute
-it in several platforms. It removes the technological dependency to a
+With Boutiques, developers can port their applications once and execute
+them in several platforms. \boutiques removes the technological dependency to a
 particular platform and facilitates migration.  Although the
 motivating use cases were taken from neuroinformatics, our primary
 field of interest, nothing prevents the system from being used in a
-variety of other fields.
+variety of other domains.
 
 
 \subsection{\boutiques manifest}
 
 The \boutiques manifest specification allows describing a wide range
 of applications, but it is also getting increasingly complex through
-additions such as invocation schemas and dependencies among inputs. In
-the future, even more features might be added, for instance to allow
-for a better description of when optional outputs are produced, i.e.,
-which combination of input values is required. Extending the
-\boutiques manifest has two main goals. First, accurately describing
-application improves validation: incorrect input values and execution
-results are more precisely detected when the application manifest is
-comprehensive, which is essential to improve the reliability and
-user-friendliness of execution platforms. Secondly, a rich manifest
-schema reduces the need for custom wrappers to integrate applications
-as even convoluted command lines can be described: this is
-particularly interesting for applications installed in containers
-since adding a wrapper to the execution stack requires an update in
-the container image.
+additions such as invocation schemas and dependencies among
+inputs. Extending the \boutiques manifest has two main goals. First,
+accurately describing applications improves validation: incorrect input
+values and execution results are more precisely detected when the
+application manifest is comprehensive, which is essential to improve
+the reliability and user-friendliness of execution
+platforms. Secondly, a rich manifest schema reduces the need for
+custom wrappers to integrate applications as even convoluted command
+lines can be described: this is particularly interesting for
+applications installed in containers since adding a wrapper to the
+execution stack requires an update in the container image.
 
 Nonetheless, a complex manifest schema has a cost for application
 developers and platforms, which we address as follows. For developers,
@@ -810,13 +807,14 @@ uniformly.
 \subsection{Limitations}
 
 A few limitations remain that should be addressed in the
-future. First, \boutiques moves the application porting bottleneck to
-validation. Using \boutiques, functions can be automatically exported
-from frameworks such as Nipype and SPM, creating hundreds of richly
-described applications potentially usable by end-users. However, how
-to validate that these applications actually execute as expected
-remain unclear. A testing framework could be designed and potentially
-fed by existing frameworks, to address this issue.
+future. First, \boutiques moves the application porting bottleneck
+from integration to validation. Using \boutiques, functions can be
+automatically exported from frameworks such as Nipype and SPM,
+creating hundreds of richly described applications potentially usable
+by end-users. However, it remains unclear how to validate that these
+applications actually execute as expected. A testing framework could
+be designed and potentially fed by existing frameworks, to address
+this issue.
 
 Another limitation is related to the security of containerized
 applications. Since containers are usually controlled by application
@@ -971,7 +969,7 @@ a bottom-up approach where new features are progressively added based
 on feedback from applications and platforms. Beyond the technicalities
 discussed in this paper, the availability of a solid core of
 applications and platforms in the framework is key to its success,
-which we plan to continuously enhance in the future.
+which we plan to continuously enhance.
 
 \bibliographystyle{plain}
 \bibliography{biblio}
