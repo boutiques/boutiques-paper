@@ -811,12 +811,24 @@ uniformly.
 \subsection{Limitations}
 
 A few limitations remain that should be addressed in the
-future. When 
+future. First, \boutiques moves the application porting bottleneck to
+validation. Using \boutiques, functions can be automatically exported
+from frameworks such as Nipype and SPM, creating hundreds of richly
+described applications potentially usable by end-users. However, how
+to validate that these applications actually execute as expected
+remain unclear. A testing framework could be designed and potentially
+fed by existing frameworks, to address this issue.
 
-\begin{itemize}
-\item Security: containers may be updated after being integrated in the platforms.
-\item Testing of applications.
-\end{itemize}
+Another limitation is related to the security of containerized
+applications. Since containers are usually controlled by application
+developers rather than platforms, which is a good thing to reduce
+application porting bottlenecks, nothing prevents developers to embed
+malicious code in their container at any stage of the process,
+possibly after a platform administrator inspected the
+container. Containers are currently bulky file archives that are
+cumbersome to inspect. Tools need to be developed to allow for an
+easier characterization of container contents, for instance through
+comparison digests with respect to validated base images.
 
 \section{Related work}
 
