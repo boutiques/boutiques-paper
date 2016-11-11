@@ -931,6 +931,36 @@ The \boutiques and CWL schemas have other minor differences that we
 summarized in a public
 spreadsheet\footnote{\url{https://docs.google.com/spreadsheets/d/1eLhpxzaaMPCIUFmV5Trs-WtaMpBO-c6QDQsmhwP7QIE/edit\#gid=0}}.
 
+\subsection{Other frameworks}
+
+A large number of frameworks have been created to facilitate the
+integration of command-line applications in platforms. In
+neuroinformatics, several platforms platforms define a formal
+interface to embed command-line applications. Among them, the Common
+Toolkit\footnote{\url{http://www.commontk.org}} has an
+interoperability focus like \boutiques as its command-line modules are
+supported by several platforms such as 3D Slicer~\cite{pieper20043d},
+NiftyView~\cite{Craddock2016}, GIMIAS~\cite{larrabide2009gimias},
+MedInria~\cite{larrabide2009gimias}, MeVisLab~\cite{heckel2009object}
+and MITK workbench~\cite{nolden2013medical}. The framework, however,
+remains tightly bound to the Common Toolkit's C++ implementation which
+limits its adoption, e.g., in web platforms \todo{Fr\'ed\'eric, maybe
+  you have more to say on this}.
+
+In the distributed computing community, systems were also proposed to
+facilitate the embedding of applications in platforms. The Grid
+Execution Management for Legacy Code Architecture
+(GEMLCA~\cite{delaitre2005gemlca}) was used to wrap applications in
+grid computing systems. Interestingly, it has been used to embed
+workflow engines in the SHIWA
+platform~\cite{terstyanszky2014enabling}, in a similar but different
+way than proposed by \boutiques (Section~\ref{sec:parallelization}).
+
+The recent advent of virtual containers requires a new generation of
+application description frameworks that are independent from any
+programming language and that expose a rich set of properties to
+describe command lines as intended by \boutiques.
+
 \section{Conclusion}
 
 \boutiques is available at \url{https://github.com/boutiques}. We
