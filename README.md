@@ -7,11 +7,13 @@ See instructions below to create a pdf for the current version.
 
 # How to contribute
 
-Fork the repository, edit ```paper.tex``` and other files directly, and make a pull-request. 
+Fork the repository, edit ```paper.tex``` and ```biblio.bib```, and make a pull-request. 
 
 Add your name and affiliation to the list of co-authors. Contact
 tristan.glatard@concordia.ca if you feel that the list or order of
 authors should be amended.
+
+Examples of valid contributions: support Boutiques in your platform, port applications to Boutiques, contribute to the Boutiques tools or schema.
 
 # How to give feedback
 
