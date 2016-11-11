@@ -595,6 +595,7 @@ applications.
 
 \subsubsection{VIP}
 
+\todo{Sorina, Tristan}
 
 \subsection{Ported applications}
 
@@ -605,7 +606,7 @@ with Boutiques and the main features used.
 
 \paragraph{Niak.} The Niak pre-processing pipeline, executed with the Pipeline System
 for Octave and Matlab (PSOM)~\cite{bellec2012pipeline}, was integrated
-in CBRAIN using Boutiques. The integration uses the parallelization
+in CBRAIN through Boutiques. The integration uses the parallelization
 mechanism described in Section~\ref{sec:parallelization} so that even
 the invocations processing a single subject can be parallelized. It also
 allows CBRAIN to leverage the efficient agent model used in PSOM, as
@@ -622,41 +623,42 @@ internal Python description language. \todo{Update nipype\_cmd to
   support the latest Boutiques schema and complete this paragraph.}
 
 \paragraph{SPM.} The Statistical Parameter Mapping toolbox (SPM)~\cite{penny2011statistical}
-was exported to Boutiques through a specific \texttt{spm2boutiques}
-tool that writes Boutiques manifests from configuration files of SPM
-functions (object declarations). \todo{More on that when it is
-  completed.}
+was exported to Boutiques \ldots \todo{Guillaume}
 
-\paragraph{MICCAI challenges.} Boutiques was also used to port to the VIP platform the 23 pipelines
-involved in two computational challenges organized by the MICCAI
-conference in 2016, related to the segmentation of multiple-sclerosis
-lesions in MR images and of tumor volumes in PET images. The pipeline
-developers created Boutiques manifests and wrapped their applications
-in Docker containers. The pipelines were ported to VIP and executed on
-205 subjects in a few weeks only. Some pipelines had to be adjusted
-once ported to the platform for the following reasons:
+\paragraph{MICCAI challenges.}
+Boutiques was used to integrate 23 pipelines in the VIP platform in
+the context of two challenges organized by the MICCAI conference in
+2016, related to the segmentation of multiple-sclerosis lesions in MR
+images (MSSEG
+challenge\footnote{\url{https://portal.fli-iam.irisa.fr/msseg-challenge/overview}})
+and of tumor volumes in PET images (PETSEG
+challenge\footnote{\url{https://portal.fli-iam.irisa.fr/petseg-challenge/overview}}). The
+pipelines were ported to VIP and executed on 205 subjects in a few
+weeks only, which would not have been possible without
+\boutiques. Some pipelines had to be adjusted manually once ported to
+the platform for the following reasons:
 \begin{enumerate}
 \item A pipeline
   required a GPU, which we enabled through the
   \texttt{nvidia-docker}\footnote{\url{https://github.com/NVIDIA/nvidia-docker}}
   tool not supported in Boutiques by default although it could be a possible extension.
-\item A pipeline required
-  more than 10 GB of data dependencies (atlas data) which exceeded the
-  maximum size allowed for Docker containers in our setup; we solved the
-  issue by installing the data on a directory of the host server that we
-  mounted in the container. This could not possibly be supported by
-  Boutiques since it is very dependent on the platform.
+\item A pipeline required more than 10 GB of data dependencies (atlas
+  data) which exceeded the maximum size allowed for Docker containers
+  in our setup. We solved the issue by installing the data in a
+  directory of the host server that we mounted in the container. Such
+  platform-specific configurations could not possibly be supported by
+  \boutiques.
 \item A pipeline wrote more than 10 GB of intermediate data in a
   temporary directory of the container located on a 2 GB partition. We
   solved the issue by mounting a host directory in the temporary directory.
 \end{enumerate}
 The pipelines did not use much of the expressiveness features offered
 by Boutiques since the instructions given to the challengers required
-that all the pipeline parameters were fixed, to facilitate
+that all the pipeline parameters were hardcoded, to facilitate
 execution. Two custom properties (\texttt{vip:miccai-challenger-email}
 and \texttt{vip:miccai-challenge-team-name}) were added to the
-Boutiques manifest to help VIP handle pipeline results for the 2016
-MICCAI challenges.
+\boutiques manifest to help post-process results in the specific
+context of MICCAI challenges.
 
 \paragraph{Other applications.} Other neuroinformatics applications were ported to CBRAIN using Boutiques:
 FSL tools and ICA AROMA are available at
@@ -666,7 +668,6 @@ of the Human Connectome Project (HCP) are at
 
 
 \todo{Chris, something on BIDS apps?}
-
 
 
 \todo{Sorina, a paragraph on other applications in VIP?}
@@ -715,30 +716,107 @@ of the Human Connectome Project (HCP) are at
 
 \section{Discussion}
 
+With Boutiques, developers can port their application once and execute
+it in several platforms. It removes the technological dependency to a
+particular platform and facilitates migration.  Although the
+motivating use cases were taken from neuroinformatics, our primary
+field of interest, nothing prevents the system from being used in a
+variety of other fields.
+
+
+\subsection{\boutiques manifest}
+
+The \boutiques manifest specification allows describing a wide range
+of applications, but it is also getting increasingly complex through
+additions such as invocation schemas and dependencies among inputs. In
+the future, even more features might be added, for instance to allow
+for a better description of when optional outputs are produced, i.e.,
+which combination of input values is required. Extending the
+\boutiques manifest has two main goals. First, accurately describing
+application improves validation: incorrect input values and execution
+results are more precisely detected when the application manifest is
+comprehensive, which is essential to improve the reliability and
+user-friendliness of execution platforms. Secondly, a rich manifest
+schema reduces the need for custom wrappers to integrate applications
+as even convoluted command lines can be described: this is
+particularly interesting for applications installed in containers
+since adding a wrapper to the execution stack requires an update in
+the container image.
+
+Nonetheless, a complex manifest schema has a cost for application
+developers and platforms, which we address as follows. For developers,
+we maintain the set of mandatory manifest properties as small as
+possible so that simple applications can be described in a few lines
+only (see Listing~\ref{listing:minimal}). For platforms, we aim at
+supporting as many features as possible in the local executor so that
+only the following steps need to be implemented to support \boutiques
+in a platform, regardless of the complexity of the manifest:
+\begin{enumerate}
+  \item Input entry: generate the interface to allow users to enter
+    input values.
+  \item Input validation: create a JSON object from the interface,
+    validate it against the invocation schema.
+  \item Execution: generate and run the command line from the local
+    executor and input JSON object.
+  \item Output delivery: from the manifest, identify the output files
+    and deliver them to the user.
+\end{enumerate}
+In particular, advanced validation features such as dependencies
+between inputs are embedded in the regular JSON validation performed
+at step 2, without requiring the platform to support the related
+manifest properties.
+\begin{listing}
+\begin{minted}[frame=single,
+               framesep=3mm,
+               linenos=false,
+               xleftmargin=21pt,
+               tabsize=4]{js}
+{
+    "name": "echo",
+    "tool-version": "1.0",
+    "description": "A simple script to test output files",
+    "command-line": "echo [PARAM] > output.txt",
+    "schema-version": "0.4",
+    "inputs": [{
+	"id": "param",
+	"name": "Parameter",
+        "value-key": "[INPUT_FILE]",
+	"type": "File"
+    }],
+    "output-files": [{
+	"id": "output_file",
+	"name": "Output file",
+	"path-template": "output.txt"
+    }]
+
+}
+\end{minted}
+\caption{A minimal \boutiques manifest.} 
+\label{listing:minimal}
+\end{listing}
+
+\subsection{Workflow support}
+
+The parallelization framework described in~\ref{sec:parallelization}
+supports workflows by considering them as both applications and
+platforms, which we think is a powerful but underexploited
+model. Workflows are applications because they are invoked like any
+other script or executable, possibly through a command line. Workflows
+are also platforms because they may invoke other applications that
+might themselves be described in \boutiques. This model is powerful
+because it shields the \boutiques specification from specific workflow
+constructs and allows a wide range of workflow engines to be described
+uniformly. 
+  
+\subsection{Limitations}
+
+A few limitations remain that should be addressed in the
+future. When 
+
 \begin{itemize}
 \item Security: containers may be updated after being integrated in the platforms.
-\item The manifest specification is getting increasingly complex, but
-  this complexity is required to describe real-world
-  applications. When something cannot be described using the manifest,
-  it is always possible to change the command line format by writing a
-  wrapper script for the application. However, when containers are
-  used, the wrapper script needs to be added to the container, which
-  has some overhead (in particular, the containers provided by the
-  developers cannot be used directly).
-\item Testing is critical.
-\item Workflow engines can be platforms (they can run Boutiques applications), workflows can be applications (they can be described in Boutiques).
-\item With Boutiques, developers can port their application once and execute it in several platforms. It removes the technological dependency to a particular platform and facilitates migration. 
+\item Testing of applications.
 \end{itemize}
-
-The \boutiques specification adopts a bottom-up approach where new
-features are progressively added when applications or platforms
-require them. It is currently supported by \todo{X} platforms and  \todo{Y} applications
-were described.
-
- Although the motivating use cases
-were taken from neuroinformatics, our primary field of interest,
-nothing prevents the system from being used in a variety of other
-fields.
 
 \section{Related work}
 
@@ -790,6 +868,11 @@ between CWL and Boutiques are the following:
 % How to build modular container images for workflows.
 
 \section{Conclusion}
+
+The \boutiques specification adopts a bottom-up
+approach where new features are progressively added when applications
+or platforms require them.
+
 
 \section{Acknowledgments}
 
