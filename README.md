@@ -1,3 +1,8 @@
+# How to get a pdf
+
+A pdf is uploaded for every release of the paper:
+* [Release 0.1](https://github.com/glatard/boutiques-paper/files/586804/paper.pdf)
+
 # How to contribute
 
 Fork the repository, edit ```paper.tex``` and other files directly, and make a pull-request. 
