@@ -3,6 +3,8 @@
 A pdf is uploaded for every release of the paper:
 * [Release 0.1](https://github.com/glatard/boutiques-paper/files/586804/paper.pdf)
 
+See instructions below to create a pdf for the current version.
+
 # How to contribute
 
 Fork the repository, edit ```paper.tex``` and other files directly, and make a pull-request. 
