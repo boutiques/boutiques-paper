@@ -6,9 +6,10 @@ Add your name and affiliation to the list of co-authors. Contact
 tristan.glatard@concordia.ca if you feel that the list or order of
 authors should be amended.
 
-# How to add comments
+# How to give feedback
 
-Use command ```\note``` in ```paper.tex``` as follows: ```\note{John}{This is a comment}```.
+* General comments: create an issue in this repository.
+* Detail comments in the paper: use command ```\note``` in ```paper.tex``` as follows: ```\note{John}{This is a comment}```.
 
 # How to generate the pdf
 
