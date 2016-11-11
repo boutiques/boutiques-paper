@@ -241,7 +241,7 @@ replaced by \texttt{log-foo} on the command line at execution time.
 \end{listing}
 
 \subsection{Configuration files}
-
+\label{sec:configuration-files}
 A large number of applications rely on configuration files rather than
 command-line options to define their input and output
 parameters. Indeed, as the number of parameters increases, command
@@ -830,54 +830,107 @@ cumbersome to inspect. Tools need to be developed to allow for an
 easier characterization of container contents, for instance through
 comparison digests with respect to validated base images.
 
+% How to build modular container images for workflows.
+
 \section{Related work}
 
-Boutiques intentionally does not support the definition of complete
-workflows from individual applications. Indeed, we believe that
-workflow engines are specific applications that need complex languages to
-implement the particular functions that they target. Efforts to
-specify common workflow languages include the Common Workflow Language
-(CWL)~\cite{cwl} and the Interoperable Workflow Intermediate
-Representation (IWIR)~\cite{plankensteiner2011iwir}.
+\subsection{Common Workflow Language}
 
+The Common Workflow Language is the closest piece of related work as
+it supports containers. In particular, the Command Line Tool
+Description of CWL overlaps with the \boutiques manifest. According to
+Github, CWL started 6 months before Boutiques (September 2014 vs. May
+2015). The differences highlighted below were identified from version
+1.0 of the CWL Command Line Tool
+Description\footnote{\url{http://www.commonwl.org/v1.0/CommandLineTool.html}}.
 
-% CWL
-The Common Workflow Language (CWL) is the closest related work to
-Boutiques, in the sense that it also allows the description of command
-lines executed in containers. According to Github, the CWL project
-started 6 months before Boutiques. The main conceptual differences
-between CWL and Boutiques are the following:
+\subsubsection{Conceptual differences}
+
+The following differences are conceptual in the sense that they may
+not be easily addressed by CWL or Boutiques developers.
+
+First, CWL has a workflow language whereas \boutiques does not. In
+\boutiques, workflows are integrated as any other applications, except
+that they may submit other invocations to enable workflow
+parallelism. This fundamental difference has consequences on the
+complexity of CWL application descriptions and on the possibility to
+reuse existing workflows in \boutiques. The adoption of ontologies in
+CWL may also be another consequence (see below).
+
+CWL has a formal command-line definition while \boutiques is more
+flexible. CWL specifies command lines using an array of executable and
+arguments whereas \boutiques only uses a string template. \boutiques'
+template approach may create issues in some cases, but it also allows
+developers to add simple operations to an application without having
+to write a specific wrapper. For instance, a \boutiques command line
+may easily include input decompression using, e.g., the tar command in
+addition to the main tool command. On the contrary, CWL applications
+may only have a single executable. Importantly, \boutiques' template
+system allows supporting configuration files (see
+Section~\ref{sec:configuration-files}).
+
+CWL uses ontologies while \boutiques does not. Ontologies allow for
+richer definitions but they also have an overhead. The main
+consequences are the following:
 \begin{itemize}
-\item CWL has a workflow language, Boutiques does not. CWL also has a
-  command line tool description language, but its specification is
-  influenced by the fact that command line tools are included in a
-  specific workflow languages. In Boutiques, the only available
-  workflow construct is sub-tasking (``a task may submit other
-  tasks''). This is intentional as we envisage that Boutiques tools
-  may be composed through any type of workflow engine and language. For instance, this leads to have multiple output types in CWL.
-\item CWL specifies command lines formally whereas in Boutiques they
-  are assembled from simple string templates. In short, a command line
-  in CWL is specified by an executable and an ordered list of
-  parameters. While this representation has the advantage of being
-  more formal, for instance the executable can be identified
-  automatically, it also removes flexibility by imposing that a tool
-  only runs a single command. On the contrary, Boutiques allows any
-  type of bash operators to be combined on the command line. This
-  level of flexibility is important and greatly reduces the ``shim
-  syndrome''. Boutiques' template approach allows for configuration files. 
-\item CWL is validated using SALAD, which makes the ecosystem slightly
-  more complex. For instance, CWL has ``import'' and ``include''
-  directives. Boutiques is validated using plain JSON schema. \todo{ontology layer}.
-\item In CWL, the applications need to be instrumented as follows, which is not the case in Boutiques:
-\begin{itemize}
-\item Applications must write in specific directories.
-\item Applications must produce a JSON object describing the output structure.
-\end{itemize}
+\item CWL uses a specific framework for
+validation, called SALAD (Semantic Annotations for Linked Avro Data)
+whereas Boutiques uses plain JSON schema. The main goal of SALAD is to
+allow ``working with complex data structures and document formats, such
+as schemas, object references, and namespaces''. \boutiques only relies
+on the basic types required to describe and validate a command line
+syntactically. While the use of SALAD certainly allows for
+higher-level validation, and may simplify the composition and
+validation of complex workflows, it also introduces a substantial
+overhead in the specification, and platforms have to use the validator
+provided by CWL. On the contrary, a regular JSON validator can be used in \boutiques.
+\item  CWL has a rich set of types whereas \boutiques only has simple
+types. Again, this may be seen as a feature or as an overhead
+depending on the context. \boutiques tries to limit the complexity of
+the specification to facilitate its support by platforms where tools
+will be integrated.
 \end{itemize}
 
-\todo{Update from comparison summary on Google doc}
+\subsubsection{Major differences}
 
-% How to build modular container images for workflows.
+The following differences are major but they may be addressed by the
+CWL and \boutiques developers as they do not undermine the application
+description model.
+
+CWL tools have to write in a specific set of directories called
+``designated output directory'', ``designated temporary directory''
+and ``system temporary directory''. Tools are informed of the location
+of such directories through environment variables. Having to write in
+specific directories is problematic because tools have to be modified
+to enable that. In \boutiques, the path of output files is defined
+using a dedicated property.
+
+CWL types are richer, not only
+semantically but also syntactically. For instance, files have
+properties for basename, dirname, location, path, checksum, etc.
+
+\boutiques supports various types of containers (Docker, Singularity,
+rootfs) while CWL supports only Docker. At the same time, CWL’s
+requirements are richer: for instance, they may include RAM and disk
+while Boutiques is limited to walltime estimate. CWL has hints, i.e.,
+recommendations that only lead to warnings when not respected.
+
+In \boutiques, dependencies can be defined among inputs, e.g., to
+specify that an input may be used only when a particular flag is
+activated. This is a very useful feature to improve validation, in
+particular when tools have a lot of options.
+
+In \boutiques, named
+groups of inputs can be defined, which improves the presentation of
+long parameter lists for the user and enables the definition of more
+constraints within groups (e.g. mutually exclusive inputs).
+
+\subsubsection{Other minor differences}
+
+The \boutiques and CWL schemas have other minor differences that we
+summarized in a public
+spreadsheet\footnote{\url{https://docs.google.com/spreadsheets/d/1eLhpxzaaMPCIUFmV5Trs-WtaMpBO-c6QDQsmhwP7QIE/edit\#gid=0}}.
+
 
 \section{Conclusion}
 
