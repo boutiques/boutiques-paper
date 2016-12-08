@@ -853,6 +853,24 @@ At a higher level, reproducibility is impacted by factors
 such as data sharing~\cite{poldrack2014making} which are out of the
 scope of \boutiques.
 
+\subsection{Application types}
+
+So far, \boutiques has focused on the description of non-interactive
+command-line applications. While such applications cover a large
+fractions of the tools involved in scientific data processing, other
+types of programs exist such as web services, interactive tools, and
+applications with a graphical user interface (GUI).  Such application
+classes could be described in \boutiques through a command-line
+mapping. For instance, web services may be wrapped as command-line
+applications using tools such as \texttt{curl} or
+\texttt{wget}. Interactive applications may also be transformed to
+non-interactive ones through configuration files. Finally, nothing
+prevents a \boutiques tool from popping up a window for a user to
+provide input through a GUI. This should, however, be specified
+as an extension to the manifest since most platforms would not support
+this feature by default. Graphical output produced by applications
+executed in containers should also be treated specifically.
+
 \subsection{Limitations}
 
 A few limitations remain that should be addressed in the
