@@ -30,5 +30,5 @@ Examples of valid contributions: support Boutiques in your platform, port applic
 
 # Latex installation
 
-* On Linux Fedora 24: ```dnf install texlive-bin texlive-bibtex-bin texlive-minted texlive-pdfcomment texlive-collection-fontsrecommended texlive-algorithmicx```. 
+* On Linux Fedora 24: ```dnf install texlive-bin texlive-bibtex-bin texlive-minted texlive-pdfcomment texlive-collection-fontsrecommended texlive-algorithmicx texlive-framed```. 
 

@@ -26,7 +26,7 @@
         Remi Bernard, Sorina Camarasu-Pop, Fr\'ed\'eric Cervenansky, Samir Das, \\
         Rafael Ferreira da Silva, Guillaume Flandin, John Flavin, Pascal Girard, \\
          Krzysztof J. Gorgolewski, Charles G. Guttmann, Nathaniel Kofalt, Pierre-Olivier Quirion,\\
-         Pierre Rioux, Gunnar Schaeffer, Marc-\'Etienne Rousseau, Alan C. Evans}
+         Pierre Rioux, Marc-\'Etienne Rousseau, Gunnar Schaeffer, Alan C. Evans}
 
 \maketitle
 
@@ -803,7 +803,39 @@ might themselves be described in \boutiques. This model is powerful
 because it shields the \boutiques specification from specific workflow
 constructs and allows a wide range of workflow engines to be described
 uniformly. 
-  
+
+\subsection{Reproducibility}
+
+\boutiques helps reproduce\footnote{in Peng's
+  sense~\cite{peng2011reproducible}} executions through containers and
+formal command-line descriptions. With \boutiques, complete sets of
+applications could be easily migrated across execution platforms,
+including high-performance computing platforms and individual laptops,
+to reproduce analyses. The \boutiques manifest describes the
+parameters and implementation of the application, and the invocation
+schema describes the parameter values.
+
+However, reproducibility is a large problem that \boutiques only
+partially addresses. At the command-line execution level, containers
+help freeze a large fraction of the software ecosystem but they do not
+shield against discrepancies arising from different Linux kernel
+versions or hardware platforms. For instance, containers may not
+execute consistently on different x86\_64 CPUs (e.g. Intel and AMD)
+when software compiled with architecture-specific flags is involved
+(see for instance GCC's \texttt{-march} flag).
+
+In addition, important runtime parameters, for instance related to
+multi-threading or available resources (storage, RAM), may be set by
+the execution platform without being specified in the \boutiques
+manifest. Such runtime parameters may impact reproducibility in some
+cases. To properly cover this issue, \boutiques manifests should be
+complemented by a provenance framework that captures a detailed trace
+of the execution.
+
+At a higher level, reproducibility is impacted by factors
+such as data sharing~\cite{poldrack2014making} which are out of the
+scope of \boutiques.
+
 \subsection{Limitations}
 
 A few limitations remain that should be addressed in the
