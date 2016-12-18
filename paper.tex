@@ -25,8 +25,8 @@
 \author{Tristan Glatard, Tristan Aumentado-Armstrong, Natacha Beck, Pierre Bellec,\\
         Remi Bernard, Sorina Camarasu-Pop, Fr\'ed\'eric Cervenansky, Samir Das, \\
         Rafael Ferreira da Silva, Guillaume Flandin, John Flavin, Pascal Girard, \\
-         Krzysztof J. Gorgolewski, Charles G. Guttmann, Nathaniel Kofalt, Pierre-Olivier Quirion,\\
-         Pierre Rioux, Marc-\'Etienne Rousseau, Gunnar Schaeffer, Alan C. Evans}
+        Krzysztof J. Gorgolewski, Gregory Kiar, Charles G. Guttmann, Nathaniel Kofalt, \\
+        Pierre-Olivier Quirion, Pierre Rioux, Marc-\'Etienne Rousseau, Gunnar Schaeffer, Alan C. Evans}
 
 \maketitle
 
@@ -117,7 +117,7 @@ syntax of the \texttt{bash} UNIX shell. \texttt{bash} is the default
 shell on the major Linux distributions and OS X. The command-line
 template may contain placeholders for input and output values, called
 value keys. The command line may actually
-encompass several commands separated, e.g., by semicolumns, pipes
+encompass several commands separated, e.g., by semicolons, pipes
 (\texttt{|}) or ampersands (\texttt{\&}). Such a flexible command-line
 specification is meant to facilitate the embedding of minor mundane
 operations on the command line, for instance directory creation, input
@@ -145,11 +145,14 @@ also be ordered lists: in this case, value keys are substituted by the
 space-separated list of input values.
 
 \paragraph{Types.} Inputs may be of type \texttt{String},
-\texttt{Number}, \texttt{Flag} or \texttt{File}. \texttt{File} may
-also represents a directory. Types can be restricted to a specific set
-of values (\texttt{String} and \texttt{Number} only), to a specific
+\texttt{Number}, \texttt{Flag} %, \texttt{Enum},
+or \texttt{File}. \texttt{File} may
+also represent a directory. Types can be restricted to a specific set
+of values (\texttt{String} %, \texttt{Enum},
+and \texttt{Number} only), to a specific
 range (\texttt{Number} only), to integers or to booleans (\texttt{Number}
-only).
+only) %, or to an arbitrary but specified set of values (\texttt{Enum} only)
+.
 
 \paragraph{Groups and dependencies.} Groups of inputs may be defined
 with a identifier, name and list of input identifiers. Groups may be
@@ -482,6 +485,7 @@ results to overwrite each other), inputs of type Flag have a
 command-line flag, are optional and are not lists, number and list
 constraints are sensible (e.g. min is lower than max), the default
 value of enum types is part of the enum, an input cannot both require
+\note{greg}{should Enum be capitalized? It is earlier in the document}
 and disable another input, required inputs cannot require or disable
 other parameters, group member identifiers must correspond to existing
 inputs and cannot appear in different groups, mutually exclusive
@@ -647,6 +651,7 @@ internal Python description language. \todo{Update nipype\_cmd to
 \paragraph{SPM.} The Statistical Parameter Mapping toolbox (SPM)~\cite{penny2011statistical}
 was exported to Boutiques \ldots \todo{Guillaume}
 
+
 \paragraph{MICCAI challenges.}
 Boutiques was used to integrate 23 pipelines in the VIP platform in
 the context of two challenges organized by the MICCAI conference in
@@ -682,12 +687,15 @@ and \texttt{vip:miccai-challenge-team-name}) were added to the
 \boutiques manifest to help post-process results in the specific
 context of MICCAI challenges.
 
+\paragraph{ndmg.} The NeuroData MRI to Graphs one-click connectome estimation
+pipeline~\cite{kiar2016ndmg}, developed in Python and leveraging FSL, was
+exported to \boutiques and is available at \url{https://github.com/neurodata/boutiques-tools}.
+
 \paragraph{Other applications.} Other neuroinformatics applications were ported to CBRAIN using Boutiques:
-FSL tools and ICA AROMA are available at	
+FSL tools and ICA AROMA are available at
 \url{https://github.com/aces/cbrain-plugins-neuro} and some pipelines
 of the Human Connectome Project (HCP) are at
 \url{https://github.com/big-data-lab-team/cbrain-plugins-hcp}.
-
 
 \todo{Chris, something on BIDS apps?}
 
@@ -709,7 +717,7 @@ and the Odin wrapper script was modified so that it makes no "Docker run" call.
 
 A few MRtrix3\footnote{\url{http://www.mrtrix.org/}} tools were also make available in VIP. 
 A script developed at Creatis, which combines MRtrix3 and FSL tools, is currently being
-imported and tested.  
+imported and tested.
 
 \todo{Tristan: validate the descriptions above}
 
@@ -730,6 +738,7 @@ imported and tested.
     \multicolumn{1}{r|}{first}       &                   &                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&                   &                   \\
     FSL Nipype interfaces     \\
     HCP PreFreesurfer                &                   &                   &                   &                   &                   &                   &                   \\
+    ndmg                &                   &       \cellcolor{gray!75}            &                   &          \cellcolor{gray!75}         &      \cellcolor{gray!75}             &                   &                   \\
     MICCAI challenge (23 pipelines)\\&                   &                   &                   &                   &                   &                   & \\
     \end{tabular}
   \vspace*{0.5cm}
@@ -747,14 +756,16 @@ imported and tested.
     \multicolumn{1}{r|}{bet}        &                    &            &         &              &&\\
     \multicolumn{1}{r|}{fast}       &                    &            &         &              &&\\
     \multicolumn{1}{r|}{first}      &                    &            &         &              &&\\
-    FSL Nipype interfaces     \\
-    HCP PreFreesurfer               &\cellcolor{gray!75} &            &         &             &&\\
-    MICCAI challenge (23 pipelines) &\cellcolor{gray!75} &            &         &             &&\\
+    FSL Nipype interfaces           &                    &            &         &              &&\\
+    HCP PreFreesurfer               &\cellcolor{gray!75} &            &         &              &&\\
+    ndmg                            &\cellcolor{gray!75} &            &         &              &&\\
+    MICCAI challenge (23 pipelines) &\cellcolor{gray!75} &            &         &              &&\\
   \end{tabular} 
   \caption{Applications available in Boutiques with manifest features used.}
   \label{table:applications}
 \end{table}
-
+\note{greg}{@tristan g: chris helped me verify that ndmg also works with singularity, but we have not shared
+the image anywhere. Would it be worth me publishing that image for this table?}
 \section{Discussion}
 
 With Boutiques, developers can port their applications once and execute
@@ -953,7 +964,7 @@ reuse existing workflows in \boutiques. The adoption of ontologies in
 CWL may also be another consequence (see below).
 
 CWL has a formal command-line definition while \boutiques is more
-flexible. CWL specifies command lines using an array of executable and
+flexible. CWL specifies command lines using an array of executables and
 arguments whereas \boutiques only uses a string template. \boutiques'
 template approach may create issues in some cases, but it also allows
 developers to add simple operations to an application without having
