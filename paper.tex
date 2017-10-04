@@ -618,11 +618,11 @@ parses the JSON file and automatically generates the corresponding application w
 and the wrapper script that handles, among others, the execution of the command line itself. 
 The use of an application workflow allows to (i) iterate on input lists and generate 
 parallel tasks, as well as to (ii) concatenate multiple tools. The applications used in 
-the MICCAI challenges, for example, were followed by other tool allowing to compute 
+the MICCAI challenges, for example, were followed by other tools allowing to compute 
 challenge-specific metrics. Tool concatenation is currently handeled at the importer 
 level based on pre-defined workflow templates. 
 
-\todo{Tristan: validate the description above}
+\note{sorina}{@tristan: some info on workflows is available in the paragraph above. Is it OK/enough or do you have other suggestions?}
 
 \subsection{Ported applications}
 
@@ -716,11 +716,20 @@ executed by VIP on the EGI grid resources, which currently do not support Docker
 the Odin executable was exported from the Docker image which allowed for his CentOS compilation
 and the Odin wrapper script was modified so that it makes no "Docker run" call.
 
-A few MRtrix3\footnote{\url{http://www.mrtrix.org/}} tools were also make available in VIP. 
-A script developed at Creatis, which combines MRtrix3 and FSL tools, is currently being
-imported and tested.
+A few MRtrix3\footnote{\url{http://www.mrtrix.org/}} tools were also made available in VIP, as well as 
+a script developed at Creatis, which combines MRtrix3 and FSL tools.
 
-\todo{Tristan: validate the descriptions above}
+A few other applications from the FLI (France Life Imaging) consortium were also imported in
+VIP using Boutiques. One of them is Ginfizz, a FMRI pipeline allowing to execute multiple 
+preprocessing steps and basic analyses such as: (i) realignment (motion registration and correction),
+(ii) slice timing (temporal interpolation to correct for the delay of acquisition between slices), 
+(iii) coregistration (registering functional and structural data), (iv) normalization (registering 
+of functional and anatomical data to a match a template that has to be specified), and (iv)
+smoothing (spatial filtering to increase Signal to Noise ratio). The use of Docker containers (\url{https://hub.docker.com/r/fliiam/ginfizz} based on \url{https://hub.docker.com/r/miykael/nipype_level2}) 
+greatly simplifies its deployment. The animaN4BiasCorrection tool from the Anima  \footnote{\url{https://github.com/Inria-Visages/Anima-Public/wiki}} project was also made available 
+in VIP. The import process was straightforward. 
+
+\note{sorina}{@tristan: please check if you agree with the descriptions above}
 
 \begin{table}
   \begin{tabular}{l|ccccccc}
