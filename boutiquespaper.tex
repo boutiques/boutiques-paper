@@ -46,43 +46,42 @@
   environments such as Docker and Singularity to install applications
   across platforms in a lightweight manner. Boutiques is currently used
   by three distinct virtual research platforms, and has been used to
-  describe dozens of neuroimaging tools.}
+  describe dozens of neuroinformatics tools.}
 
 \section{Introduction}
 
-Platforms such as web services, portals, virtual research
-environments, science gateways and workflow engines often rely on
-third-party data processing and simulation applications to deliver
-services to their users. Such applications are often repeatedly and
-manually ported to various platforms whereas this porting effort would
-greatly benefit from being mutualized. Meanwhile, virtual container
-systems such as Docker and Singularity greatly facilitate the sharing
-of software and improve the reproducibility of analyses by defining
+Platforms such as web services, portals, and virtual research
+environments are becoming an common solution for increasing the
+accessibility of high performance computing. These scientific gateways and
+workflow engines often rely on third-party data processing and simulation
+applications to deliver services to their users. Such applications are
+often repeatedly and manually ported to various platforms whereas this
+porting effort would greatly benefit from being mutualized. Meanwhile,
+virtual container systems such as Docker and Singularity greatly facilitate
+the sharing of software and improve the reproducibility of analyses by defining
 immutable, reusable execution environments. However, containers need
 to be properly annotated to allow platforms to leverage the software
-they contain. Basically, the command lines that can be run in a
-container must be formally described so that they can be automatically
-created and executed by platforms. Describing command lines is not
-straightforward since they often contain implicit semantics specified
-in human-readable documents such as manuals.
+they contain. The command lines that can be run in a container must be formally
+described so that they can be automatically created and executed by platforms.
+Describing command lines is not straightforward since they often contain
+implicit semantics specified in human-readable documents such as manuals.
 
 \boutiques is a system to share command-line applications across
 platforms. In \boutiques, a command line is described using a flexible
 template comprising the inputs it requires and the outputs it
-produces. Inputs may be inter-dependent, e.g., input A cannot be used
-if input B is used, and passed in configuration files or directly on
-the command line. Such formal descriptions, also called
+produces. Inputs may be inter-dependent, e.g., input \emph{A} cannot be used
+if input \emph{B} is used; inputs may be passed in configuration files
+or directly on the command line. Such formal descriptions, also called
 \emph{manifests}, allow for advanced validation of input values to
-prevent errors. Manifests refer to containers where applications and
-all their dependencies are installed. \boutiques also provides a
+prevent errors. A manifest refers to a container where a given application
+and all their dependencies are installed. \boutiques also provides a
 simple parallelization framework that allows applications such as
 workflow engines to concurrently execute multiple tasks (in the
 remainder, tasks are called \emph{invocations}). A set of core tools
-facilitate the construction, validation and execution of \boutiques
-manifests. A repository orchestrates these tools together. \boutiques
-manifests are intented to be produced by scientific application
-developers, to be published in common repositories and to be consumed
-by execution platforms.
+facilitate the construction, validation, import, execution, and publishing
+of \boutiques manifests. \boutiques manifests are intented to be produced by
+scientific developers and stored alongside their application, indexed by common
+repositories, and to be consumed by execution platforms.
 
 The remainder of this paper describes the \boutiques system
 (Section~\ref{sec:system}) and reports on its adoption by platforms

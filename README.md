@@ -7,7 +7,7 @@ See instructions below to create a pdf for the current version.
 
 # How to contribute
 
-Fork the repository, edit ```paper.tex``` and ```biblio.bib```, and make a pull-request. 
+Fork the repository, edit ```boutiquespaper.tex``` and ```biblio.bib```, and make a pull-request. 
 
 Add your name and affiliation to the list of co-authors. Contact
 tristan.glatard@concordia.ca if you feel that the list or order of
@@ -18,15 +18,22 @@ Examples of valid contributions: support Boutiques in your platform, port applic
 # How to give feedback
 
 * General comments: create an issue in this repository.
-* Detail comments in the paper: use command ```\note``` in ```paper.tex``` as follows: ```\note{John}{This is a comment}```.
+* Detail comments in the paper: use command ```\note``` in ```boutiquespaper.tex``` as follows: ```\note{John}{This is a comment}```.
 
 # How to generate the pdf
 
-(You may edit ```paper.tex``` without generating the pdf if you don't manage to).
+(You may edit ```boutiquespaper.tex``` without generating the pdf if you don't manage to).
+
+## Method 1: Make
 
 0. Install ```pdflatex``` and ```bibtex```
-1. Compile the document: ```pdflatex -shell-escape paper ; pdflatex -shell-escape paper``` (yes, twice).
-2. Generate the bibliography: ```bibtex paper ; pdflatex -shell-escape paper``` (yes, once again).
+1. Type `make` to compile the document and bibliography.
+
+## Method 2: Manual
+
+0. Install ```pdflatex``` and ```bibtex```
+1. Compile the document: ```pdflatex -shell-escape boutiquespaper ; pdflatex -shell-escape boutiquespaper``` (yes, twice).
+2. Generate the bibliography: ```bibtex boutiquespaper ; pdflatex -shell-escape boutiquespaper``` (yes, once again).
 
 # Latex installation
 
