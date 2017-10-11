@@ -27,7 +27,6 @@
         Rafael Ferreira da Silva, Guillaume Flandin, John Flavin, Pascal Girard, \\
         Krzysztof J. Gorgolewski, Gregory Kiar, Charles G. Guttmann, Nathaniel Kofalt, \\
         Pierre-Olivier Quirion, Pierre Rioux, Marc-\'Etienne Rousseau, Gunnar Schaeffer, Alan C. Evans}
-\note{greg}{gk's affiliation: Department of Biomedical Engineering, Johns Hopkins University, Baltimore, MD}
 \maketitle
 
 \abstract{Porting applications to execution platforms such as web
@@ -37,16 +36,17 @@
   costly human effort that consists of 1)~installing the application
   on the target infrastructure, 2)~describing the application in a
   format compatible with the execution platform, and 3)~generating
-  proper user interfaces. Due to the variety of platforms, application
-  porting efforts are often replicated several times while
-  mutualization would save cost and improve the quality of the ported
-  applications. We describe \boutiques, a system that allows for
-  automatic import and exchange of applications across
-  platforms. \boutiques adopts a rich, flexible application
-  description format and it relies on Linux containers to install
-  applications across platforms in a lightweight manner. It is
-  currently supported by \todo{X} platforms and was used to describe
-  \todo{Y} applications.  }
+  proper user interfaces. Due to the variety of computing platforms,
+  application porting efforts are often replicated several times while
+  interoperability would save cost and improve the quality of the ported
+  applications. We describe \boutiques, a descriptive framework and
+  command line utility that allows for automatic import and exchange of
+  applications across platforms. \boutiques adopts a rich, flexible
+  application description format which relies on Linux container
+  environments such as Docker and Singularity to install applications
+  across platforms in a lightweight manner. Boutiques is currently used
+  by three distinct virtual research platforms, and has been used to
+  describe dozens of neuroimaging tools.}
 
 \section{Introduction}
 
