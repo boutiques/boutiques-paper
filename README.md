@@ -28,6 +28,7 @@ Examples of valid contributions: support Boutiques in your platform, port applic
 
 0. Install ```pdflatex``` and ```bibtex```
 1. Type `make` to compile the document and bibliography.
+2. Before committing, type `make clean` to remove extra temporary files
 
 ## Method 2: Manual
 

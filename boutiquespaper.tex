@@ -25,7 +25,7 @@
 \author{Tristan Glatard, Tristan Aumentado-Armstrong, Natacha Beck, Pierre Bellec,\\
         Remi Bernard, Sorina Camarasu-Pop, Fr\'ed\'eric Cervenansky, Samir Das, \\
         Rafael Ferreira da Silva, Guillaume Flandin, John Flavin, Pascal Girard, \\
-        Krzysztof J. Gorgolewski, Gregory Kiar, Charles G. Guttmann, Nathaniel Kofalt, \\
+        Krzysztof J. Gorgolewski, Charles G. Guttmann, Gregory Kiar, Nathaniel Kofalt, \\
         Pierre-Olivier Quirion, Pierre Rioux, Marc-\'Etienne Rousseau, Gunnar Schaeffer, Alan C. Evans}
 \maketitle
 
@@ -124,7 +124,7 @@ decompression or output archival.
 
 Here is an example of a typical command-line template:
 \begin{verbatim}
-exampleTool_1 [STRING_INPUT] [FILE_INPUT] [ENUM_INPUT] | \
+exampleTool_1 [STRING_INPUT] [FILE_INPUT]  | \
                               exampleTool_2 [FLAG_INPUT] [NUMBER_INPUT] >> [LOG].txt
 \end{verbatim}
 The template contains six value keys for input and output values, that
@@ -144,14 +144,13 @@ also be ordered lists: in this case, value keys are substituted by the
 space-separated list of input values.
 
 \paragraph{Types.} Inputs may be of type \texttt{String},
-\texttt{Number}, \texttt{Flag} %, \texttt{Enum},
+\texttt{Number}, \texttt{Flag} 
 or \texttt{File}. \texttt{File} may
 also represent a directory. Types can be restricted to a specific set
-of values (\texttt{String} %, \texttt{Enum},
+of values (\texttt{String} 
 and \texttt{Number} only), to a specific
 range (\texttt{Number} only), to integers or to booleans (\texttt{Number}
-only) %, or to an arbitrary but specified set of values (\texttt{Enum} only)
-.
+only).
 
 \paragraph{Groups and dependencies.} Groups of inputs may be defined
 with a identifier, name and list of input identifiers. Groups may be
@@ -483,8 +482,7 @@ puzzle substitution), output path templates are unique (to avoid
 results to overwrite each other), inputs of type Flag have a
 command-line flag, are optional and are not lists, number and list
 constraints are sensible (e.g. min is lower than max), the default
-value of enum types is part of the enum, an input cannot both require
-\note{greg}{should Enum be capitalized? It is earlier in the document}
+value of restricted types is part of the restriction, an input cannot both require
 and disable another input, required inputs cannot require or disable
 other parameters, group member identifiers must correspond to existing
 inputs and cannot appear in different groups, mutually exclusive
@@ -510,7 +508,7 @@ be used to add invocation schemas to existing manifests.
 
 Finally, a JSON editor facilitates the writing of \boutiques manifests
 through a web interface and a Jupyter Notebook tutorial facilitates
-new users getting started with Boutiques..
+new users getting started with Boutiques.
 
 \subsection{Repository}
 
@@ -617,11 +615,11 @@ parses the JSON file and automatically generates the corresponding application w
 and the wrapper script that handles, among others, the execution of the command line itself. 
 The use of an application workflow allows to (i) iterate on input lists and generate 
 parallel tasks, as well as to (ii) concatenate multiple tools. The applications used in 
-the MICCAI challenges, for example, were followed by other tool allowing to compute 
+the MICCAI challenges, for example, were followed by other tools allowing to compute 
 challenge-specific metrics. Tool concatenation is currently handeled at the importer 
 level based on pre-defined workflow templates. 
 
-\todo{Tristan: validate the description above}
+\note{sorina}{@tristan: some info on workflows is available in the paragraph above. Is it OK/enough or do you have other suggestions?}
 
 \subsection{Ported applications}
 
@@ -715,18 +713,27 @@ executed by VIP on the EGI grid resources, which currently do not support Docker
 the Odin executable was exported from the Docker image which allowed for his CentOS compilation
 and the Odin wrapper script was modified so that it makes no "Docker run" call.
 
-A few MRtrix3\footnote{\url{http://www.mrtrix.org/}} tools were also make available in VIP. 
-A script developed at Creatis, which combines MRtrix3 and FSL tools, is currently being
-imported and tested.
+A few MRtrix3\footnote{\url{http://www.mrtrix.org/}} tools were also made available in VIP, as well as 
+a script developed at Creatis, which combines MRtrix3 and FSL tools.
 
-\todo{Tristan: validate the descriptions above}
+A few other applications from the FLI (France Life Imaging) consortium were also imported in
+VIP using Boutiques. One of them is Ginfizz, a FMRI pipeline allowing to execute multiple 
+preprocessing steps and basic analyses such as: (i) realignment (motion registration and correction),
+(ii) slice timing (temporal interpolation to correct for the delay of acquisition between slices), 
+(iii) coregistration (registering functional and structural data), (iv) normalization (registering 
+of functional and anatomical data to a match a template that has to be specified), and (iv)
+smoothing (spatial filtering to increase Signal to Noise ratio). The use of Docker containers (\url{https://hub.docker.com/r/fliiam/ginfizz} based on \url{https://hub.docker.com/r/miykael/nipype_level2}) 
+greatly simplifies its deployment. The animaN4BiasCorrection tool from the Anima  \footnote{\url{https://github.com/Inria-Visages/Anima-Public/wiki}} project was also made available 
+in VIP. The import process was straightforward. 
+
+\note{sorina}{@tristan: please check if you agree with the descriptions above}
 
 \begin{table}
   \begin{tabular}{l|ccccccc}
     \rowcolor[gray]{0.9}
     Application                      & \multicolumn{7}{c}{Input/Output properties} \\
     \rowcolor[gray]{0.9}
-                                     & Dependencies      &Groups             & Lists             & Optional          &Default            & Enum              & Min/max\\
+                                     & Dependencies      &Groups             & Lists             & Optional          &Default            & Type restriction             & Min/max\\
     
     \hline
     Niak pre-processing              &                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\\
@@ -964,16 +971,16 @@ reuse existing workflows in \boutiques. The adoption of ontologies in
 CWL may also be another consequence (see below).
 
 CWL has a formal command-line definition while \boutiques is more
-flexible. CWL specifies command lines using an array of executables and
-arguments whereas \boutiques only uses a string template. \boutiques'
-template approach may create issues in some cases, but it also allows
-developers to add simple operations to an application without having
-to write a specific wrapper. For instance, a \boutiques command line
-may easily include input decompression using, e.g., the tar command in
-addition to the main tool command. On the contrary, CWL applications
-may only have a single executable. Importantly, \boutiques' template
-system allows supporting configuration files (see
-Section~\ref{sec:configuration-files}).
+flexible. CWL specifies command lines using an array containing an
+executable and a set of arguments whereas \boutiques only uses a
+string template. \boutiques' template approach may create issues in
+some cases, but it also allows developers to add simple operations to
+an application without having to write a specific wrapper. For
+instance, a \boutiques command line may easily include input
+decompression using, e.g., the tar command in addition to the main
+tool command. On the contrary, CWL applications may only have a single
+executable. Importantly, \boutiques' template system allows supporting
+configuration files (see Section~\ref{sec:configuration-files}).
 
 CWL uses ontologies while \boutiques does not. Ontologies allow for
 richer definitions but they also have an overhead. The main
