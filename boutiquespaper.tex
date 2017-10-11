@@ -99,14 +99,13 @@ Applications are described with a JSON manifest that specifies the
 command-line template, inputs and outputs. The manifest may point to a
 container where the application and all its dependencies are
 installed. It may also contain an invocation schema used for input
-validation. At runtime, the execution platform builds the command line
-from the manifest and values entered by the user. The platform runs
-the command line on the execution infrastructure, e.g., a server, a
-cluster or a cloud, within a container whenever available. To build
-and run the command line, the platform may rely on the \boutiques core
-tools, in particular on the validator and local executor. Application
-manifests may be stored in the repository which provides additional
-features.
+validation (this will be created at runtime if it is not found). At
+runtime, the execution platform builds the command line from the manifest
+and values entered by the user. The platform runs the command line on the
+execution infrastructure, e.g., a server, a cluster or a cloud, within a
+container whenever available. To build and run the command line, the
+platform may rely on the \boutiques core tools, packaged through the 
+\texttt{bosh} command-line utility, such as the validator and executor.
 
 \subsection{Command-line description}
 
@@ -115,19 +114,18 @@ description represented as a simple string template complying to the
 syntax of the \texttt{bash} UNIX shell. \texttt{bash} is the default
 shell on the major Linux distributions and OS X. The command-line
 template may contain placeholders for input and output values, called
-value keys. The command line may actually
-encompass several commands separated, e.g., by semicolons, pipes
-(\texttt{|}) or ampersands (\texttt{\&}). Such a flexible command-line
-specification is meant to facilitate the embedding of minor mundane
-operations on the command line, for instance directory creation, input
-decompression or output archival.
+value keys. The command line may actually encompass several commands
+separated by semicolons, pipes (\texttt{|}) or ampersands (\texttt{\&}).
+Such a flexible command-line specification is meant to facilitate the
+embedding of minor mundane operations on the command line, for instance
+directory creation, input decompression or output archival.
 
 Here is an example of a typical command-line template:
 \begin{verbatim}
-exampleTool_1 [STRING_INPUT] [FILE_INPUT]  | \
-                              exampleTool_2 [FLAG_INPUT] [NUMBER_INPUT] >> [LOG].txt
+          exampleTool_1 [STRING_INPUT] [FILE_INPUT]  | \
+                exampleTool_2 [FLAG_INPUT] [NUMBER_INPUT] >> [LOG].txt
 \end{verbatim}
-The template contains six value keys for input and output values, that
+The template contains six value keys for input and output values that
 will be replaced by values and file names according to the user input
 when the application is executed. Flags will also be added wherever
 appropriate, with customizable separators. No particular syntax is
@@ -138,35 +136,33 @@ of the pipe (\texttt{|}) operator to chain applications, and of the
 \subsection{Input description}
 
 \paragraph{General properties.} Inputs must have a name, a unique
-identifier and a type. They may be optional, have a description, a
+identifier, and a type. They may be optional, have a description, a
 value key, a flag and flag separator, and a default value. Inputs may
 also be ordered lists: in this case, value keys are substituted by the
 space-separated list of input values.
 
-\paragraph{Types.} Inputs may be of type \texttt{String},
-\texttt{Number}, \texttt{Flag} 
-or \texttt{File}. \texttt{File} may
-also represent a directory. Types can be restricted to a specific set
-of values (\texttt{String} 
-and \texttt{Number} only), to a specific
-range (\texttt{Number} only), to integers or to booleans (\texttt{Number}
-only).
+\paragraph{Types.} Inputs may be of type \texttt{String}, \texttt{Number},
+\texttt{Flag} or \texttt{File}. \texttt{File} may also represent a directory.
+Types can be restricted to a specific set of values (\texttt{String} 
+and \texttt{Number} only), to a specific range (\texttt{Number} only), to
+integers or to booleans (\texttt{Number} only).
 
 \paragraph{Groups and dependencies.} Groups of inputs may be defined
-with a identifier, name and list of input identifiers. Groups may be
+with an identifier, name, and list of input identifiers. Groups may be
 used to improve the presentation in a graphical user interface and to
-specify the following constraints among inputs: (1)
-\texttt{mutually-exclusive}: only one input in the group may have a
-value; (2) \texttt{one-is-required}: at least one input in the group
-must have a value. Dependencies among inputs may also be defined
-regardless of a particular group: an input may (1) require a list of
-inputs and (2) disable a list of inputs.
+specify the following constraints among inputs:
+(1)~\texttt{mutually-exclusive}: only one member in the group may have a
+value; (2)~\texttt{one-is-required}: at least one member in the group
+must have a value; (3)~\texttt{all-or-none}: if any of the members are
+present all members must be present. Dependencies among inputs may also be
+defined regardless of a particular group: an input may (1)~require a list of
+inputs and (2)~disable a list of inputs.
 
-Listing~\ref{listing:input-example} shows the definition of an input
-in the command line exemplified above. According to this definition
-and assuming that the input value entered by the user is 0.3, the
-string \texttt{[NUMBER\_INPUT]} will be replaced by \texttt{-n=0.3} on
-the command line at execution time.
+Listing~\ref{listing:input-example} shows the definition of an input in the
+command line exemplified above. According to this definition and assuming
+that the input value entered by the user is 0.3, the string
+\texttt{[NUMBER\_INPUT]} will be replaced by \texttt{-n=0.3} on the command
+line at execution time.
 \begin{listing}
 \begin{minted}[frame=single,
                framesep=3mm,
@@ -185,9 +181,9 @@ the command line at execution time.
     "maximum" : 1,
     "exclusive-minimum" : true,
     "exclusive-maximum" : false
-  }
+}
 \end{minted}
-\caption{Input example.} 
+\caption{Example of a \texttt{Number}-type input.} 
 \label{listing:input-example}
 \end{listing}
 
@@ -200,11 +196,11 @@ outputs to build the application command line, this information is
 needed by computing platforms to identify the files that must be saved
 after the execution.
 
-In \boutiques, output files must have a unique identifier, a name and
+In \boutiques, output files must have a unique identifier, a name, and
 a path template that specifies the file or directory name. Path
 templates may include input value keys in case output files are named
 after the input values. In this case, input values may be stripped
-from specific strings, e.g., file extensions before being substituted
+from specific strings, e.g., file extensions, before being substituted
 in the path template. Output files may also have a description, a
 command-line flag, a flag separator, and a value key in case they
 appear on the command line. They may be optional in case the file is
@@ -237,7 +233,7 @@ replaced by \texttt{log-foo} on the command line at execution time.
     "optional" : false
 }
 \end{minted}
-\caption{Output file example} 
+\caption{Example of an output leveraging \texttt{path-template} search-and-replacement.} 
 \label{listing:output-example}
 \end{listing}
 
@@ -282,7 +278,7 @@ example.
                    ]
                  }
 \end{minted}
-\caption{Configuration file example. The file template is defined as
+\caption{Example of a configuration input file. The file template is defined as
   an array of strings to allow for multi-line strings in JSON.}
 \label{listing:configuration-file-example}
 \end{listing}
