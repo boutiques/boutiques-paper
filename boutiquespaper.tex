@@ -262,21 +262,21 @@ example.
                linenos=false,
                xleftmargin=21pt,
                tabsize=4]{js}
-               {
-                   "id": "config_file",
-                   "name": "Configuration file",
-                   "type": "Configuration File",
-                   "value-key": "[CONFIG_FILE]",
-                   "path-template": "config.txt",
-                   "file-template": [
-                   "# This input is hard-coded",
-                   "stringInput=foo",
-                   "fileInput=[FILE-INPUT]",
-                   "# And here is the result",
-                   "fileOutput=[OUTPUT-FILE]",
-                   ""
-                   ]
-                 }
+{
+    "id": "config_file",
+    "name": "Configuration file",
+    "type": "Configuration File",
+    "value-key": "[CONFIG_FILE]",
+    "path-template": "config.txt",
+    "file-template": [
+        "# This input is hard-coded",
+        "stringInput=foo",
+        "fileInput=[FILE-INPUT]",
+        "# And here is the result",
+        "fileOutput=[OUTPUT-FILE]",
+        ""
+    ]
+}
 \end{minted}
 \caption{Example of a configuration input file. The file template is defined as
   an array of strings to allow for multi-line strings in JSON.}
@@ -293,6 +293,7 @@ optional inputs. %% Inputs of type ``String'' may contain any string,
 %% "Flag" must contain a boolean. 
 %% When input is a list, the value contains the concatenation of all the
 %%values in the list.
+% gk: I agree with not including the above
 Algorithm~\ref{algo:command-line} shows how the command line is
 constructed from the manifest and the values entered by the user. It
 substitutes all the value keys in the command line, output path
@@ -362,8 +363,8 @@ example of how dependencies between mutually exclusive parameters are
 defined in the invocation schema. As it does not seem realistic to
 assume that developers will easily write correct invocations schemas
 even for their own applications, invocation schemas can be generated
-automatically using a core \boutiques tool. The invocation schema is
-stored as an optional property of the Boutiques manifest.
+automatically by the \boutiques command-line utility. The invocation
+schema is stored as an optional property of the \boutiques manifest.
 
 \notimplementedyet{The invocation schema also has a
   \texttt{task-dependencies} array that allows specifying that the new
@@ -377,7 +378,8 @@ stored as an optional property of the Boutiques manifest.
                linenos=false,
                xleftmargin=21pt,
                tabsize=4]{js}
-"dependencies" : {
+{
+  "dependencies" : {
       "num_input" : {
          "properties" : {
             "str_input" : {
@@ -393,6 +395,7 @@ stored as an optional property of the Boutiques manifest.
          }
       }
    }
+}
 \end{minted}
 \caption{Excerpt from invocation schema showing dependencies between
   two mutually exclusive parameters \texttt{num\_input} and
@@ -430,9 +433,9 @@ Applications are installed in a container image complying to the
 Docker, Singularity or rootfs format. We intentionally support
 multiple container formats as we anticipate that they will be used for
 different purposes. For instance, Docker is well suited for developers
-and users who manipulate applications on their local workstation. It
-is well documented, maintained and it has a rich ecosystem of tools to
-help build and run containers on most operating systems. Singularity
+and users who manipulate applications on their local workstations or the
+cloud. It is well documented, maintained and it has a rich ecosystem of
+tools to help build and run containers on most operating systems. Singularity
 is more suited for users and platforms that need to run applications
 on shared computing clusters. Bridges exist among these containers
 formats to convert container images across frameworks. For instance, a
@@ -441,9 +444,9 @@ referring to Docker containers to facilitate application integration
 by developers, and internally convert container images to Singularity
 to run applications efficiently on clusters.
 
-Container images are defined from their URL (Singularity and rootfs)
-or name in a Docker index. Container images may specify a working
-directory where the application has to be run. A hash may also be
+Container images are defined from their URL (rootfs) or name in the
+Docker or Singularity indices. Manifests and container images may specify a
+working directory where the application has to be run, and a hash may also be
 reported to accurately identify container images and detect updates.
 
 Containers were adopted because they allow for an automated and
@@ -454,9 +457,10 @@ important impact on the computed results. They also have limitations,
 in particular they do not specify the hardware architecture required
 to execute an application, which can be an issue in some cases.
 
-Containers are not mandatory though. If an application manifest does
-not contain any reference to a container, the platform will assume
-that the application is pre-installed on the execution infrastructure. 
+%%Containers are not mandatory though. If an application manifest does
+%%not contain any reference to a container, the platform will assume
+%%that the application is pre-installed on the execution infrastructure. 
+% gk: I believe we only support containers now, correct?
 
 \subsection{Custom properties}
 
@@ -464,50 +468,74 @@ Custom properties may be added to the Boutiques specification without
 restriction. Custom properties are corralled in a specific JSON object
 to facilitate validation. They may be useful to implement
 platform-specific features but they should be used with care to avoid
-making applications dependent on a particular platform.
+making applications dependent on a particular platform or replacing
+existing functionality already represented in the \boutiques schema.
 
 \subsection{Core tools} 
 
-The Boutiques validator checks conformance of JSON manifests to the
-Boutiques schema using a basic JSON validator. It also performs the
-following checks that cannot be easily implemented in JSON schema:
+\boutiques is available on Python through the PyPi package repository as
+``\texttt{boutiques}''. The \boutiques package exposes a command-line
+utility to the user, \texttt{bosh}, which contains entrypoints for all
+core functions within \boutiques. There is help-text which should guide
+users through interacting with the \texttt{bosh} utility. The core tools
+provided by \boutiques are, the: validator, executor (for both launch and
+simulation), invocation schema handler, importer, and publisher. The tools
+exposed through the command-line API are also available consistently through
+the Python interface by importing the \boutiques package.
+
+\paragraph{Validator.} The \boutiques validator checks conformance of JSON
+manifests to the \boutiques schema using a basic JSON validator. It also
+performs the following checks that cannot be easily implemented in JSON schema:
 value keys are unique among inputs, input and output identifiers are
 unique, input and output value keys are all included in the command
-line, value keys are not contained within each other (which would
-puzzle substitution), output path templates are unique (to avoid
-results to overwrite each other), inputs of type Flag have a
-command-line flag, are optional and are not lists, number and list
-constraints are sensible (e.g. min is lower than max), the default
+line, identifiers with the same value key are mutually exclusive, value keys
+are not contained within each other (which would puzzle substitution), output
+path templates are unique (to avoid results to overwrite each other), inputs of
+type Flag have a command-line flag, are optional and are not lists, the default
 value of restricted types is part of the restriction, an input cannot both require
 and disable another input, required inputs cannot require or disable
 other parameters, group member identifiers must correspond to existing
 inputs and cannot appear in different groups, mutually exclusive
-groups cannot have members requiring other members, and
-one-is-required groups should never have required members. The
-Boutiques validator is meant for application developers; platforms
-should rely on regular JSON validation to avoid depending on a
-third-party tool.
+groups cannot have members requiring other members, one-is-required groups
+should never have required members, and all-or-none group members must not be
+required.
 
-The local executor can generate and execute command line from a
-Boutiques manifest and a set of input values represented in a CSV or
-JSON file complying with the invocation schema. It runs the command in
-a container provided that the required framework (e.g. Docker) is
-already installed. It can also generate hypothetical command lines
-from random values for debugging purposes. The local executor can be
-used by application users to run applications locally, or by platforms
-to generate command lines to be run on the execution infrastructure.
 
-The invocation schema generator can create an invocation schema (see
-Section~\ref{sec:invocation-schema}) from a \boutiques manifest and
-validate input data against it using a regular JSON validator. It can
-be used to add invocation schemas to existing manifests.
+\paragraph{Executor.} The executor has two modes of operation: \emph{launch}, and
+\emph{simulate}. The simulate mode can generate hypothetical command lines from
+random values given the manifest (and corresponding invocation schema) for debugging
+purposes, or display the command that would be executed given a provided valid
+invocation. The launch mode can execute command line from a \boutiques manifest and
+a set of input values represented in JSON file complying with the invocation schema.
+It runs the command in a container provided that the required framework (e.g. Docker)
+is already installed. The executor can be used by application users to run
+applications locally, or by platforms to generate command lines to be run on the
+execution infrastructure.
 
-Finally, a JSON editor facilitates the writing of \boutiques manifests
-through a web interface and a Jupyter Notebook tutorial facilitates
-new users getting started with Boutiques.
+\paragraph{Invocation Schema Handler.} The invocation schema handler can create an
+invocation schema (see Section~\ref{sec:invocation-schema}) from a \boutiques manifest
+and validate input data against it using a regular JSON validator. It can be used to add
+invocation schemas to existing manifests. It is used by the executor if no invocation
+schema is present in the \boutiques manifest being deployed.
+
+\paragraph{Importer.} The importer takes \boutiques manifests from older versions and
+updates them to be compliant with the most recent version of the schema. This tool can
+also create manifests from select application collections, such as BIDS
+apps~\cite{gorgolewski2017bids}.
+
+\paragraph{Publisher.} As \boutiques has primarily been adopted in the neuroinformatics
+community, the publisher gets a further description (such as author, website, etc.) of
+the described tool, and adds an index to it on
+NeuroLinks\footnote{\url{https://brainhack101.github.io/neurolinks/}}, a repository
+containing links to useful resources and tools. This enables others to find and use the
+descriptor for your tool easily. This functionality could be extended to
+new repositories for other domains, such as Bioconductor for bioinformatics.
+
+Though not a component of the \boutiques tool chain, a Jupyter Notebook tutorial exists
+to facilitate new users getting started with \boutiques.
 
 \subsection{Repository}
-
+%% gk: I think we should remove this and just have the reference in Publisher
 \todo{Gunnar, Nathaniel, John}
 
 \section{Results}
@@ -515,7 +543,7 @@ new users getting started with Boutiques.
 
 \subsection{Supported platforms}
 
-The following platforms are able to integrate and execute Boutiques
+The following platforms are currently able to integrate and execute Boutiques
 applications. 
 
 \subsubsection{CBRAIN}
