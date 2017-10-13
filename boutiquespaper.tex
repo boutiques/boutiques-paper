@@ -27,9 +27,6 @@
         Rafael Ferreira da Silva, Guillaume Flandin, John Flavin, Pascal Girard, \\
         Krzysztof J. Gorgolewski, Charles G. Guttmann, Gregory Kiar, Nathaniel Kofalt, \\
         Pierre-Olivier Quirion, Pierre Rioux, Marc-\'Etienne Rousseau, Gunnar Schaeffer, Alan C. Evans}
-
-\note{greg}{gk's affiliation: Department of Biomedical Engineering, Johns Hopkins University, Baltimore, MD}
-
 \maketitle
 
 \abstract{Porting applications to execution platforms such as web
@@ -39,52 +36,52 @@
   costly human effort that consists of 1)~installing the application
   on the target infrastructure, 2)~describing the application in a
   format compatible with the execution platform, and 3)~generating
-  proper user interfaces. Due to the variety of platforms, application
-  porting efforts are often replicated several times while
-  mutualization would save cost and improve the quality of the ported
-  applications. We describe \boutiques, a system that allows for
-  automatic import and exchange of applications across
-  platforms. \boutiques adopts a rich, flexible application
-  description format and it relies on Linux containers to install
-  applications across platforms in a lightweight manner. It is
-  currently supported by \todo{X} platforms and was used to describe
-  \todo{Y} applications.  }
+  proper user interfaces. Due to the variety of computing platforms,
+  application porting efforts are often replicated several times while
+  interoperability would save cost and improve the quality of the ported
+  applications. We describe \boutiques, a descriptive framework and
+  command line utility that allows for automatic import and exchange of
+  applications across platforms. \boutiques adopts a rich, flexible
+  application description format which relies on Linux container
+  environments such as Docker and Singularity to install applications
+  across platforms in a lightweight manner. \boutiques is currently used
+  by three distinct virtual research platforms, and has been used to
+  describe dozens of neuroinformatics tools.}
 
 \section{Introduction}
 
-Platforms such as web services, portals, virtual research
-environments, science gateways and workflow engines often rely on
-third-party data processing and simulation applications to deliver
-services to their users. Such applications are often repeatedly and
-manually ported to various platforms whereas this porting effort would
-greatly benefit from being mutualized. Meanwhile, virtual container
-systems such as Docker and Singularity greatly facilitate the sharing
-of software and improve the reproducibility of analyses by defining
+Platforms such as web services, portals, and virtual research
+environments are becoming an common solution for increasing the
+accessibility of high performance computing. These scientific gateways and
+workflow engines often rely on third-party data processing and simulation
+applications to deliver services to their users. Such applications are
+often repeatedly and manually ported to various platforms whereas this
+porting effort would greatly benefit from being mutualized. Meanwhile,
+virtual container systems such as Docker and Singularity greatly facilitate
+the sharing of software and improve the reproducibility of analyses by defining
 immutable, reusable execution environments. However, containers need
 to be properly annotated to allow platforms to leverage the software
-they contain. Basically, the command lines that can be run in a
-container must be formally described so that they can be automatically
-created and executed by platforms. Describing command lines is not
-straightforward since they often contain implicit semantics specified
-in human-readable documents such as manuals.
+they contain. The command lines that can be run in a container must be formally
+described so that they can be automatically created and executed by platforms.
+Describing command lines is not straightforward since they often contain
+implicit semantics specified in human-readable documents such as manuals.
 
 \boutiques is a system to share command-line applications across
 platforms. In \boutiques, a command line is described using a flexible
 template comprising the inputs it requires and the outputs it
-produces. Inputs may be inter-dependent, e.g., input A cannot be used
-if input B is used, and passed in configuration files or directly on
-the command line. Such formal descriptions, also called
+produces. Inputs may be inter-dependent, e.g., input \emph{A} cannot be used
+if input \emph{B} is used; inputs may be passed in configuration files
+or directly on the command line. Such formal descriptions, also called
 \emph{manifests}, allow for advanced validation of input values to
-prevent errors. Manifests refer to containers where applications and
-all their dependencies are installed. \boutiques also provides a
+prevent errors. A manifest refers to a container where a given application
+and all their dependencies are installed. \boutiques also provides a
 simple parallelization framework that allows applications such as
 workflow engines to concurrently execute multiple tasks (in the
 remainder, tasks are called \emph{invocations}). A set of core tools
-facilitate the construction, validation and execution of \boutiques
-manifests. A repository orchestrates these tools together. \boutiques
-manifests are intented to be produced by scientific application
-developers, to be published in common repositories and to be consumed
-by execution platforms.
+facilitate the construction, validation, import, execution, and publishing
+of \boutiques manifests. \boutiques manifests are intented to be produced by
+scientific developers and stored alongside their application, indexed by common
+repositories, and to be consumed by execution platforms.
 
 The remainder of this paper describes the \boutiques system
 (Section~\ref{sec:system}) and reports on its adoption by platforms
@@ -102,14 +99,13 @@ Applications are described with a JSON manifest that specifies the
 command-line template, inputs and outputs. The manifest may point to a
 container where the application and all its dependencies are
 installed. It may also contain an invocation schema used for input
-validation. At runtime, the execution platform builds the command line
-from the manifest and values entered by the user. The platform runs
-the command line on the execution infrastructure, e.g., a server, a
-cluster or a cloud, within a container whenever available. To build
-and run the command line, the platform may rely on the \boutiques core
-tools, in particular on the validator and local executor. Application
-manifests may be stored in the repository which provides additional
-features.
+validation (this will be created at runtime if it is not found). At
+runtime, the execution platform builds the command line from the manifest
+and values entered by the user. The platform runs the command line on the
+execution infrastructure, e.g., a server, a cluster or a cloud, within a
+container whenever available. To build and run the command line, the
+platform may rely on the \boutiques core tools, packaged through the 
+\texttt{bosh} command-line utility, such as the validator and executor.
 
 \subsection{Command-line description}
 
@@ -118,19 +114,18 @@ description represented as a simple string template complying to the
 syntax of the \texttt{bash} UNIX shell. \texttt{bash} is the default
 shell on the major Linux distributions and OS X. The command-line
 template may contain placeholders for input and output values, called
-value keys. The command line may actually
-encompass several commands separated, e.g., by semicolons, pipes
-(\texttt{|}) or ampersands (\texttt{\&}). Such a flexible command-line
-specification is meant to facilitate the embedding of minor mundane
-operations on the command line, for instance directory creation, input
-decompression or output archival.
+value keys. The command line may actually encompass several commands
+separated by semicolons, pipes (\texttt{|}) or ampersands (\texttt{\&}).
+Such a flexible command-line specification is meant to facilitate the
+embedding of minor mundane operations on the command line, for instance
+directory creation, input decompression or output archival.
 
 Here is an example of a typical command-line template:
 \begin{verbatim}
-exampleTool_1 [STRING_INPUT] [FILE_INPUT]  | \
-                              exampleTool_2 [FLAG_INPUT] [NUMBER_INPUT] >> [LOG].txt
+          exampleTool_1 [STRING_INPUT] [FILE_INPUT]  | \
+                exampleTool_2 [FLAG_INPUT] [NUMBER_INPUT] >> [LOG].txt
 \end{verbatim}
-The template contains six value keys for input and output values, that
+The template contains six value keys for input and output values that
 will be replaced by values and file names according to the user input
 when the application is executed. Flags will also be added wherever
 appropriate, with customizable separators. No particular syntax is
@@ -141,35 +136,33 @@ of the pipe (\texttt{|}) operator to chain applications, and of the
 \subsection{Input description}
 
 \paragraph{General properties.} Inputs must have a name, a unique
-identifier and a type. They may be optional, have a description, a
+identifier, and a type. They may be optional, have a description, a
 value key, a flag and flag separator, and a default value. Inputs may
 also be ordered lists: in this case, value keys are substituted by the
 space-separated list of input values.
 
-\paragraph{Types.} Inputs may be of type \texttt{String},
-\texttt{Number}, \texttt{Flag} 
-or \texttt{File}. \texttt{File} may
-also represent a directory. Types can be restricted to a specific set
-of values (\texttt{String} 
-and \texttt{Number} only), to a specific
-range (\texttt{Number} only), to integers or to booleans (\texttt{Number}
-only).
+\paragraph{Types.} Inputs may be of type \texttt{String}, \texttt{Number},
+\texttt{Flag} or \texttt{File}. \texttt{File} may also represent a directory.
+Types can be restricted to a specific set of values (\texttt{String} 
+and \texttt{Number} only), to a specific range (\texttt{Number} only), to
+integers or to booleans (\texttt{Number} only).
 
 \paragraph{Groups and dependencies.} Groups of inputs may be defined
-with a identifier, name and list of input identifiers. Groups may be
+with an identifier, name, and list of input identifiers. Groups may be
 used to improve the presentation in a graphical user interface and to
-specify the following constraints among inputs: (1)
-\texttt{mutually-exclusive}: only one input in the group may have a
-value; (2) \texttt{one-is-required}: at least one input in the group
-must have a value. Dependencies among inputs may also be defined
-regardless of a particular group: an input may (1) require a list of
-inputs and (2) disable a list of inputs.
+specify the following constraints among inputs:
+(1)~\texttt{mutually-exclusive}: only one member in the group may have a
+value; (2)~\texttt{one-is-required}: at least one member in the group
+must have a value; (3)~\texttt{all-or-none}: if any of the members are
+present all members must be present. Dependencies among inputs may also be
+defined regardless of a particular group: an input may (1)~require a list of
+inputs and (2)~disable a list of inputs.
 
-Listing~\ref{listing:input-example} shows the definition of an input
-in the command line exemplified above. According to this definition
-and assuming that the input value entered by the user is 0.3, the
-string \texttt{[NUMBER\_INPUT]} will be replaced by \texttt{-n=0.3} on
-the command line at execution time.
+Listing~\ref{listing:input-example} shows the definition of an input in the
+command line exemplified above. According to this definition and assuming
+that the input value entered by the user is 0.3, the string
+\texttt{[NUMBER\_INPUT]} will be replaced by \texttt{-n=0.3} on the command
+line at execution time.
 \begin{listing}
 \begin{minted}[frame=single,
                framesep=3mm,
@@ -188,9 +181,9 @@ the command line at execution time.
     "maximum" : 1,
     "exclusive-minimum" : true,
     "exclusive-maximum" : false
-  }
+}
 \end{minted}
-\caption{Input example.} 
+\caption{Example of a \texttt{Number}-type input.} 
 \label{listing:input-example}
 \end{listing}
 
@@ -203,11 +196,11 @@ outputs to build the application command line, this information is
 needed by computing platforms to identify the files that must be saved
 after the execution.
 
-In \boutiques, output files must have a unique identifier, a name and
+In \boutiques, output files must have a unique identifier, a name, and
 a path template that specifies the file or directory name. Path
 templates may include input value keys in case output files are named
 after the input values. In this case, input values may be stripped
-from specific strings, e.g., file extensions before being substituted
+from specific strings, e.g., file extensions, before being substituted
 in the path template. Output files may also have a description, a
 command-line flag, a flag separator, and a value key in case they
 appear on the command line. They may be optional in case the file is
@@ -240,7 +233,7 @@ replaced by \texttt{log-foo} on the command line at execution time.
     "optional" : false
 }
 \end{minted}
-\caption{Output file example} 
+\caption{Example of an output leveraging \texttt{path-template} search-and-replacement.} 
 \label{listing:output-example}
 \end{listing}
 
@@ -269,23 +262,23 @@ example.
                linenos=false,
                xleftmargin=21pt,
                tabsize=4]{js}
-               {
-                   "id": "config_file",
-                   "name": "Configuration file",
-                   "type": "Configuration File",
-                   "value-key": "[CONFIG_FILE]",
-                   "path-template": "config.txt",
-                   "file-template": [
-                   "# This input is hard-coded",
-                   "stringInput=foo",
-                   "fileInput=[FILE-INPUT]",
-                   "# And here is the result",
-                   "fileOutput=[OUTPUT-FILE]",
-                   ""
-                   ]
-                 }
+{
+    "id": "config_file",
+    "name": "Configuration file",
+    "type": "Configuration File",
+    "value-key": "[CONFIG_FILE]",
+    "path-template": "config.txt",
+    "file-template": [
+        "# This input is hard-coded",
+        "stringInput=foo",
+        "fileInput=[FILE-INPUT]",
+        "# And here is the result",
+        "fileOutput=[OUTPUT-FILE]",
+        ""
+    ]
+}
 \end{minted}
-\caption{Configuration file example. The file template is defined as
+\caption{Example of a configuration input file. The file template is defined as
   an array of strings to allow for multi-line strings in JSON.}
 \label{listing:configuration-file-example}
 \end{listing}
@@ -300,6 +293,7 @@ optional inputs. %% Inputs of type ``String'' may contain any string,
 %% "Flag" must contain a boolean. 
 %% When input is a list, the value contains the concatenation of all the
 %%values in the list.
+%% gk: I agree with not including the above
 Algorithm~\ref{algo:command-line} shows how the command line is
 constructed from the manifest and the values entered by the user. It
 substitutes all the value keys in the command line, output path
@@ -369,8 +363,8 @@ example of how dependencies between mutually exclusive parameters are
 defined in the invocation schema. As it does not seem realistic to
 assume that developers will easily write correct invocations schemas
 even for their own applications, invocation schemas can be generated
-automatically using a core \boutiques tool. The invocation schema is
-stored as an optional property of the Boutiques manifest.
+automatically by the \boutiques command-line utility. The invocation
+schema is stored as an optional property of the \boutiques manifest.
 
 \notimplementedyet{The invocation schema also has a
   \texttt{task-dependencies} array that allows specifying that the new
@@ -384,7 +378,8 @@ stored as an optional property of the Boutiques manifest.
                linenos=false,
                xleftmargin=21pt,
                tabsize=4]{js}
-"dependencies" : {
+{
+  "dependencies" : {
       "num_input" : {
          "properties" : {
             "str_input" : {
@@ -400,6 +395,7 @@ stored as an optional property of the Boutiques manifest.
          }
       }
    }
+}
 \end{minted}
 \caption{Excerpt from invocation schema showing dependencies between
   two mutually exclusive parameters \texttt{num\_input} and
@@ -437,9 +433,9 @@ Applications are installed in a container image complying to the
 Docker, Singularity or rootfs format. We intentionally support
 multiple container formats as we anticipate that they will be used for
 different purposes. For instance, Docker is well suited for developers
-and users who manipulate applications on their local workstation. It
-is well documented, maintained and it has a rich ecosystem of tools to
-help build and run containers on most operating systems. Singularity
+and users who manipulate applications on their local workstations or the
+cloud. It is well documented, maintained and it has a rich ecosystem of
+tools to help build and run containers on most operating systems. Singularity
 is more suited for users and platforms that need to run applications
 on shared computing clusters. Bridges exist among these containers
 formats to convert container images across frameworks. For instance, a
@@ -448,9 +444,9 @@ referring to Docker containers to facilitate application integration
 by developers, and internally convert container images to Singularity
 to run applications efficiently on clusters.
 
-Container images are defined from their URL (Singularity and rootfs)
-or name in a Docker index. Container images may specify a working
-directory where the application has to be run. A hash may also be
+Container images are defined from their URL (rootfs) or name in the
+Docker or Singularity indices. Manifests and container images may specify a
+working directory where the application has to be run, and a hash may also be
 reported to accurately identify container images and detect updates.
 
 Containers were adopted because they allow for an automated and
@@ -461,9 +457,10 @@ important impact on the computed results. They also have limitations,
 in particular they do not specify the hardware architecture required
 to execute an application, which can be an issue in some cases.
 
-Containers are not mandatory though. If an application manifest does
-not contain any reference to a container, the platform will assume
-that the application is pre-installed on the execution infrastructure. 
+%%Containers are not mandatory though. If an application manifest does
+%%not contain any reference to a container, the platform will assume
+%%that the application is pre-installed on the execution infrastructure. 
+%% gk: I believe we only support containers now, correct?
 
 \subsection{Custom properties}
 
@@ -471,50 +468,74 @@ Custom properties may be added to the Boutiques specification without
 restriction. Custom properties are corralled in a specific JSON object
 to facilitate validation. They may be useful to implement
 platform-specific features but they should be used with care to avoid
-making applications dependent on a particular platform.
+making applications dependent on a particular platform or replacing
+existing functionality already represented in the \boutiques schema.
 
 \subsection{Core tools} 
 
-The Boutiques validator checks conformance of JSON manifests to the
-Boutiques schema using a basic JSON validator. It also performs the
-following checks that cannot be easily implemented in JSON schema:
+\boutiques is available on Python through the PyPi package repository as
+``\texttt{boutiques}''. The \boutiques package exposes a command-line
+utility to the user, \texttt{bosh}, which contains entrypoints for all
+core functions within \boutiques. There is help-text which should guide
+users through interacting with the \texttt{bosh} utility. The core tools
+provided by \boutiques are, the: validator, executor (for both launch and
+simulation), invocation schema handler, importer, and publisher. The tools
+exposed through the command-line API are also available consistently through
+the Python interface by importing the \boutiques package.
+
+\paragraph{Validator.} The \boutiques validator checks conformance of JSON
+manifests to the \boutiques schema using a basic JSON validator. It also
+performs the following checks that cannot be easily implemented in JSON schema:
 value keys are unique among inputs, input and output identifiers are
 unique, input and output value keys are all included in the command
-line, value keys are not contained within each other (which would
-puzzle substitution), output path templates are unique (to avoid
-results to overwrite each other), inputs of type Flag have a
-command-line flag, are optional and are not lists, number and list
-constraints are sensible (e.g. min is lower than max), the default
+line, identifiers with the same value key are mutually exclusive, value keys
+are not contained within each other (which would puzzle substitution), output
+path templates are unique (to avoid results to overwrite each other), inputs of
+type Flag have a command-line flag, are optional and are not lists, the default
 value of restricted types is part of the restriction, an input cannot both require
 and disable another input, required inputs cannot require or disable
 other parameters, group member identifiers must correspond to existing
 inputs and cannot appear in different groups, mutually exclusive
-groups cannot have members requiring other members, and
-one-is-required groups should never have required members. The
-Boutiques validator is meant for application developers; platforms
-should rely on regular JSON validation to avoid depending on a
-third-party tool.
+groups cannot have members requiring other members, one-is-required groups
+should never have required members, and all-or-none group members must not be
+required.
 
-The local executor can generate and execute command line from a
-Boutiques manifest and a set of input values represented in a CSV or
-JSON file complying with the invocation schema. It runs the command in
-a container provided that the required framework (e.g. Docker) is
-already installed. It can also generate hypothetical command lines
-from random values for debugging purposes. The local executor can be
-used by application users to run applications locally, or by platforms
-to generate command lines to be run on the execution infrastructure.
 
-The invocation schema generator can create an invocation schema (see
-Section~\ref{sec:invocation-schema}) from a \boutiques manifest and
-validate input data against it using a regular JSON validator. It can
-be used to add invocation schemas to existing manifests.
+\paragraph{Executor.} The executor has two modes of operation: \emph{launch}, and
+\emph{simulate}. The simulate mode can generate hypothetical command lines from
+random values given the manifest (and corresponding invocation schema) for debugging
+purposes, or display the command that would be executed given a provided valid
+invocation. The launch mode can execute command line from a \boutiques manifest and
+a set of input values represented in JSON file complying with the invocation schema.
+It runs the command in a container provided that the required framework (e.g. Docker)
+is already installed. The executor can be used by application users to run
+applications locally, or by platforms to generate command lines to be run on the
+execution infrastructure.
 
-Finally, a JSON editor facilitates the writing of \boutiques manifests
-through a web interface and a Jupyter Notebook tutorial facilitates
-new users getting started with Boutiques.
+\paragraph{Invocation Schema Handler.} The invocation schema handler can create an
+invocation schema (see Section~\ref{sec:invocation-schema}) from a \boutiques manifest
+and validate input data against it using a regular JSON validator. It can be used to add
+invocation schemas to existing manifests. It is used by the executor if no invocation
+schema is present in the \boutiques manifest being deployed.
+
+\paragraph{Importer.} The importer takes \boutiques manifests from older versions and
+updates them to be compliant with the most recent version of the schema. This tool can
+also create manifests from select application collections, such as BIDS
+apps~\cite{gorgolewski2017bids}.
+
+\paragraph{Publisher.} As \boutiques has primarily been adopted in the neuroinformatics
+community, the publisher gets a further description (such as author, website, etc.) of
+the described tool, and adds an index to it on
+NeuroLinks\footnote{\url{https://brainhack101.github.io/neurolinks/}}, a repository
+containing links to useful resources and tools. This enables others to find and use the
+descriptor for your tool easily. This functionality could be extended to
+new repositories for other domains, such as Bioconductor for bioinformatics.
+
+Though not a component of the \boutiques tool chain, a Jupyter Notebook tutorial exists
+to facilitate new users getting started with \boutiques.
 
 \subsection{Repository}
-
+%% gk: I think we should remove this and just have the reference in Publisher
 \todo{Gunnar, Nathaniel, John}
 
 \section{Results}
@@ -522,8 +543,9 @@ new users getting started with Boutiques.
 
 \subsection{Supported platforms}
 
-The following platforms are able to integrate and execute Boutiques
-applications. 
+\boutiques application import and execution is currently supported by several
+platforms which aid in execution and tool management. These are enumerated
+below.
 
 \subsubsection{CBRAIN}
 
@@ -534,13 +556,13 @@ distributed computing sites, and an array of processing and
 visualization tools within a controlled, secure environment.  The
 CBRAIN service deployed at the Montreal Neurological Institute relies
 on the infrastructure provided by Compute Canada~\cite{das2016mni}. It
-currently provides 460+ collaborators in 20 countries with web access
+currently provides 500+ collaborators in 22 countries with web access
 to several systems, including 6 clusters of the Compute Canada
 high-performance computing infrastructure (totaling more than 100,000
 computing cores and 40PB of disk storage) and Amazon EC2. CBRAIN
 transiently stores about 10 million files representing over 50TB
-distributed in 42 servers. 56 data processing applications are integrated and
-over 340,000 processing batches have been submitted since 2010.
+distributed in 42 servers. 51 public data processing applications are
+integrated and over 340,000 processing batches have been submitted since 2010.
 
 Applications in CBRAIN are integrated as Ruby classes that create web
 forms, validate parameters and run command lines on computing
@@ -550,9 +572,9 @@ integration modes are available:
 \begin{enumerate}
   \item The manifest is stored in a CBRAIN plugin and the Ruby classes
     are generated on-the-fly when CBRAIN starts. This mode allows
-    CBRAIN developers update all Boutiques applications at once by
+    CBRAIN developers update all \boutiques applications at once by
     editing the templates. However, it does not allow for
-    customization beyond the Boutiques schema.
+    customization beyond the \boutiques schema.
   \item Ruby classes are generated from manifests
     through an offline process and integrated in CBRAIN as any other
     application. This mode allows developers to customize applications
@@ -560,24 +582,26 @@ integration modes are available:
     applications are difficult to maintain in the long term, in
     particular when the manifests are updated.
 \end{enumerate}
+%% gk: I think we can skip this last bit, since there is only one type of
+%% \emph{boutiques} integration with cbrain, we needn't mention the other?
 
 A custom property (\texttt{cbrain:inherits-from-class}) was added to
-the Boutiques manifest to define the Ruby class that should be used as
+the \boutiques manifest to define the Ruby class that should be used as
 parent class for the application in CBRAIN. It provides more
 flexibility to the first integration model described previously.
 
 CBRAIN was also extended to support the parallelization mechanism
-available in Boutiques: the CBRAIN execution agent periodically scans
+available in \boutiques: the CBRAIN execution agent periodically scans
 the execution directories of the parallelized applications and it submits
 the invocations defined in the JSON objects written by the
 application in this directory.
 
 A new list mechanism was also introduced in CBRAIN to facilitate the
-iteration of Boutiques applications on large sets of files. CBRAIN
+iteration of \boutiques applications on large sets of files. CBRAIN
 lists are specific files that contain references to other CBRAIN
-files. When a list is passed to a Boutiques application, the elements
+files. When a list is passed to a \boutiques application, the elements
 in the list are either concatenated in a single command line (when the
-corresponding Boutiques input is a list), or a new command line is
+corresponding \boutiques input is a list), or a new command line is
 generated for every element in the list (when the input is not a
 list). Supporting lists as a specific CBRAIN file type allows for
 improved validation. For instance, lists that contain references to
@@ -586,15 +610,15 @@ edit lists using their own tools such as scripts or spreadsheet
 applications.
 
 \subsubsection{Flywheel}
-
+%% gk: shall we check with them, and if nothing, remove?
 \todo{Gunnar, Nathanael, John}
 
 \subsubsection{Pegasus}
-
+%% gk: to what extent does this exist?
 \todo{Rafael}
 
 \subsubsection{SPINE}
-
+%% gk: shall we check with them, and if nothing, remove?
 \todo{Charles}
 
 \subsubsection{VIP}
@@ -604,18 +628,19 @@ simulation  and image data analysis. VIP allows to make applications
 available as a service, and also to benefit from the resources available 
 to the biomed Virtual Organisation (VO) of the European Grid Infrastructure 
 \footnote{\url{https://www.egi.eu/}}, supported by approximately 65 computing
-sites world-wide offering a total of 130 computing clusters
-and 5 PB of storage. The VIP service is currently deployed at the Creatis laboratory
+sites world-wide offering a total of 130 computing clusters and 5 PB of storage.
+The VIP service is currently deployed at the Creatis laboratory
 \footnote{\url{https://www.creatis.insa-lyon.fr/site7/en}} and uses the DIRAC 
 French service \footnote{\url{https://dirac.france-grilles.fr}} to submit jobs on 
-EGI grid and cloud resources.  VIP counts, in December 2016, more than 950 
-registered users and a growing number of available applications. 
+EGI grid and cloud resources.  VIP counts, in October 2017, more than 1000 
+registered users and a growing number of available applications.
+%% gk: I guessed 50 more in the last year, since 1000 is a nice number, is this accurate?
 
 Until recently, applications were manually integrated in VIP as workflows written 
 in the Gwendia\cite{MONT-09} language and managed  with the MOTEUR\cite{GLAT-08} workflow engine. 
 As of today, Boutiques is supported through a "Boutiques application importer" tool, which 
 parses the JSON file and automatically generates the corresponding application workflow
-and the wrapper script that handles, among others, the execution of the command line itself. 
+and the wrapper script that handles, among other things, the execution of the command line itself. 
 The use of an application workflow allows to (i) iterate on input lists and generate 
 parallel tasks, as well as to (ii) concatenate multiple tools. The applications used in 
 the MICCAI challenges, for example, were followed by other tools allowing to compute 
@@ -629,11 +654,11 @@ level based on pre-defined workflow templates.
 % cbrain-plugins-neuro
 
 Table~\ref{table:applications} summarizes the applications described
-with Boutiques and the main features used.
+with \boutiques and the main features used.
 
 \paragraph{Niak.} The Niak pre-processing pipeline, executed with the Pipeline System
 for Octave and Matlab (PSOM)~\cite{bellec2012pipeline}, was integrated
-in CBRAIN through Boutiques. The integration uses the parallelization
+in CBRAIN through \boutiques. The integration uses the parallelization
 mechanism described in Section~\ref{sec:parallelization} so that even
 the invocations processing a single subject can be parallelized. It also
 allows CBRAIN to leverage the efficient agent model used in PSOM, as
@@ -645,16 +670,15 @@ principle be used in other platforms that support the parallelization
 property, although this has not been tested.
 
 \paragraph{Nipype.} The Nipype workflow engine~\cite{gorgolewski2011nipype} was
-instrumented to export to Boutiques applications described in its
+instrumented to export to \boutiques applications described in its
 internal Python description language. \todo{Update nipype\_cmd to
-  support the latest Boutiques schema and complete this paragraph.}
+  support the latest \boutiques schema and complete this paragraph.}
 
 \paragraph{SPM.} The Statistical Parameter Mapping toolbox (SPM)~\cite{penny2011statistical}
 was exported to Boutiques \ldots \todo{Guillaume}
 
-
 \paragraph{MICCAI challenges.}
-Boutiques was used to integrate 23 pipelines in the VIP platform in
+\boutiques was used to integrate 23 pipelines in the VIP platform in
 the context of two challenges organized by the MICCAI conference in
 2016, related to the segmentation of multiple-sclerosis lesions in MR
 images (MSSEG
@@ -681,7 +705,7 @@ the platform for the following reasons:
   solved the issue by mounting a host directory in the temporary directory.
 \end{enumerate}
 The pipelines did not use much of the expressiveness features offered
-by Boutiques since the instructions given to the challengers required
+by \boutiques since the instructions given to the challengers required
 that all the pipeline parameters were hardcoded, to facilitate
 execution. Two custom properties (\texttt{vip:miccai-challenger-email}
 and \texttt{vip:miccai-challenge-team-name}) were added to the
@@ -689,20 +713,25 @@ and \texttt{vip:miccai-challenge-team-name}) were added to the
 context of MICCAI challenges.
 
 \paragraph{ndmg.} The NeuroData MRI to Graphs one-click connectome estimation
-pipeline~\cite{kiar2016ndmg}, developed in Python and leveraging FSL, was
+pipeline~\cite{kiar2017comprehensive}, developed in Python and leveraging FSL, was
 exported to \boutiques and is available at \url{https://github.com/neurodata/boutiques-tools}.
+The ndmg pipeline is deployed in CBRAIN via its \boutiques descriptor, and is available
+both through Docker and Singularity container environments.
 
-\paragraph{Other applications.} Other neuroinformatics applications were ported to CBRAIN using Boutiques:
+\paragraph{BIDS apps.} Brain Imaging Data Structure supported
+applications~\cite{gorgolewski2017bids}, a recent effort for the adoption of BIDS support
+in common neuroimaging pipelines, require a standardized set of input and output parameters
+by tools. A \boutiques tool has been developed which generates a manifest for any such
+BIDS app, enabling them to be deployed within a broad range of high performance computing
+infrastructures, such as CBRAIN.
+
+\paragraph{Other applications.} Other neuroinformatics applications were ported to CBRAIN using \boutiques:
 FSL tools and ICA AROMA are available at
 \url{https://github.com/aces/cbrain-plugins-neuro} and some pipelines
 of the Human Connectome Project (HCP) are at
 \url{https://github.com/big-data-lab-team/cbrain-plugins-hcp}.
 
-\todo{Chris, something on BIDS apps?}
-
-
-\paragraph{VIP applications.}A few tools were imported in VIP using Boutiques. 
-
+\paragraph{VIP applications.} Several tools were imported in VIP using \boutiques. 
 The first one is a phase contrast simulator called CreaPhase and developed at Creatis. 
 The CreaPhase inputs had certain particularies (some nedeed to be enclosed 
 in simple quotes, other were vectors of variable size enclosed in brackets)
@@ -710,7 +739,7 @@ that required the post-processing of the wrapper script generated by the
 Boutiques importer. 
 
 The Odin MRI simulator\footnote{\url{http://od1n.sourceforge.net}} was also imported 
-in VIP using Boutiques. Since Odin  may require important amounts of computing resources 
+in VIP using \boutiques. Since Odin  may require important amounts of computing resources 
 (the common use-case consists in iterating on a large number of inputs files), Odin is 
 executed by VIP on the EGI grid resources, which currently do not support Docker. Consequently, 
 the Odin executable was exported from the Docker image which allowed for his CentOS compilation
@@ -720,13 +749,15 @@ A few MRtrix3\footnote{\url{http://www.mrtrix.org/}} tools were also made availa
 a script developed at Creatis, which combines MRtrix3 and FSL tools.
 
 A few other applications from the FLI (France Life Imaging) consortium were also imported in
-VIP using Boutiques. One of them is Ginfizz, a FMRI pipeline allowing to execute multiple 
+VIP using \boutiques. One of them is Ginfizz, a FMRI pipeline allowing to execute multiple 
 preprocessing steps and basic analyses such as: (i) realignment (motion registration and correction),
 (ii) slice timing (temporal interpolation to correct for the delay of acquisition between slices), 
 (iii) coregistration (registering functional and structural data), (iv) normalization (registering 
 of functional and anatomical data to a match a template that has to be specified), and (iv)
-smoothing (spatial filtering to increase Signal to Noise ratio). The use of Docker containers (\url{https://hub.docker.com/r/fliiam/ginfizz} based on \url{https://hub.docker.com/r/miykael/nipype_level2}) 
-greatly simplifies its deployment. The animaN4BiasCorrection tool from the Anima  \footnote{\url{https://github.com/Inria-Visages/Anima-Public/wiki}} project was also made available 
+smoothing (spatial filtering to increase Signal to Noise ratio). The use of Docker containers
+(\url{https://hub.docker.com/r/fliiam/ginfizz} based on \url{https://hub.docker.com/r/miykael/nipype_level2}) 
+greatly simplifies its deployment. The animaN4BiasCorrection tool from the
+Anima\footnote{\url{https://github.com/Inria-Visages/Anima-Public/wiki}} project was also made available 
 in VIP. The import process was straightforward. 
 
 \note{sorina}{@tristan: please check if you agree with the descriptions above}
@@ -748,7 +779,7 @@ in VIP. The import process was straightforward.
     \multicolumn{1}{r|}{first}       &                   &                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&                   &                   \\
     FSL Nipype interfaces     \\
     HCP PreFreesurfer                &                   &                   &                   &                   &                   &                   &                   \\
-    ndmg                &                   &       \cellcolor{gray!75}            &                   &          \cellcolor{gray!75}         &      \cellcolor{gray!75}             &                   &                   \\
+    ndmg                &                   &       \cellcolor{gray!75}            &                   &          \cellcolor{gray!75}         &      \cellcolor{gray!75}             & \cellcolor{gray!75} &                   \\
     MICCAI challenge (23 pipelines)\\&                   &                   &                   &                   &                   &                   & \\
     \end{tabular}
   \vspace*{0.5cm}
@@ -759,7 +790,7 @@ in VIP. The import process was straightforward.
     \rowcolor[gray]{0.9}
                                     &Docker              & Singularity& Rootfs  & Config. file & Env vars  & Parallelization   \\
     \hline
-    Niak pre-processing             &\cellcolor{gray!75} &            &         &              &\cellcolor{gray!75}&\cellcolor{gray!75}\\
+    Niak pre-processing             &\cellcolor{gray!75} &\cellcolor{gray!75}&         &              &\cellcolor{gray!75}&\cellcolor{gray!75}\\
     ICA AROMA                       &\cellcolor{gray!75} &            &         &              &&\\
     FSL tools &&&&&\\
     \multicolumn{1}{r|}{anat}       &                    &            &         &              &&\\
@@ -768,23 +799,20 @@ in VIP. The import process was straightforward.
     \multicolumn{1}{r|}{first}      &                    &            &         &              &&\\
     FSL Nipype interfaces           &                    &            &         &              &&\\
     HCP PreFreesurfer               &\cellcolor{gray!75} &            &         &              &&\\
-    ndmg                            &\cellcolor{gray!75} &            &         &              &&\\
+    ndmg                            &\cellcolor{gray!75} &\cellcolor{gray!75}&         &              &&\\
     MICCAI challenge (23 pipelines) &\cellcolor{gray!75} &            &         &              &&\\
   \end{tabular} 
   \caption{Applications available in Boutiques with manifest features used.}
   \label{table:applications}
 \end{table}
-\note{greg}{@tristan g: chris helped me verify that ndmg also works with singularity, but we have not shared
-the image anywhere. Would it be worth me publishing that image for this table?}
-\section{Discussion}
 
-With Boutiques, developers can port their applications once and execute
+\section{Discussion}
+With \boutiques, developers can port their applications once and execute
 them in several platforms. \boutiques removes the technological dependency to a
 particular platform and facilitates migration.  Although the
 motivating use cases were taken from neuroinformatics, our primary
 field of interest, nothing prevents the system from being used in a
 variety of other domains.
-
 
 \subsection{\boutiques manifest}
 
@@ -807,7 +835,7 @@ developers and platforms, which we address as follows. For developers,
 we maintain the set of mandatory manifest properties as small as
 possible so that simple applications can be described in a few lines
 only (see Listing~\ref{listing:minimal}). For platforms, we aim at
-supporting as many features as possible in the local executor so that
+supporting as many features as possible in the executor so that
 only the following steps need to be implemented to support \boutiques
 in a platform, regardless of the complexity of the manifest:
 \begin{enumerate}
@@ -925,9 +953,10 @@ from integration to validation. Using \boutiques, functions can be
 automatically exported from frameworks such as Nipype and SPM,
 creating hundreds of richly described applications potentially usable
 by end-users. However, it remains unclear how to validate that these
-applications actually execute as expected. A testing framework could
-be designed and potentially fed by existing frameworks, to address
-this issue.
+applications actually execute as expected beyond executing packaged tests
+distributed alongside a given tool. A \boutiques-specific testing
+framework could be designed and potentially fed by existing frameworks,
+to address this issue.
 
 Another limitation is related to the security of containerized
 applications. Since containers are usually controlled by application
@@ -938,7 +967,9 @@ possibly after a platform administrator inspected the
 container. Containers are currently bulky file archives that are
 cumbersome to inspect. Tools need to be developed to allow for an
 easier characterization of container contents, for instance through
-comparison digests with respect to validated base images.
+comparison digests with respect to validated base images. Singularity
+containers have reduced security risks as compared to Docker containers,
+but the issue of content transparency is still not avoided.
 
 % How to build modular container images for workflows.
 
@@ -954,7 +985,7 @@ developed but they do not support containers.
 The Command Line Tool Description of the Common Workflow Language
 (CWL) overlaps with the \boutiques manifest. According to the history
 of the CWL and \boutiques Github repositories, CWL started 6 months
-before Boutiques (September 2014 vs. May 2015). The differences
+before \boutiques (September 2014 vs. May 2015). The differences
 highlighted below were identified from version 1.0 of the CWL Command
 Line Tool
 Description\footnote{\url{http://www.commonwl.org/v1.0/CommandLineTool.html}}.
@@ -962,7 +993,7 @@ Description\footnote{\url{http://www.commonwl.org/v1.0/CommandLineTool.html}}.
 \subsubsection{Conceptual differences}
 
 The following differences are conceptual in the sense that they may
-not be easily addressed by CWL or Boutiques developers without deeply
+not be easily addressed by CWL or \boutiques developers without deeply
 refactoring the frameworks.
 
 First, CWL has a workflow language whereas \boutiques does not. In
@@ -991,7 +1022,7 @@ consequences are the following:
 \begin{itemize}
 \item CWL uses a specific framework for
 validation, called SALAD (Semantic Annotations for Linked Avro Data)
-whereas Boutiques uses plain JSON schema. The main goal of SALAD is to
+whereas \boutiques uses plain JSON schema. The main goal of SALAD is to
 allow ``working with complex data structures and document formats, such
 as schemas, object references, and namespaces''. \boutiques only relies
 on the basic types required to describe and validate a command line
@@ -1025,9 +1056,9 @@ using a dedicated property.
 semantically but also syntactically. For instance, files have
 properties for basename, dirname, location, path, checksum, etc.
 \item \boutiques supports various types of containers (Docker, Singularity,
-rootfs) while CWL supports only Docker. At the same time, CWL’s
-requirements are richer: for instance, they may include RAM and disk
-while Boutiques is limited to walltime estimate. CWL has hints, i.e.,
+rootfs) while CWL supports only Docker. Both tools have rich requirements:
+for instance, they may include RAM, disk usage, and walltime estimate; 
+whereas \boutiques also supports number of requested CPU cores. CWL has hints, i.e.,
 recommendations that only lead to warnings when not respected.
 \item In \boutiques, dependencies can be defined among inputs, e.g., to
 specify that an input may be used only when a particular flag is
