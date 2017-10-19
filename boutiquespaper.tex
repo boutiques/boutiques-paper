@@ -30,8 +30,6 @@
   Nathaniel Kofalt, \\ Pierre-Olivier Quirion, Pierre Rioux,
   Marc-\'Etienne Rousseau, Gunnar Schaeffer, Alan C. Evans}
 
-\note{greg}{gk's affiliation: Department of Biomedical Engineering, Johns Hopkins University, Baltimore, MD}
-
 \maketitle
 
 \abstract{Porting applications to execution platforms such as web
@@ -76,15 +74,15 @@ platforms. In \boutiques, a command line is described using a flexible
 template comprising the inputs it requires and the outputs it
 produces. Inputs may be inter-dependent, e.g., input \emph{A} cannot be used
 if input \emph{B} is used; inputs may be passed in configuration files
-or directly on the command line. Such formal descriptions, also called
-\emph{manifests}, allow for advanced validation of input values to
-prevent errors. A manifest refers to a container where a given application
+or directly on the command line. Such formal descriptions, simply referred to
+as \emph{descriptors}, allow for advanced validation of input values to
+prevent errors. A descriptor refers to a container where a given application
 and all their dependencies are installed. \boutiques also provides a
 simple parallelization framework that allows applications such as
 workflow engines to concurrently execute multiple tasks (in the
 remainder, tasks are called \emph{invocations}). A set of core tools
 facilitate the construction, validation, import, execution, and publishing
-of \boutiques manifests. \boutiques manifests are intented to be produced by
+of \boutiques descriptors. \boutiques descriptors are intented to be produced by
 scientific developers and stored alongside their application, indexed by common
 repositories, and to be consumed by execution platforms.
 
@@ -100,12 +98,12 @@ comparison with related systems.
 \section{System description}
 \label{sec:system}
 
-Applications are described with a JSON manifest that specifies the
-command-line template, inputs and outputs. The manifest may point to a
+Applications are described with a JSON descriptor that specifies the
+command-line template, inputs and outputs. The descriptor may point to a
 container where the application and all its dependencies are
 installed. It may also contain an invocation schema used for input
 validation (this will be created at runtime if it is not found). At
-runtime, the execution platform builds the command line from the manifest
+runtime, the execution platform builds the command line from the descriptor
 and values entered by the user. The platform runs the command line on the
 execution infrastructure, e.g., a server, a cluster or a cloud, within a
 container whenever available. To build and run the command line, the
@@ -114,7 +112,7 @@ platform may rely on the \boutiques core tools, packaged through the
 
 \subsection{Command-line description}
 
-The core component of the manifest is a flexible command-line
+The core component of the descriptor is a flexible command-line
 description represented as a simple string template complying to the
 syntax of the \texttt{bash} UNIX shell. \texttt{bash} is the default
 shell on the major Linux distributions and OS X. The command-line
@@ -300,7 +298,7 @@ optional inputs. %% Inputs of type ``String'' may contain any string,
 %%values in the list.
 %% gk: I agree with not including the above
 Algorithm~\ref{algo:command-line} shows how the command line is
-constructed from the manifest and the values entered by the user. It
+constructed from the descriptor and the values entered by the user. It
 substitutes all the value keys in the command line, output path
 templates and configuration files, and writes the configuration files.
 \begin{algorithm}[h!]
@@ -369,7 +367,7 @@ defined in the invocation schema. As it does not seem realistic to
 assume that developers will easily write correct invocations schemas
 even for their own applications, invocation schemas can be generated
 automatically by the \boutiques command-line utility. The invocation
-schema is stored as an optional property of the \boutiques manifest.
+schema is stored as an optional property of the \boutiques descriptor.
 
 \notimplementedyet{The invocation schema also has a
   \texttt{task-dependencies} array that allows specifying that the new
@@ -427,7 +425,7 @@ single property, \texttt{can-submit-tasks}.
 Although very simple, this model allows wrapping complete
 workflows. Workflows are wrapped as any other application, and they
 can be executed using any engine provided that it is installed in the
-container image referred in the application manifest. Such a ``task
+container image referred in the application descriptor. Such a ``task
 encapsulation'' model allows for a scalable and reliable execution of
 workflows expressed in a variety of languages, as detailed in
 ~\cite{glatard2016fgcs}.
@@ -444,7 +442,7 @@ tools to help build and run containers on most operating systems. Singularity
 is more suited for users and platforms that need to run applications
 on shared computing clusters. Bridges exist among these containers
 formats to convert container images across frameworks. For instance, a
-platform dedicated to high-performance computing may accept manifests
+platform dedicated to high-performance computing may accept descriptors
 referring to Docker containers to facilitate application integration
 by developers, and internally convert container images to Singularity
 to run applications efficiently on clusters.
@@ -462,7 +460,7 @@ important impact on the computed results. They also have limitations,
 in particular they do not specify the hardware architecture required
 to execute an application, which can be an issue in some cases.
 
-%%Containers are not mandatory though. If an application manifest does
+%%Containers are not mandatory though. If an application descriptor does
 %%not contain any reference to a container, the platform will assume
 %%that the application is pre-installed on the execution infrastructure. 
 %% gk: I believe we only support containers now, correct?
@@ -489,7 +487,7 @@ exposed through the command-line API are also available consistently through
 the Python interface by importing the \boutiques package.
 
 \paragraph{Validator.} The \boutiques validator checks conformance of JSON
-manifests to the \boutiques schema using a basic JSON validator. It also
+descriptors to the \boutiques schema using a basic JSON validator. It also
 performs the following checks that cannot be easily implemented in JSON schema:
 value keys are unique among inputs, input and output identifiers are
 unique, input and output value keys are all included in the command
@@ -508,9 +506,9 @@ required.
 
 \paragraph{Executor.} The executor has two modes of operation: \emph{launch}, and
 \emph{simulate}. The simulate mode can generate hypothetical command lines from
-random values given the manifest (and corresponding invocation schema) for debugging
+random values given the descriptor (and corresponding invocation schema) for debugging
 purposes, or display the command that would be executed given a provided valid
-invocation. The launch mode can execute command line from a \boutiques manifest and
+invocation. The launch mode can execute command line from a \boutiques descriptor and
 a set of input values represented in JSON file complying with the invocation schema.
 It runs the command in a container provided that the required framework (e.g. Docker)
 is already installed. The executor can be used by application users to run
@@ -518,14 +516,14 @@ applications locally, or by platforms to generate command lines to be run on the
 execution infrastructure.
 
 \paragraph{Invocation Schema Handler.} The invocation schema handler can create an
-invocation schema (see Section~\ref{sec:invocation-schema}) from a \boutiques manifest
+invocation schema (see Section~\ref{sec:invocation-schema}) from a \boutiques descriptor
 and validate input data against it using a regular JSON validator. It can be used to add
-invocation schemas to existing manifests. It is used by the executor if no invocation
-schema is present in the \boutiques manifest being deployed.
+invocation schemas to existing descriptors. It is used by the executor if no invocation
+schema is present in the \boutiques descriptor being deployed.
 
-\paragraph{Importer.} The importer takes \boutiques manifests from older versions and
+\paragraph{Importer.} The importer takes \boutiques descriptors from older versions and
 updates them to be compliant with the most recent version of the schema. This tool can
-also create manifests from select application collections, such as BIDS
+also create descriptors from select application collections, such as BIDS
 apps~\cite{gorgolewski2017bids}.
 
 \paragraph{Publisher.} As \boutiques has primarily been adopted in the neuroinformatics
@@ -538,10 +536,6 @@ new repositories for other domains, such as Bioconductor for bioinformatics.
 
 Though not a component of the \boutiques tool chain, a Jupyter Notebook tutorial exists
 to facilitate new users getting started with \boutiques.
-
-\subsection{Repository}
-%% gk: I think we should remove this and just have the reference in Publisher
-\todo{Gunnar, Nathaniel, John}
 
 \section{Results}
 \label{sec:results}
@@ -572,26 +566,24 @@ integrated and over 340,000 processing batches have been submitted since 2010.
 Applications in CBRAIN are integrated as Ruby classes that create web
 forms, validate parameters and run command lines on computing
 resources. \boutiques is supported through a set of templates that
-generate such classes from the application manifest. Two application
+generate such classes from the application descriptor. Two application
 integration modes are available:
 \begin{enumerate}
-  \item The manifest is stored in a CBRAIN plugin and the Ruby classes
+  \item The descriptor is stored in a CBRAIN plugin and the Ruby classes
     are generated on-the-fly when CBRAIN starts. This mode allows
     CBRAIN developers update all \boutiques applications at once by
     editing the templates. However, it does not allow for
     customization beyond the \boutiques schema.
-  \item Ruby classes are generated from manifests
+  \item Ruby classes are generated from descriptors
     through an offline process and integrated in CBRAIN as any other
     application. This mode allows developers to customize applications
     by editing the generated Ruby classes, but the resulting
     applications are difficult to maintain in the long term, in
-    particular when the manifests are updated.
+    particular when the descriptors are updated.
 \end{enumerate}
-%% gk: I think we can skip this last bit, since there is only one type of
-%% \emph{boutiques} integration with cbrain, we needn't mention the other?
 
 A custom property (\texttt{cbrain:inherits-from-class}) was added to
-the \boutiques manifest to define the Ruby class that should be used as
+the \boutiques descriptor to define the Ruby class that should be used as
 parent class for the application in CBRAIN. It provides more
 flexibility to the first integration model described previously.
 
@@ -658,8 +650,8 @@ level based on pre-defined workflow templates.
 
 % cbrain-plugins-neuro
 
-Table~\ref{table:applications} summarizes the applications described
-with \boutiques and the main features used.
+%%Table~\ref{table:applications} summarizes the applications described
+%%with \boutiques and the main features used.
 
 \paragraph{Niak.} The Niak pre-processing pipeline, executed with the Pipeline System
 for Octave and Matlab (PSOM)~\cite{bellec2012pipeline}, was integrated
@@ -714,7 +706,7 @@ by \boutiques since the instructions given to the challengers required
 that all the pipeline parameters were hardcoded, to facilitate
 execution. Two custom properties (\texttt{vip:miccai-challenger-email}
 and \texttt{vip:miccai-challenge-team-name}) were added to the
-\boutiques manifest to help post-process results in the specific
+\boutiques descriptor to help post-process results in the specific
 context of MICCAI challenges.
 
 \paragraph{ndmg.} The NeuroData MRI to Graphs one-click connectome estimation
@@ -726,7 +718,7 @@ both through Docker and Singularity container environments.
 \paragraph{BIDS apps.} Brain Imaging Data Structure supported
 applications~\cite{gorgolewski2017bids}, a recent effort for the adoption of BIDS support
 in common neuroimaging pipelines, require a standardized set of input and output parameters
-by tools. A \boutiques tool has been developed which generates a manifest for any such
+by tools. A \boutiques tool has been developed which generates a descriptor for any such
 BIDS app, enabling them to be deployed within a broad range of high performance computing
 infrastructures, such as CBRAIN.
 
@@ -767,49 +759,49 @@ in VIP. The import process was straightforward.
 
 \note{sorina}{@tristan: please check if you agree with the descriptions above}
 
-\begin{table}
-  \begin{tabular}{l|ccccccc}
-    \rowcolor[gray]{0.9}
-    Application                      & \multicolumn{7}{c}{Input/Output properties} \\
-    \rowcolor[gray]{0.9}
-                                     & Dependencies      &Groups             & Lists             & Optional          &Default            & Type restriction             & Min/max\\
-    
-    \hline
-    Niak pre-processing              &                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\\
-    ICA AROMA                        &\cellcolor{gray!75}&\cellcolor{gray!75}&                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}\\
-    FSL tools &&&&&&\\
-    \multicolumn{1}{r|}{anat}        &\cellcolor{gray!75}&\cellcolor{gray!75}&                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}\\
-    \multicolumn{1}{r|}{bet}         &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&                   &                   &\cellcolor{gray!75}\\      
-    \multicolumn{1}{r|}{fast}        &\cellcolor{gray!75}&                   &                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}\\
-    \multicolumn{1}{r|}{first}       &                   &                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&                   &                   \\
-    FSL Nipype interfaces     \\
-    HCP PreFreesurfer                &                   &                   &                   &                   &                   &                   &                   \\
-    ndmg                &                   &       \cellcolor{gray!75}            &                   &          \cellcolor{gray!75}         &      \cellcolor{gray!75}             & \cellcolor{gray!75} &                   \\
-    MICCAI challenge (23 pipelines)\\&                   &                   &                   &                   &                   &                   & \\
-    \end{tabular}
-  \vspace*{0.5cm}
-  \begin{tabular}{l|ccc|ccc}
-    \hline
-    \rowcolor[gray]{0.9}
-    Application                     &\multicolumn{3}{c|}{Containers}            &  \multicolumn{3}{c}{Other properties}  \\
-    \rowcolor[gray]{0.9}
-                                    &Docker              & Singularity& Rootfs  & Config. file & Env vars  & Parallelization   \\
-    \hline
-    Niak pre-processing             &\cellcolor{gray!75} &\cellcolor{gray!75}&         &              &\cellcolor{gray!75}&\cellcolor{gray!75}\\
-    ICA AROMA                       &\cellcolor{gray!75} &            &         &              &&\\
-    FSL tools &&&&&\\
-    \multicolumn{1}{r|}{anat}       &                    &            &         &              &&\\
-    \multicolumn{1}{r|}{bet}        &                    &            &         &              &&\\
-    \multicolumn{1}{r|}{fast}       &                    &            &         &              &&\\
-    \multicolumn{1}{r|}{first}      &                    &            &         &              &&\\
-    FSL Nipype interfaces           &                    &            &         &              &&\\
-    HCP PreFreesurfer               &\cellcolor{gray!75} &            &         &              &&\\
-    ndmg                            &\cellcolor{gray!75} &\cellcolor{gray!75}&         &              &&\\
-    MICCAI challenge (23 pipelines) &\cellcolor{gray!75} &            &         &              &&\\
-  \end{tabular} 
-  \caption{Applications available in Boutiques with manifest features used.}
-  \label{table:applications}
-\end{table}
+%%\begin{table}
+%%  \begin{tabular}{l|ccccccc}
+%%    \rowcolor[gray]{0.9}
+%%    Application                      & \multicolumn{7}{c}{Input/Output properties} \\
+%%    \rowcolor[gray]{0.9}
+%%                                     & Dependencies      &Groups             & Lists             & Optional          &Default            & Type restriction             & Min/max\\
+%%    
+%%    \hline
+%%    Niak pre-processing              &                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\\
+%%    ICA AROMA                        &\cellcolor{gray!75}&\cellcolor{gray!75}&                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}\\
+%%    FSL tools &&&&&&\\
+%%    \multicolumn{1}{r|}{anat}        &\cellcolor{gray!75}&\cellcolor{gray!75}&                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}\\
+%%    \multicolumn{1}{r|}{bet}         &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&                   &                   &\cellcolor{gray!75}\\      
+%%    \multicolumn{1}{r|}{fast}        &\cellcolor{gray!75}&                   &                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}\\
+%%    \multicolumn{1}{r|}{first}       &                   &                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&                   &                   \\
+%%    FSL Nipype interfaces     \\
+%%    HCP PreFreesurfer                &                   &                   &                   &                   &                   &                   &                   \\
+%%    ndmg                &                   &       \cellcolor{gray!75}            &                   &          \cellcolor{gray!75}         &      \cellcolor{gray!75}             & \cellcolor{gray!75} &                   \\
+%%    MICCAI challenge (23 pipelines)\\&                   &                   &                   &                   &                   &                   & \\
+%%    \end{tabular}
+%%  \vspace*{0.5cm}
+%%  \begin{tabular}{l|ccc|ccc}
+%%    \hline
+%%    \rowcolor[gray]{0.9}
+%%    Application                     &\multicolumn{3}{c|}{Containers}            &  \multicolumn{3}{c}{Other properties}  \\
+%%    \rowcolor[gray]{0.9}
+%%                                    &Docker              & Singularity& Rootfs  & Config. file & Env vars  & Parallelization   \\
+%%    \hline
+%%    Niak pre-processing             &\cellcolor{gray!75} &\cellcolor{gray!75}&         &              &\cellcolor{gray!75}&\cellcolor{gray!75}\\
+%%    ICA AROMA                       &\cellcolor{gray!75} &            &         &              &&\\
+%%    FSL tools &&&&&\\
+%%    \multicolumn{1}{r|}{anat}       &                    &            &         &              &&\\
+%%    \multicolumn{1}{r|}{bet}        &                    &            &         &              &&\\
+%%    \multicolumn{1}{r|}{fast}       &                    &            &         &              &&\\
+%%    \multicolumn{1}{r|}{first}      &                    &            &         &              &&\\
+%%    FSL Nipype interfaces           &                    &            &         &              &&\\
+%%    HCP PreFreesurfer               &\cellcolor{gray!75} &            &         &              &&\\
+%%    ndmg                            &\cellcolor{gray!75} &\cellcolor{gray!75}&         &              &&\\
+%%    MICCAI challenge (23 pipelines) &\cellcolor{gray!75} &            &         &              &&\\
+%%  \end{tabular} 
+%%  \caption{Applications available in Boutiques with descriptor features used.}
+%%  \label{table:applications}
+%%\end{table}
 
 \section{Discussion}
 With \boutiques, developers can port their applications once and execute
@@ -819,30 +811,30 @@ motivating use cases were taken from neuroinformatics, our primary
 field of interest, nothing prevents the system from being used in a
 variety of other domains.
 
-\subsection{\boutiques manifest}
+\subsection{\boutiques descriptor}
 
-The \boutiques manifest specification allows describing a wide range
+The \boutiques descriptor specification allows describing a wide range
 of applications, but it is also getting increasingly complex through
 additions such as invocation schemas and dependencies among
-inputs. Extending the \boutiques manifest has two main goals. First,
+inputs. Extending the \boutiques descriptor has two main goals. First,
 accurately describing applications improves validation: incorrect input
 values and execution results are more precisely detected when the
-application manifest is comprehensive, which is essential to improve
+application descriptor is comprehensive, which is essential to improve
 the reliability and user-friendliness of execution
-platforms. Secondly, a rich manifest schema reduces the need for
+platforms. Secondly, a rich descriptor schema reduces the need for
 custom wrappers to integrate applications as even convoluted command
 lines can be described: this is particularly interesting for
 applications installed in containers since adding a wrapper to the
 execution stack requires an update in the container image.
 
-Nonetheless, a complex manifest schema has a cost for application
+Nonetheless, a complex descriptor schema has a cost for application
 developers and platforms, which we address as follows. For developers,
-we maintain the set of mandatory manifest properties as small as
+we maintain the set of mandatory descriptor properties as small as
 possible so that simple applications can be described in a few lines
 only (see Listing~\ref{listing:minimal}). For platforms, we aim at
 supporting as many features as possible in the executor so that
 only the following steps need to be implemented to support \boutiques
-in a platform, regardless of the complexity of the manifest:
+in a platform, regardless of the complexity of the descriptor:
 \begin{enumerate}
   \item Input entry: generate the interface to allow users to enter
     input values.
@@ -850,13 +842,13 @@ in a platform, regardless of the complexity of the manifest:
     validate it against the invocation schema.
   \item Execution: generate and run the command line from the local
     executor and input JSON object.
-  \item Output delivery: from the manifest, identify the output files
+  \item Output delivery: from the descriptor, identify the output files
     and deliver them to the user.
 \end{enumerate}
 In particular, advanced validation features such as dependencies
 between inputs are embedded in the regular JSON validation performed
 at step 2, without requiring the platform to support the related
-manifest properties.
+descriptor properties.
 \begin{listing}
 \begin{minted}[frame=single,
                framesep=3mm,
@@ -883,7 +875,7 @@ manifest properties.
 
 }
 \end{minted}
-\caption{A minimal \boutiques manifest.} 
+\caption{A minimal \boutiques descriptor.} 
 \label{listing:minimal}
 \end{listing}
 
@@ -907,7 +899,7 @@ uniformly.
 formal command-line descriptions. With \boutiques, complete sets of
 applications could be easily migrated across execution platforms,
 including high-performance computing platforms and individual laptops,
-to reproduce analyses. The \boutiques manifest describes the
+to reproduce analyses. The \boutiques descriptor describes the
 parameters and implementation of the application, and the invocation
 schema describes the parameter values.
 
@@ -923,8 +915,8 @@ when software compiled with architecture-specific flags is involved
 In addition, important runtime parameters, for instance related to
 multi-threading or available resources (storage, RAM), may be set by
 the execution platform without being specified in the \boutiques
-manifest. Such runtime parameters may impact reproducibility in some
-cases. To properly cover this issue, \boutiques manifests should be
+descriptor. Such runtime parameters may impact reproducibility in some
+cases. To properly cover this issue, \boutiques descriptors should be
 complemented by a provenance framework that captures a detailed trace
 of the execution.
 
@@ -946,7 +938,7 @@ applications using tools such as \texttt{curl} or
 non-interactive ones through configuration files. Finally, nothing
 prevents a \boutiques tool from popping up a window for a user to
 provide input through a GUI. This should, however, be specified
-as an extension to the manifest since most platforms would not support
+as an extension to the descriptor since most platforms would not support
 this feature by default. Graphical output produced by applications
 executed in containers should also be treated specifically.
 
@@ -988,7 +980,7 @@ developed but they do not support containers.
 \subsection{Common Workflow Language}
 
 The Command Line Tool Description of the Common Workflow Language
-(CWL) overlaps with the \boutiques manifest. According to the history
+(CWL) overlaps with the \boutiques descriptor. According to the history
 of the CWL and \boutiques Github repositories, CWL started 6 months
 before \boutiques (September 2014 vs. May 2015). The differences
 highlighted below were identified from version 1.0 of the CWL Command
