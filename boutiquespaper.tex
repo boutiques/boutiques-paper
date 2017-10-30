@@ -59,8 +59,8 @@ third-party applications to facilitate the processing of large
 datasets on high-performance computing resources. Such applications,
 however, are often repeatedly and manually ported to various platforms
 whereas this porting effort would greatly benefit from being
-mutualized. Meanwhile, virtual container systems such as Docker and
-Singularity have emerged to facilitate the sharing of software and
+mutualized. Meanwhile, virtual container systems such as Docker\todo{cite} and
+Singularity\todo{cite} have emerged to facilitate the sharing of software and
 improve the reproducibility of analyses by defining immutable,
 reusable execution environments. Nevertheless, the automatic
 integration of containerized applications in platforms require formal
@@ -98,43 +98,44 @@ comparison with related systems.
 \section{System description}
 \label{sec:system}
 
-Applications are described with a JSON descriptor that specifies the
-command-line template, inputs and outputs. The descriptor may point to a
-container where the application and all its dependencies are
-installed. It may also contain an invocation schema used for input
-validation (this will be created at runtime if it is not found). At
-runtime, the execution platform builds the command line from the descriptor
-and values entered by the user. The platform runs the command line on the
-execution infrastructure, e.g., a server, a cluster or a cloud, within a
-container whenever available. To build and run the command line, the
-platform may rely on the \boutiques core tools, packaged through the 
-\texttt{bosh} command-line utility, such as the validator and executor.
+In \boutiques, applications are described with a JSON descriptor that
+specifies the command-line template, inputs and outputs. The
+descriptor may point to a container where the application and all its
+dependencies are installed. It may also contain an invocation schema
+used for input validation (this will be created at runtime if it is
+not found). At runtime, the execution platform builds the command line
+from the descriptor and values entered by the user. The platform runs
+the command line on the execution infrastructure, e.g., a server, a
+cluster or a cloud, within a container whenever available. To build
+and run the command line, the platform may rely on the \boutiques core
+tools, in particular the validator and executor, packaged through the
+\texttt{bosh} command-line utility.
 
 \subsection{Command-line description}
 
 The core component of the descriptor is a flexible command-line
 description represented as a simple string template complying to the
-syntax of the \texttt{bash} UNIX shell. \texttt{bash} is the default
-shell on the major Linux distributions and OS X. The command-line
-template may contain placeholders for input and output values, called
-value keys. The command line may actually encompass several commands
-separated by semicolons, pipes (\texttt{|}) or ampersands (\texttt{\&}).
-Such a flexible command-line specification is meant to facilitate the
-embedding of minor mundane operations on the command line, for instance
-directory creation, input decompression or output archival.
+syntax of the \texttt{bash} UNIX shell, the default shell on the major
+Linux distributions and OS X. The command-line template may contain
+placeholders for input and output values, called value keys. It may
+also encompass several commands separated by \texttt{bash} constructs
+such as semicolons, pipes (\texttt{|}) or ampersands (\texttt{\&}), to
+facilitate the embedding of mundane operations on the command line,
+for instance directory creation, input decompression or output
+archival.
 
 Here is an example of a typical command-line template:
 \begin{verbatim}
           exampleTool_1 [STRING_INPUT] [FILE_INPUT]  | \
                 exampleTool_2 [FLAG_INPUT] [NUMBER_INPUT] >> [LOG].txt
 \end{verbatim}
-The template contains six value keys for input and output values that
-will be replaced by values and file names according to the user input
-when the application is executed. Flags will also be added wherever
-appropriate, with customizable separators. No particular syntax is
-imposed for the value keys, they just have to be unique.  Note the use
-of the pipe (\texttt{|}) operator to chain applications, and of the
-\texttt{>>} operator to redirect the standard output to a file.
+The template contains five value keys, identified by square brackets,
+that will be replaced by values and file names according to the user
+input when the application is executed. Flags will also be added
+wherever appropriate, with customizable separators. Value keys have to
+be unique but do not have to comply to any particular syntax. Note the
+use of the pipe (\texttt{|}) operator to chain applications, and of
+the \texttt{>>} operator to redirect the standard output to a file.
 
 \subsection{Input description}
 
@@ -147,19 +148,19 @@ space-separated list of input values.
 \paragraph{Types.} Inputs may be of type \texttt{String}, \texttt{Number},
 \texttt{Flag} or \texttt{File}. \texttt{File} may also represent a directory.
 Types can be restricted to a specific set of values (\texttt{String} 
-and \texttt{Number} only), to a specific range (\texttt{Number} only), to
-integers or to booleans (\texttt{Number} only).
+and \texttt{Number} only), to a specific range (\texttt{Number} only), or to
+integers (\texttt{Number} only).
 
 \paragraph{Groups and dependencies.} Groups of inputs may be defined
 with an identifier, name, and list of input identifiers. Groups may be
-used to improve the presentation in a graphical user interface and to
+used to improve the presentation in a graphical user interface, and to
 specify the following constraints among inputs:
-(1)~\texttt{mutually-exclusive}: only one member in the group may have a
-value; (2)~\texttt{one-is-required}: at least one member in the group
-must have a value; (3)~\texttt{all-or-none}: if any of the members are
-present all members must be present. Dependencies among inputs may also be
-defined regardless of a particular group: an input may (1)~require a list of
-inputs and (2)~disable a list of inputs.
+(1)~\texttt{mutually-exclusive}: only one member in the group may have
+a value; (2)~\texttt{one-is-required}: at least one member in the
+group must have a value; (3)~\texttt{all-or-none}: if any of the
+members are present all members must be present. Dependencies among
+inputs may also be defined regardless of a particular group: an input
+may (1)~require a list of inputs and (2)~disable a list of inputs.
 
 Listing~\ref{listing:input-example} shows the definition of an input in the
 command line exemplified above. According to this definition and assuming
@@ -194,10 +195,9 @@ line at execution time.
 
 Application outputs are files and directories that need to be
 transferred and delivered to the user once the execution is
-complete. Although it may not be required to distinguish inputs from
-outputs to build the application command line, this information is
-needed by computing platforms to identify the files that must be saved
-after the execution.
+complete. Outputs need to be specified so that computing platforms can
+identify the files that must be saved after the execution and raise
+errors if they are not present.
 
 In \boutiques, output files must have a unique identifier, a name, and
 a path template that specifies the file or directory name. Path
@@ -216,7 +216,7 @@ the pattern used to match the output files in the list.
 Listing~\ref{listing:output-example} shows the definition of an output
 file in the command line exemplified before. According to this
 definition and assuming that the string input value entered by the
-user is "foo.csv", the string \texttt{[LOG]} will be
+user is ``foo.csv'', the string \texttt{[LOG]} will be
 replaced by \texttt{log-foo} on the command line at execution time.
 
 \begin{listing}
@@ -243,20 +243,18 @@ replaced by \texttt{log-foo} on the command line at execution time.
 \subsection{Configuration files}
 \label{sec:configuration-files}
 A large number of applications rely on configuration files rather than
-command-line options to define their input and output
-parameters. Indeed, as the number of parameters increases, command
-lines rapidly become long and cumbersome whereas configuration files
-allow for better structure and documentation.
+command-line options to define their input and output parameters. As
+the number of parameters increases, command lines rapidly become long
+and cumbersome whereas configuration files allow for better structure
+and documentation.
 
 Configuration files may be complex though, and specified in any
-language.  As it does not seem reasonable to adopt a particular
-template for configuration files, the \boutiques specification allows
-application developers to specify their own template containing input
-and output value keys. Configuration files are specific types of
-output files that must have a file template in addition to a path
-template that defines how they will be named and where they will be
-written. They may also have a value key and a flag in case they need
-to be passed on the command
+language.  The \boutiques specification allows application developers
+to specify their own template containing input and output value
+keys. Configuration files are specific types of output files that must
+have a file template in addition to a path template that defines how
+they will be named and where they will be written. They may also have
+a value key and a flag in case they need to be passed on the command
 line. Listing~\ref{listing:configuration-file-example} shows an
 example.
 \begin{listing}
@@ -274,6 +272,7 @@ example.
     "file-template": [
         "# This input is hard-coded",
         "stringInput=foo",
+        "# This is an input file",
         "fileInput=[FILE-INPUT]",
         "# And here is the result",
         "fileOutput=[OUTPUT-FILE]",
@@ -352,8 +351,8 @@ templates and configuration files, and writes the configuration files.
 \label{sec:invocation-schema}
 
 Rigorous input validation is an important motivation for
-\boutiques. The obvious solution for JSON documents is to rely on an
-application-specific JSON schema, called \emph{invocation schema}, to
+\boutiques. For this purpose, \boutiques relies on an
+application-specific JSON schema\todo{cite}, called \emph{invocation schema}, to
 specify the input values accepted by an application. Platforms can
 rely on invocation schemas to validate inputs using
 any JSON validator, without having to develop specific code.
@@ -363,17 +362,19 @@ must represent the properties described above in a formal way,
 including dependencies between
 inputs. Listing~\ref{listing:invocation-schema-example} shows an
 example of how dependencies between mutually exclusive parameters are
-defined in the invocation schema. As it does not seem realistic to
-assume that developers will easily write correct invocations schemas
-even for their own applications, invocation schemas can be generated
-automatically by the \boutiques command-line utility. The invocation
-schema is stored as an optional property of the \boutiques descriptor.
+defined in the invocation schema. To relieve application developers
+from the burden of having to write invocation schemas, invocation
+schemas can be generated automatically by the \texttt{bosh}
+command-line utility. The invocation schema is stored as an optional
+property of the \boutiques descriptor.
 
 \notimplementedyet{The invocation schema also has a
-  \texttt{task-dependencies} array that allows specifying that the new
-  invocation may start only when previously-submitted invocations have
-  completed. This property is used in the parallelization model
-  described hereafter.}
+ \texttt{task-dependencies} array that allows specifying that the new
+ invocation may start only when previously-submitted invocations have
+ completed. This property is used in the parallelization model
+ described hereafter.}
+
+
 
 \begin{listing}
 \begin{minted}[frame=single,
@@ -428,7 +429,7 @@ can be executed using any engine provided that it is installed in the
 container image referred in the application descriptor. Such a ``task
 encapsulation'' model allows for a scalable and reliable execution of
 workflows expressed in a variety of languages, as detailed in
-~\cite{glatard2016fgcs}.
+~\cite{glatard2017software}.
 
 \subsection{Containers}
 
@@ -447,10 +448,12 @@ referring to Docker containers to facilitate application integration
 by developers, and internally convert container images to Singularity
 to run applications efficiently on clusters.
 
-Container images are defined from their URL (rootfs) or name in the
-Docker or Singularity indices. Manifests and container images may specify a
-working directory where the application has to be run, and a hash may also be
-reported to accurately identify container images and detect updates.
+Container images are defined from their URL (rootfs) or image name in
+a Docker or Singularity index. Descriptors and container images may
+specify a working directory where the application has to be run,
+descriptors may contain a boolean indicating if the image has an entry
+point, and a hash may also be reported to accurately identify
+container images and detect updates.
 
 Containers were adopted because they allow for an automated and
 lightweight integration of application implementations in
@@ -476,32 +479,36 @@ existing functionality already represented in the \boutiques schema.
 
 \subsection{Core tools} 
 
-\boutiques is available on Python through the PyPi package repository as
-``\texttt{boutiques}''. The \boutiques package exposes a command-line
-utility to the user, \texttt{bosh}, which contains entrypoints for all
-core functions within \boutiques. There is help-text which should guide
-users through interacting with the \texttt{bosh} utility. The core tools
-provided by \boutiques are, the: validator, executor (for both launch and
-simulation), invocation schema handler, importer, and publisher. The tools
-exposed through the command-line API are also available consistently through
-the Python interface by importing the \boutiques package.
+\boutiques is available on Python through the PyPi package repository
+as ``\texttt{boutiques}''. The \boutiques package exposes a
+command-line utility to the user, \texttt{bosh}, which contains
+entrypoints for all core functions within \boutiques. There is
+help-text which should guide users through interacting with the
+\texttt{bosh} utility. The core tools provided by \boutiques are, the:
+validator, executor (for both launch and simulation), invocation
+schema handler, importer, and publisher. The tools exposed through the
+command-line API are also available consistently through the Python
+interface by importing the \boutiques package. Though not a component
+of the \boutiques tool chain, a Jupyter Notebook tutorial exists to
+facilitate new users getting started with \boutiques.
 
 \paragraph{Validator.} The \boutiques validator checks conformance of JSON
-descriptors to the \boutiques schema using a basic JSON validator. It also
-performs the following checks that cannot be easily implemented in JSON schema:
-value keys are unique among inputs, input and output identifiers are
-unique, input and output value keys are all included in the command
-line, identifiers with the same value key are mutually exclusive, value keys
-are not contained within each other (which would puzzle substitution), output
-path templates are unique (to avoid results to overwrite each other), inputs of
-type Flag have a command-line flag, are optional and are not lists, the default
-value of restricted types is part of the restriction, an input cannot both require
-and disable another input, required inputs cannot require or disable
-other parameters, group member identifiers must correspond to existing
-inputs and cannot appear in different groups, mutually exclusive
-groups cannot have members requiring other members, one-is-required groups
-should never have required members, and all-or-none group members must not be
-required.
+descriptors to the \boutiques schema using a basic JSON validator. It
+also performs the following checks that cannot be easily implemented
+in JSON schema: value keys are unique among inputs, input and output
+identifiers are unique, input and output value keys are all included
+in the command line, identifiers with the same value key are mutually
+exclusive, value keys are not contained within each other (which would
+puzzle substitution), output path templates are unique (to avoid
+results to overwrite each other), inputs of type Flag have a
+command-line flag, are optional and are not lists, the default value
+of restricted types is part of the restriction, an input cannot both
+require and disable another input, required inputs cannot require or
+disable other parameters, group member identifiers must correspond to
+existing inputs and cannot appear in different groups, mutually
+exclusive groups cannot have members requiring other members,
+one-is-required groups should never have required members, and
+all-or-none group members must not be required.
 
 
 \paragraph{Executor.} The executor has two modes of operation: \emph{launch}, and
@@ -523,7 +530,7 @@ schema is present in the \boutiques descriptor being deployed.
 
 \paragraph{Importer.} The importer takes \boutiques descriptors from older versions and
 updates them to be compliant with the most recent version of the schema. This tool can
-also create descriptors from select application collections, such as BIDS
+also create descriptors from selected application collections, such as BIDS
 apps~\cite{gorgolewski2017bids}.
 
 \paragraph{Publisher.} As \boutiques has primarily been adopted in the neuroinformatics
@@ -533,9 +540,6 @@ NeuroLinks\footnote{\url{https://brainhack101.github.io/neurolinks/}}, a reposit
 containing links to useful resources and tools. This enables others to find and use the
 descriptor for your tool easily. This functionality could be extended to
 new repositories for other domains, such as Bioconductor for bioinformatics.
-
-Though not a component of the \boutiques tool chain, a Jupyter Notebook tutorial exists
-to facilitate new users getting started with \boutiques.
 
 \section{Results}
 \label{sec:results}
@@ -971,6 +975,8 @@ but the issue of content transparency is still not avoided.
 % How to build modular container images for workflows.
 
 \section{Related work}
+
+\todo{BIDS apps}
 
 The Common Workflow Language\footnote{\url{http://www.commonwl.org}}
 is the piece of related work most closely related to
