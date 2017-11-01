@@ -1,11 +1,18 @@
-\documentclass{article}
+% GigaScience template
+\documentclass[a4paper,num-refs]{oup-contemporary}
+
+%%% Journal toggle; only specific options recognised.
+%%% (Only "gigascience" and "general" are implemented now. Support for other journals is planned.)
+\journal{gigascience}
+
+\usepackage{graphicx}
+\usepackage{siunitx}
+\papercat{Paper}
 
 %%%% Packages %%%%
 
 \usepackage{minted} % Used for JSON highlighting
 \usepackage{pdfcomment} % Used for notes and todos
-\usepackage[margin=1in]{geometry} % Increases margins
-\usepackage[table]{xcolor} % Color definitions
 \usepackage{algorithm} % Algorithm float
 \usepackage{algpseudocode} % Algorithmic environment
 \usepackage{xspace}
@@ -23,16 +30,18 @@
 \begin{document}
 
 \author{Tristan Glatard, Gregory Kiar, Tristan Aumentado-Armstrong,
-  Natacha Beck, Pierre Bellec,\\ Remi Bernard, Sorina Camarasu-Pop,
-  Fr\'ed\'eric Cervenansky, Samir Das, \\ Rafael Ferreira da Silva,
-  Guillaume Flandin, John Flavin, Pascal Girard, \\ Krzysztof
+  Natacha Beck, Pierre Bellec, Remi Bernard, Sorina Camarasu-Pop,
+  Fr\'ed\'eric Cervenansky, Samir Das,  Rafael Ferreira da Silva,
+  Guillaume Flandin, John Flavin, Pascal Girard, Krzysztof
   J. Gorgolewski, Charles G. Guttmann, Val\'erie Hayot-Sasson,
-  Nathaniel Kofalt, \\ Pierre-Olivier Quirion, Pierre Rioux,
+  Nathaniel Kofalt, Pierre-Olivier Quirion, Pierre Rioux,
   Marc-\'Etienne Rousseau, Gunnar Schaeffer, Alan C. Evans}
 
+
+\begin{frontmatter}
 \maketitle
 
-\abstract{Porting applications to execution platforms such as web
+\begin{abstract}Porting applications to execution platforms such as web
   portals and workflow engines is critical to enable their sharing
   among scientific communities and their efficient execution on
   computing infrastructures. However, application porting remains a
@@ -49,7 +58,13 @@
   environments Docker and Singularity to install applications
   across platforms in a lightweight manner. \boutiques is currently used
   by three distinct virtual research platforms, and has been used to
-  describe dozens of neuroinformatics tools.}
+  describe dozens of neuroinformatics tools.
+\end{abstract}
+
+\begin{keywords}
+Keyword1; keyword 2; keyword 3 (Three to ten keywords representing the main content of the article)
+\end{keywords}
+\end{frontmatter}
 
 \section{Introduction}
 
@@ -561,6 +576,9 @@ new repositories for other domains, such as Bioconductor for bioinformatics.
 
 \section{Results}
 \label{sec:results}
+
+\boutiques has been implemented in several platforms and used to
+describe dozens of tools, as described hereafter.
 
 \subsection{Supported platforms}
 
@@ -1136,7 +1154,6 @@ discussed in this paper, the availability of a solid core of
 applications and platforms in the framework is key to its success,
 which we plan to continuously enhance.
 
-\bibliographystyle{plain}
 \bibliography{biblio}
 
 \end{document}
