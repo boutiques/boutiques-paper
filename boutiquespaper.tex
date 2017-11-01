@@ -68,6 +68,10 @@ Keyword1; keyword 2; keyword 3 (Three to ten keywords representing the main cont
 
 \section{Introduction}
 
+\todo{Intro on the relevance of pipeline sharing for reproducible and open science.}
+
+\todo{Check passive voice everywhere.}
+
 Platforms such as web services, portals, scientific gateways, workflow
 engines and virtual research environments commonly integrate
 third-party applications to facilitate the processing of large
@@ -154,19 +158,19 @@ the \texttt{>>} operator to redirect the standard output to a file.
 
 \subsection{Input description}
 
-\paragraph{General properties.} Inputs must have a name, a unique
+\paragraph{General properties} Inputs must have a name, a unique
 identifier, and a type. They may be optional, have a description, a
 value key, a flag and flag separator, and a default value. Inputs may
 also be ordered lists: in this case, value keys are substituted by the
 space-separated list of input values.
 
-\paragraph{Types.} Inputs may be of type \texttt{String}, \texttt{Number},
+\paragraph{Types} Inputs may be of type \texttt{String}, \texttt{Number},
 \texttt{Flag} or \texttt{File}. \texttt{File} may also represent a directory.
 Types can be restricted to a specific set of values (\texttt{String} 
 and \texttt{Number} only), to a specific range (\texttt{Number} only), or to
 integers (\texttt{Number} only).
 
-\paragraph{Groups and dependencies.} Groups of inputs may be defined
+\paragraph{Groups and dependencies} Groups of inputs may be defined
 with an identifier, name, and list of input identifiers. Groups may be
 used to improve the presentation in a graphical user interface, and to
 specify the following constraints among inputs:
@@ -525,7 +529,7 @@ interface by importing the \boutiques package. Though not a component
 of the \boutiques tool chain, a Jupyter Notebook tutorial exists to
 facilitate new users getting started with \boutiques.
 
-\paragraph{Validator.} The \boutiques validator checks conformance of JSON
+\paragraph{Validator} The \boutiques validator checks conformance of JSON
 descriptors to the \boutiques schema using a basic JSON validator. It
 also performs the following checks that cannot be easily implemented
 in JSON schema: value keys are unique among inputs, input and output
@@ -544,7 +548,7 @@ one-is-required groups should never have required members, and
 all-or-none group members must not be required.
 
 
-\paragraph{Executor.} The executor has two modes of operation: \emph{launch}, and
+\paragraph{Executor} The executor has two modes of operation: \emph{launch}, and
 \emph{simulate}. The simulate mode can generate hypothetical command lines from
 random values given the descriptor (and corresponding invocation schema) for debugging
 purposes, or display the command that would be executed given a provided valid
@@ -555,30 +559,27 @@ is already installed. The executor can be used by application users to run
 applications locally, or by platforms to generate command lines to be run on the
 execution infrastructure.
 
-\paragraph{Invocation Schema Handler.} The invocation schema handler can create an
+\paragraph{Invocation Schema Handler} The invocation schema handler can create an
 invocation schema (see Section~\ref{sec:invocation-schema}) from a \boutiques descriptor
 and validate input data against it using a regular JSON validator. It can be used to add
 invocation schemas to existing descriptors. It is used by the executor if no invocation
 schema is present in the \boutiques descriptor being deployed.
 
-\paragraph{Importer.} The importer takes \boutiques descriptors from older versions and
+\paragraph{Importer} The importer takes \boutiques descriptors from older versions and
 updates them to be compliant with the most recent version of the schema. This tool can
 also create descriptors from selected application collections, such as BIDS
 apps~\cite{gorgolewski2017bids}.
 
-\paragraph{Publisher.} As \boutiques has primarily been adopted in the neuroinformatics
+\paragraph{Publisher} As \boutiques has primarily been adopted in the neuroinformatics
 community, the publisher gets a further description (such as author, website, etc.) of
 the described tool, and adds an index to it on
-NeuroLinks\footnote{\url{https://brainhack101.github.io/neurolinks/}}, a repository
+NeuroLinks\footnote{\url{https://brainhack101.github.io/neurolinks}}, a repository
 containing links to useful resources and tools. This enables others to find and use the
 descriptor for your tool easily. This functionality could be extended to
 new repositories for other domains, such as Bioconductor for bioinformatics.
 
 \section{Results}
 \label{sec:results}
-
-\boutiques has been implemented in several platforms and used to
-describe dozens of tools, as described hereafter.
 
 \subsection{Supported platforms}
 
@@ -609,11 +610,15 @@ resources. \boutiques is supported through a set of templates that
 generate such classes from the application descriptor. Two application
 integration modes are available:
 \begin{enumerate}
-  \item The descriptor is stored in a CBRAIN plugin and the Ruby classes
-    are generated on-the-fly when CBRAIN starts. This mode allows
-    CBRAIN developers update all \boutiques applications at once by
-    editing the templates. However, it does not allow for
-    customization beyond the \boutiques schema.
+  \item The descriptor is stored in a CBRAIN plugin and the Ruby
+    classes are generated on-the-fly when CBRAIN starts. This mode
+    allows CBRAIN developers update all \boutiques applications at
+    once by editing the templates. However, it does not allow for
+    customization beyond the \boutiques schema. To provide more
+    flexibility, we added a custom property
+    (\texttt{cbrain:inherits-from-class}) to the \boutiques descriptor
+    to define the Ruby class that should be used as parent class for
+    the application.
   \item Ruby classes are generated from descriptors
     through an offline process and integrated in CBRAIN as any other
     application. This mode allows developers to customize applications
@@ -622,18 +627,19 @@ integration modes are available:
     particular when the descriptors are updated.
 \end{enumerate}
 
-A custom property (\texttt{cbrain:inherits-from-class}) was added to
-the \boutiques descriptor to define the Ruby class that should be used as
-parent class for the application in CBRAIN. It provides more
-flexibility to the first integration model described previously.
+We also extended CBRAIN to enable the parallelization of workflows
+wrapped as \boutiques descriptors. Applications with the
+\texttt{cbrain:can-submit-new-tasks} custom property may submit sub-tasks by
+creating \boutiques invocations in their working directory. CBRAIN
+periodically scans working directories, submits the requested
+sub-tasks, and writes back the invocation id in the same
+directory. This parallelization model is simple, the application only
+needs to write \boutiques invocations and communication happens
+through the file system, and it is also powerful as it enables the
+parallelization of complex workflows such as the FSL and Niak ones
+described later. 
 
-CBRAIN was also extended to support the parallelization mechanism
-available in \boutiques: the CBRAIN execution agent periodically scans
-the execution directories of the parallelized applications and it submits
-the invocations defined in the JSON objects written by the
-application in this directory.
-
-A new list mechanism was also introduced in CBRAIN to facilitate the
+We also introduced a new list mechanism in CBRAIN to facilitate the
 iteration of \boutiques applications on large sets of files. CBRAIN
 lists are specific files that contain references to other CBRAIN
 files. When a list is passed to a \boutiques application, the elements
@@ -660,31 +666,36 @@ applications.
 
 \subsubsection{VIP}
 
-The Virtual Imaging Platform (VIP)~\cite{GLAT-13} is a web portal for medical 
-simulation  and image data analysis. VIP allows to make applications 
-available as a service, and also to benefit from the resources available 
-to the biomed Virtual Organisation (VO) of the European Grid Infrastructure 
-\footnote{\url{https://www.egi.eu/}}, supported by approximately 65 computing
-sites world-wide offering a total of 130 computing clusters and 5 PB of storage.
-The VIP service is currently deployed at the Creatis laboratory
-\footnote{\url{https://www.creatis.insa-lyon.fr/site7/en}} and uses the DIRAC 
-French service \footnote{\url{https://dirac.france-grilles.fr}} to submit jobs on 
-EGI grid and cloud resources.  VIP counts, in October 2017, more than 1000 
-registered users and a growing number of available applications.
+The Virtual Imaging Platform (VIP)~\cite{GLAT-13} is a web portal for
+medical simulation and image data analysis. VIP makes applications
+available as services, and connects them to the biomed Virtual
+Organization (VO) in the European Grid
+Infrastructure\footnote{\url{https://www.egi.eu}}. The biomed VO
+interconnects approximately 65 computing sites world-wide and provides
+access to 130 computing clusters and 5~PB of storage.  The VIP service
+is deployed at the Creatis
+laboratory\footnote{\url{https://www.creatis.insa-lyon.fr}} in Lyon
+and it uses the DIRAC French national
+service\footnote{\url{https://dirac.france-grilles.fr}} to execute
+jobs on EGI grid and cloud resources.  As of October 2017, VIP counts
+more than 1000 registered users and a growing number of available
+applications.
 %% gk: I guessed 50 more in the last year, since 1000 is a nice number, is this accurate?
 
-Until recently, applications were manually integrated in VIP as workflows written 
-in the Gwendia\cite{MONT-09} language and managed  with the MOTEUR\cite{GLAT-08} workflow engine. 
-As of today, Boutiques is supported through a "Boutiques application importer" tool, which 
-parses the JSON file and automatically generates the corresponding application workflow
-and the wrapper script that handles, among other things, the execution of the command line itself. 
-The use of an application workflow allows to (i) iterate on input lists and generate 
-parallel tasks, as well as to (ii) concatenate multiple tools. The applications used in 
-the MICCAI challenges, for example, were followed by other tools allowing to compute 
-challenge-specific metrics. Tool concatenation is currently handeled at the importer 
-level based on pre-defined workflow templates. 
-
-\note{sorina}{@tristan: some info on workflows is available in the paragraph above. Is it OK/enough or do you have other suggestions?}
+Until recently, applications were manually integrated in VIP as
+workflows written in the Gwendia~\cite{MONT-09} language and executed
+with the MOTEUR~\cite{GLAT-08} engine.  As of today, Boutiques is
+supported through a "Boutiques application importer" tool, which
+parses the JSON descriptor and automatically generates the
+corresponding application workflow and the wrapper script that
+handles, among other things, the execution of the command line.
+Application workflows enable (1) iterations on input lists, (2) the
+generation of parallel tasks, and (3) the concatenation of multiple
+tools. For examples, the applications used in the MICCAI challenges
+described below required workflows to evaluate results using the
+metrics defined by the challenge. Tool concatenation is 
+handled at the importer level based on pre-defined workflow
+templates.
 
 \subsection{Ported applications}
 
@@ -693,29 +704,101 @@ level based on pre-defined workflow templates.
 %%Table~\ref{table:applications} summarizes the applications described
 %%with \boutiques and the main features used.
 
-\paragraph{Niak.} The Niak pre-processing pipeline, executed with the Pipeline System
+Dozens of neuroinformatics tools were ported to CBRAIN or VIP using
+\boutiques. The main ones are described below. Several \boutiques
+descriptors were published in
+Neurolinks\footnote{\url{https://brainhack101.github.io/neurolinks}}
+through the \texttt{bosh} publisher.
+
+
+
+%% \paragraph{Nipype} We instrumented the Nipype workflow engine~\cite{gorgolewski2011nipype} 
+%% to export the applications described in its internal Python
+%% description language to \boutiques. \todo{Update nipype\_cmd to
+%%   support the latest \boutiques schema and complete this paragraph.}
+
+\subsubsection{Anatomical MRI}
+
+\paragraph{FSL} Several tools from the FMRIB Software
+library (FSL) were ported to CBRAIN using \boutiques: BET, fsl\_anat, FAST,
+FIRST and probtrackx2. Descriptors are available on Neurolinks.
+
+\paragraph{Anima}
+The animaN4BiasCorrection tool from the
+Anima\footnote{\url{https://github.com/Inria-Visages/Anima-Public/wiki}} project was also made available 
+in VIP. The import process was straightforward. \todo{Sorina: reference?}
+
+\subsubsection{Functional MRI}
+
+\paragraph{Niak} The Niak pre-processing pipeline, executed with the Pipeline System
 for Octave and Matlab (PSOM)~\cite{bellec2012pipeline}, was integrated
 in CBRAIN through \boutiques. The integration uses the parallelization
-mechanism described in Section~\ref{sec:parallelization} so that even
+mechanism described earlier so that even
 the invocations processing a single subject can be parallelized. It also
 allows CBRAIN to leverage the efficient agent model used in PSOM, as
 described in~\cite{GLAT-16}. The integration required some work in
 PSOM to facilitate its invocation as a non-interactive command-line
 application. The resulting CBRAIN plugin is available at
-\url{https://github.com/SIMEXP/cbrain-plugins-psom}. It could in
-principle be used in other platforms that support the parallelization
-property, although this has not been tested.
+\url{https://github.com/SIMEXP/cbrain-plugins-psom}. It can
+be used in other platforms that support the parallelization
+property. Descriptors are available on Neurolinks.
 
-\paragraph{Nipype.} The Nipype workflow engine~\cite{gorgolewski2011nipype} was
-instrumented to export to \boutiques applications described in its
-internal Python description language. \todo{Update nipype\_cmd to
-  support the latest \boutiques schema and complete this paragraph.}
+\paragraph{GinFizz}
+Ginfizz, a FMRI pipeline allowing to execute multiple 
+preprocessing steps and basic analyses such as: (i) realignment (motion registration and correction),
+(ii) slice timing (temporal interpolation to correct for the delay of acquisition between slices), 
+(iii) coregistration (registering functional and structural data), (iv) normalization (registering 
+of functional and anatomical data to a match a template that has to be specified), and (iv)
+smoothing (spatial filtering to increase Signal to Noise ratio). The use of Docker containers
+(\url{https://hub.docker.com/r/fliiam/ginfizz} based on \url{https://hub.docker.com/r/miykael/nipype_level2}) 
+greatly simplifies its deployment.
+\todo{Sorina: reference?}
 
-\paragraph{SPM.} The Statistical Parameter Mapping toolbox (SPM)~\cite{penny2011statistical}
-was exported to Boutiques \ldots \todo{Guillaume}
+\subsubsection{Diffusion imaging}
 
-\paragraph{MICCAI challenges.}
-\boutiques was used to integrate 23 pipelines in the VIP platform in
+\paragraph{MRTrix3}
+A few tools from the MRtrix3\footnote{\url{http://www.mrtrix.org/}}
+package for diffusion MRI processing were also made available in VIP,
+as well as a script developed at Creatis, which combines MRtrix3 and
+FSL tools.
+
+\paragraph{ndmg} The NeuroData MRI to Graphs one-click connectome estimation
+pipeline~\cite{kiar2017comprehensive}, developed in Python and leveraging FSL, was
+exported to \boutiques and is available at \url{https://github.com/neurodata/boutiques-tools}.
+The ndmg pipeline is deployed in CBRAIN via its \boutiques descriptor, and is available
+both through Docker and Singularity container environments.
+
+\subsubsection{Image simulation}
+
+\paragraph{CreaPhase}
+A phase contrast simulator called CreaPhase, developed at Creatis, was
+integrated in VIP through \boutiques. The CreaPhase inputs had
+certain particularities (some nedeed to be enclosed in simple quotes,
+other were vectors of variable size enclosed in brackets) that
+required the post-processing of the wrapper script generated by the
+Boutiques importer. \todo{Sorina: reference?}
+
+\paragraph{ODIN} The Odin MRI simulator\footnote{\url{http://od1n.sourceforge.net}} was imported 
+in VIP through \boutiques. Since Odin may require important amounts of
+computing resources (the common use-case consists in iterating on a
+large number of inputs files), Odin is executed by VIP on the EGI grid
+resources, which currently do not support Docker. Consequently, the
+Odin executable was exported from the Docker image and the Odin
+wrapper script was modified accordingly.
+
+\subsubsection{General-purpose toolboxes}
+
+\paragraph{BIDS apps} BIDS apps, a recent effort for the adoption of the Brain Imaging Data Structure (BIDS)
+in common neuroimaging pipelines, require a standardized set of input
+and output parameters~\cite{gorgolewski2017bids}. We developed a tool
+as part of the \boutiques importer to generate a descriptor for any
+such BIDS app. We validated this tool by importing 
+BIDS apps containing the Statistical Parameter Mapping toolbox
+(SPM)~\cite{penny2011statistical} and the ndmg pipeline mentioned
+above. Descriptors are available on Neurolinks.
+
+\paragraph{2016 MICCAI challenges}
+We used \boutiques to integrate 23 pipelines in the VIP platform in
 the context of two challenges organized by the MICCAI conference in
 2016, related to the segmentation of multiple-sclerosis lesions in MR
 images (MSSEG
@@ -730,7 +813,7 @@ the platform for the following reasons:
 \item A pipeline
   required a GPU, which we enabled through the
   \texttt{nvidia-docker}\footnote{\url{https://github.com/NVIDIA/nvidia-docker}}
-  tool not supported in Boutiques by default although it could be a possible extension.
+  tool not supported in Boutiques although it could be a possible extension.
 \item A pipeline required more than 10 GB of data dependencies (atlas
   data) which exceeded the maximum size allowed for Docker containers
   in our setup. We solved the issue by installing the data in a
@@ -739,7 +822,7 @@ the platform for the following reasons:
   \boutiques.
 \item A pipeline wrote more than 10 GB of intermediate data in a
   temporary directory of the container located on a 2 GB partition. We
-  solved the issue by mounting a host directory in the temporary directory.
+  solved the issue by mounting a host directory in the temporary directory. 
 \end{enumerate}
 The pipelines did not use much of the expressiveness features offered
 by \boutiques since the instructions given to the challengers required
@@ -749,99 +832,6 @@ and \texttt{vip:miccai-challenge-team-name}) were added to the
 \boutiques descriptor to help post-process results in the specific
 context of MICCAI challenges.
 
-\paragraph{ndmg.} The NeuroData MRI to Graphs one-click connectome estimation
-pipeline~\cite{kiar2017comprehensive}, developed in Python and leveraging FSL, was
-exported to \boutiques and is available at \url{https://github.com/neurodata/boutiques-tools}.
-The ndmg pipeline is deployed in CBRAIN via its \boutiques descriptor, and is available
-both through Docker and Singularity container environments.
-
-\paragraph{BIDS apps.} Brain Imaging Data Structure supported
-applications~\cite{gorgolewski2017bids}, a recent effort for the adoption of BIDS support
-in common neuroimaging pipelines, require a standardized set of input and output parameters
-by tools. A \boutiques tool has been developed which generates a descriptor for any such
-BIDS app, enabling them to be deployed within a broad range of high performance computing
-infrastructures, such as CBRAIN.
-
-\paragraph{Other applications.} Other neuroinformatics applications were ported to CBRAIN using \boutiques:
-FSL tools and ICA AROMA are available at
-\url{https://github.com/aces/cbrain-plugins-neuro} and some pipelines
-of the Human Connectome Project (HCP) are at
-\url{https://github.com/big-data-lab-team/cbrain-plugins-hcp}.
-
-\paragraph{VIP applications.} Several tools were imported in VIP using \boutiques. 
-The first one is a phase contrast simulator called CreaPhase and developed at Creatis. 
-The CreaPhase inputs had certain particularies (some nedeed to be enclosed 
-in simple quotes, other were vectors of variable size enclosed in brackets)
-that required the post-processing of the wrapper script generated by the
-Boutiques importer. 
-
-The Odin MRI simulator\footnote{\url{http://od1n.sourceforge.net}} was also imported 
-in VIP using \boutiques. Since Odin  may require important amounts of computing resources 
-(the common use-case consists in iterating on a large number of inputs files), Odin is 
-executed by VIP on the EGI grid resources, which currently do not support Docker. Consequently, 
-the Odin executable was exported from the Docker image which allowed for his CentOS compilation
-and the Odin wrapper script was modified so that it makes no "Docker run" call.
-
-A few MRtrix3\footnote{\url{http://www.mrtrix.org/}} tools were also made available in VIP, as well as 
-a script developed at Creatis, which combines MRtrix3 and FSL tools.
-
-A few other applications from the FLI (France Life Imaging) consortium were also imported in
-VIP using \boutiques. One of them is Ginfizz, a FMRI pipeline allowing to execute multiple 
-preprocessing steps and basic analyses such as: (i) realignment (motion registration and correction),
-(ii) slice timing (temporal interpolation to correct for the delay of acquisition between slices), 
-(iii) coregistration (registering functional and structural data), (iv) normalization (registering 
-of functional and anatomical data to a match a template that has to be specified), and (iv)
-smoothing (spatial filtering to increase Signal to Noise ratio). The use of Docker containers
-(\url{https://hub.docker.com/r/fliiam/ginfizz} based on \url{https://hub.docker.com/r/miykael/nipype_level2}) 
-greatly simplifies its deployment. The animaN4BiasCorrection tool from the
-Anima\footnote{\url{https://github.com/Inria-Visages/Anima-Public/wiki}} project was also made available 
-in VIP. The import process was straightforward. 
-
-\note{sorina}{@tristan: please check if you agree with the descriptions above}
-
-%%\begin{table}
-%%  \begin{tabular}{l|ccccccc}
-%%    \rowcolor[gray]{0.9}
-%%    Application                      & \multicolumn{7}{c}{Input/Output properties} \\
-%%    \rowcolor[gray]{0.9}
-%%                                     & Dependencies      &Groups             & Lists             & Optional          &Default            & Type restriction             & Min/max\\
-%%    
-%%    \hline
-%%    Niak pre-processing              &                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\\
-%%    ICA AROMA                        &\cellcolor{gray!75}&\cellcolor{gray!75}&                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}\\
-%%    FSL tools &&&&&&\\
-%%    \multicolumn{1}{r|}{anat}        &\cellcolor{gray!75}&\cellcolor{gray!75}&                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}\\
-%%    \multicolumn{1}{r|}{bet}         &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&                   &                   &\cellcolor{gray!75}\\      
-%%    \multicolumn{1}{r|}{fast}        &\cellcolor{gray!75}&                   &                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}\\
-%%    \multicolumn{1}{r|}{first}       &                   &                   &\cellcolor{gray!75}&\cellcolor{gray!75}&\cellcolor{gray!75}&                   &                   \\
-%%    FSL Nipype interfaces     \\
-%%    HCP PreFreesurfer                &                   &                   &                   &                   &                   &                   &                   \\
-%%    ndmg                &                   &       \cellcolor{gray!75}            &                   &          \cellcolor{gray!75}         &      \cellcolor{gray!75}             & \cellcolor{gray!75} &                   \\
-%%    MICCAI challenge (23 pipelines)\\&                   &                   &                   &                   &                   &                   & \\
-%%    \end{tabular}
-%%  \vspace*{0.5cm}
-%%  \begin{tabular}{l|ccc|ccc}
-%%    \hline
-%%    \rowcolor[gray]{0.9}
-%%    Application                     &\multicolumn{3}{c|}{Containers}            &  \multicolumn{3}{c}{Other properties}  \\
-%%    \rowcolor[gray]{0.9}
-%%                                    &Docker              & Singularity& Rootfs  & Config. file & Env vars  & Parallelization   \\
-%%    \hline
-%%    Niak pre-processing             &\cellcolor{gray!75} &\cellcolor{gray!75}&         &              &\cellcolor{gray!75}&\cellcolor{gray!75}\\
-%%    ICA AROMA                       &\cellcolor{gray!75} &            &         &              &&\\
-%%    FSL tools &&&&&\\
-%%    \multicolumn{1}{r|}{anat}       &                    &            &         &              &&\\
-%%    \multicolumn{1}{r|}{bet}        &                    &            &         &              &&\\
-%%    \multicolumn{1}{r|}{fast}       &                    &            &         &              &&\\
-%%    \multicolumn{1}{r|}{first}      &                    &            &         &              &&\\
-%%    FSL Nipype interfaces           &                    &            &         &              &&\\
-%%    HCP PreFreesurfer               &\cellcolor{gray!75} &            &         &              &&\\
-%%    ndmg                            &\cellcolor{gray!75} &\cellcolor{gray!75}&         &              &&\\
-%%    MICCAI challenge (23 pipelines) &\cellcolor{gray!75} &            &         &              &&\\
-%%  \end{tabular} 
-%%  \caption{Applications available in Boutiques with descriptor features used.}
-%%  \label{table:applications}
-%%\end{table}
 
 \section{Discussion}
 With \boutiques, developers can port their applications once and execute
@@ -931,6 +921,8 @@ might themselves be described in \boutiques. This model is powerful
 because it shields the \boutiques specification from specific workflow
 constructs and allows a wide range of workflow engines to be described
 uniformly. 
+
+\todo{CBRAIN's custom property might be standardized.}
 
 \subsection{Reproducibility}
 
@@ -1153,6 +1145,10 @@ on feedback from applications and platforms. Beyond the technicalities
 discussed in this paper, the availability of a solid core of
 applications and platforms in the framework is key to its success,
 which we plan to continuously enhance.
+
+\section{Acknowledgments}
+
+\todo{FLI}
 
 \bibliography{biblio}
 
