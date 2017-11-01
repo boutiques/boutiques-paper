@@ -368,13 +368,11 @@ schemas can be generated automatically by the \texttt{bosh}
 command-line utility. The invocation schema is stored as an optional
 property of the \boutiques descriptor.
 
-\notimplementedyet{The invocation schema also has a
- \texttt{task-dependencies} array that allows specifying that the new
- invocation may start only when previously-submitted invocations have
- completed. This property is used in the parallelization model
- described hereafter.}
-
-
+%% \notimplementedyet{The invocation schema also has a
+%%  \texttt{task-dependencies} array that allows specifying that the new
+%%  invocation may start only when previously-submitted invocations have
+%%  completed. This property is used in the parallelization model
+%%  described hereafter.}
 
 \begin{listing}
 \begin{minted}[frame=single,
@@ -407,26 +405,36 @@ property of the \boutiques descriptor.
 \label{listing:invocation-schema-example}
 \end{listing}
 
-\subsection{Parallelization support}
-\label{sec:parallelization}
-\boutiques supports parallelism by allowing applications to submit new
-invocations through \notimplementedyet{the following protocol}:
-\begin{enumerate}
-\item Applications write a JSON object complying to the invocation
-  schema in their execution directory.
-\item The platform reads the JSON object, creates the corresponding
-  invocation, and writes back the invocation id in the same directory.
-% The platform could also support status requests.
-\end{enumerate}
-Several invocations can be submitted at once, possibly using the
-\texttt{task-dependencies} array to specify dependencies among
-them. This mechanism is implemented in the Boutiques schema using a
-single property, \texttt{can-submit-tasks}.
+%% \subsection{Parallelization support}
+%% \label{sec:parallelization}
+%% \boutiques supports parallelism by allowing applications to submit new
+%% invocations through \notimplementedyet{the following protocol}:
+%% \begin{enumerate}
+%% \item Applications write a JSON object complying to the invocation
+%%   schema in their execution directory.
+%% \item The platform reads the JSON object, creates the corresponding
+%%   invocation, and writes back the invocation id in the same directory.
+%% % The platform could also support status requests.
+%% \end{enumerate}
+%% Several invocations can be submitted at once, possibly using the
+%% \texttt{task-dependencies} array to specify dependencies among
+%% them. This mechanism is implemented in the Boutiques schema using a
+%% single property, \texttt{can-submit-tasks}.
 
-Although very simple, this model allows wrapping complete
-workflows. Workflows are wrapped as any other application, and they
-can be executed using any engine provided that it is installed in the
-container image referred in the application descriptor. Such a ``task
+%% Although very simple, this model allows wrapping complete
+%% workflows. Workflows are wrapped as any other application, and they
+%% can be executed using any engine provided that it is installed in the
+%% container image referred in the application descriptor. 
+
+\subsection{Workflow support}
+
+\boutiques does not specify a particular language to compose
+descriptors in a workflow, due to the large amount of specialized
+frameworks to do so. However, workflows can be both composed from and
+described as \boutiques descriptors: workflow engines can leverage the
+\texttt{bosh} tools to call \boutiques tools from their descriptors;
+in turn, workflows can be described as \boutiques descriptors provided
+that the execution engine is containerized. Such a ``task
 encapsulation'' model allows for a scalable and reliable execution of
 workflows expressed in a variety of languages, as detailed in
 ~\cite{glatard2017software}.
@@ -467,6 +475,16 @@ to execute an application, which can be an issue in some cases.
 %%not contain any reference to a container, the platform will assume
 %%that the application is pre-installed on the execution infrastructure. 
 %% gk: I believe we only support containers now, correct?
+
+\subsection{Resource requirements}
+
+\boutiques descriptors may contain requirements regarding the number
+of CPU cores or nodes, the amount of RAM or disk storage, and the
+total walltime expected for a typical execution of the
+application. Such properties are called ``suggested resources'' as we
+are well aware that the actual resource requirements usually depend on
+the input data, parameters and hardware infrastructure.
+
 
 \subsection{Custom properties}
 
