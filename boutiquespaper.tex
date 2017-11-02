@@ -145,8 +145,8 @@ archival.
 
 Here is an example of a typical command-line template:
 \begin{verbatim}
-          exampleTool_1 [STRING_INPUT] [FILE_INPUT]  | \
-                exampleTool_2 [FLAG_INPUT] [NUMBER_INPUT] >> [LOG].txt
+exampleTool_1 [STRING_INPUT] [FILE_INPUT]  | \
+  exampleTool_2 [FLAG_INPUT] [NUMBER_INPUT] >> [LOG].txt
 \end{verbatim}
 The template contains five value keys, identified by square brackets,
 that will be replaced by values and file names according to the user
@@ -190,7 +190,7 @@ line at execution time.
 \begin{minted}[frame=single,
                framesep=3mm,
                linenos=false,
-               xleftmargin=21pt,
+               xleftmargin=0pt,
                tabsize=4]{js}
 {
     "id" : "num_input",
@@ -242,17 +242,17 @@ replaced by \texttt{log-foo} on the command line at execution time.
 \begin{minted}[frame=single,
                framesep=3mm,
                linenos=false,
-               xleftmargin=21pt,
+               xleftmargin=0pt,
                tabsize=4]{js}
 
 {
-    "id" : "logfile",
-    "name" : "Log file",
-    "description" : "The output log file from the example application",
-    "path-template" : "log-[STRING_INPUT]",
-    "value-key" : "[LOG]",
-    "path-template-stripped-extensions" : [".txt", ".csv"],
-    "optional" : false
+  "id": "logfile",
+  "name": "Log file",
+  "description": "The output log file",
+  "path-template": "log-[STRING_INPUT]",
+  "value-key": "[LOG]",
+  "path-template-stripped-extensions": [".txt", ".csv"],
+  "optional": false
 }
 \end{minted}
 \caption{Example of an output leveraging \texttt{path-template} search-and-replacement.} 
@@ -280,7 +280,7 @@ example.
 \begin{minted}[frame=single,
                framesep=3mm,
                linenos=false,
-               xleftmargin=21pt,
+               xleftmargin=0pt,
                tabsize=4]{js}
 {
     "id": "config_file",
@@ -397,7 +397,7 @@ property of the \boutiques descriptor.
 \begin{minted}[frame=single,
                framesep=3mm,
                linenos=false,
-               xleftmargin=21pt,
+               xleftmargin=0pt,
                tabsize=4]{js}
 {
   "dependencies" : {
@@ -658,12 +658,14 @@ applications.
 \todo{Gunnar, Nathanael, John}
 
 \subsubsection{Nipype}
-Nipype (\url{http://nipype.readthedocs.io/en/latest/})~\cite{gorgolewski2011nipype} is a workflow engine widely used in
-neuroinformatics. Nipype workflows can be composed from \boutiques
-tools using the Python API. As an example, we implemented NipBIDS, a
-Nipype workflow to process BIDS datasets using BIDS apps. NipBIDS
-iterates participant analyses on all the subjects found in a BIDS
-dataset and runs a group analysis if requested. It is available at
+Nipype
+(\url{http://nipype.readthedocs.io/en/latest/})~\cite{gorgolewski2011nipype}
+is a workflow engine widely used in neuroinformatics. Nipype workflows
+can be composed from \boutiques tools using the Python API. As an
+example, we implemented NipBIDS, a Nipype workflow to process BIDS
+datasets using BIDS apps imported as \boutiques tools. NipBIDS iterates
+participant analyses on all the subjects found in a BIDS dataset and
+runs a group analysis if requested. It is available at
 \url{https://github.com/big-data-lab-team/sim/tree/master/sim/other_wf_examples/nipype}.
 
 \subsubsection{Pegasus}
@@ -908,25 +910,25 @@ descriptor properties.
 \begin{minted}[frame=single,
                framesep=3mm,
                linenos=false,
-               xleftmargin=21pt,
+               xleftmargin=0pt,
                tabsize=4]{js}
 {
-    "name": "echo",
-    "tool-version": "1.0",
-    "description": "A simple script to test output files",
-    "command-line": "echo [PARAM] > output.txt",
-    "schema-version": "0.4",
-    "inputs": [{
-	"id": "param",
-	"name": "Parameter",
-        "value-key": "[INPUT_FILE]",
-	"type": "File"
-    }],
-    "output-files": [{
-	"id": "output_file",
-	"name": "Output file",
-	"path-template": "output.txt"
-    }]
+  "name": "echo",
+  "tool-version": "1.0",
+  "description": "A simple script to test output files",
+  "command-line": "echo [PARAM] > output.txt",
+  "schema-version": "0.4",
+  "inputs": [{
+      "id": "param",
+      "name": "Parameter",
+      "value-key": "[INPUT_FILE]",
+      "type": "File"
+  }],
+  "output-files": [{
+      "id": "output_file",
+      "name": "Output file",
+      "path-template": "output.txt"
+  }]
 
 }
 \end{minted}
