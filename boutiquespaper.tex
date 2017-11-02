@@ -29,14 +29,36 @@
 
 \begin{document}
 
-\author{Tristan Glatard, Gregory Kiar, Tristan Aumentado-Armstrong,
-  Natacha Beck, Pierre Bellec, Remi Bernard, Sorina Camarasu-Pop,
-  Fr\'ed\'eric Cervenansky, Samir Das,  Rafael Ferreira da Silva,
-  Guillaume Flandin, John Flavin, Pascal Girard, Krzysztof
-  J. Gorgolewski, Charles R.G. Guttmann, Val\'erie Hayot-Sasson,
-  Nathaniel Kofalt, Pierre-Olivier Quirion, Pierre Rioux,
-  Marc-\'Etienne Rousseau, Gunnar Schaeffer, Alan C. Evans}
+\author[1]{Tristan Glatard}
+\author[2,3]{Gregory Kiar}
+\author[2,3]{Tristan Aumentado-Armstrong}
+\author[2,3]{Natacha Beck}
+\author[4]{Pierre Bellec}
+\author[2,3]{R\'emi Bernard}
+\author[5]{Sorina Camarasu-Pop}
+\author[5]{Fr\'ed\'eric Cervenansky}
+\author[2,3]{Samir Das}
+\author[6]{Rafael Ferreira da Silva}
+\author[7]{Guillaume Flandin}
+\author[5]{Pascal Girard}
+\author[8]{Krzysztof J. Gorgolewski}
+\author[9]{Charles R.G. Guttmann}
+\author[1]{Val\'erie Hayot-Sasson}
+\author[4]{Pierre-Olivier Quirion}
+\author[2,3]{Pierre Rioux}
+\author[10]{Marc-\'Etienne Rousseau}
+\author[2]{Alan C. Evans}
 
+\affil[1]{Department of Computer Science and Software Engineering, Concordia University, Montreal, Canada}
+\affil[2]{McGill University, Montreal, Canada}
+\affil[3]{Montreal Neurological Institute, Montreal, Canada}
+\affil[4]{Centre de Recherche de l'Institut de G\'eriatrie de Montr\'eal CRIUGM, Montréal, QC, Canada}
+\affil[5]{University of Lyon, CNRS, INSERM, CREATIS, Villeurbanne, France}
+\affil[6]{University of Southern California, Information Sciences Institute, Marina del Rey, CA, USA}
+\affil[7]{\todo{to be added}}
+\affil[8]{Department of Psychology, Stanford University, Stanford, California, USA}
+\affil[9]{Partners MS Center, Brigham and Women's Hospital, Brookline, Massachusetts, USA}
+\affil[10]{Compute Canada}
 
 \begin{frontmatter}
 \maketitle
@@ -456,7 +478,7 @@ in turn, workflows can be described as \boutiques descriptors provided
 that the execution engine is containerized. Such a ``task
 encapsulation'' model allows for a scalable and reliable execution of
 workflows expressed in a variety of languages, as detailed in
-~\cite{glatard2017software}.
+~\cite{GLATARD2017239}.
 
 \subsection{Containers}
 
@@ -464,16 +486,16 @@ Applications are installed in a container image complying to the
 Docker, Singularity or rootfs format. We intentionally support
 multiple container formats as we anticipate that they will be used for
 different purposes. For instance, Docker is well suited for developers
-and users who manipulate applications on their local workstations or the
-cloud. It is well documented, maintained and it has a rich ecosystem of
-tools to help build and run containers on most operating systems. Singularity
-is more suited for users and platforms that need to run applications
-on shared computing clusters. Bridges exist among these containers
-formats to convert container images across frameworks. For instance, a
-platform dedicated to high-performance computing may accept descriptors
-referring to Docker containers to facilitate application integration
-by developers, and internally convert container images to Singularity
-to run applications efficiently on clusters.
+and users who manipulate applications on their local workstations or
+the cloud. It is well documented, maintained and it has a rich
+ecosystem of tools to help build and run containers on most operating
+systems. Singularity is more suited for users and platforms that need
+to run applications on shared computing clusters. Bridges exist among
+these containers formats to convert container images across
+frameworks. For instance, a platform dedicated to high-performance computing may accept
+descriptors referring to Docker containers to facilitate application
+integration by developers, and run these images on clusters using
+Singularity.
 
 Container images are defined from their URL (rootfs) or image name in
 a Docker or Singularity index. Descriptors and container images may
@@ -653,10 +675,6 @@ non-existent or deleted files can be detected. It also allows users to
 edit lists using their own tools such as scripts or spreadsheet
 applications.
 
-\subsubsection{Flywheel}
-%% gk: shall we check with them, and if nothing, remove?
-\todo{Gunnar, Nathanael, John}
-
 \subsubsection{Nipype}
 Nipype
 (\url{http://nipype.readthedocs.io/en/latest/})~\cite{gorgolewski2011nipype}
@@ -819,8 +837,8 @@ wrapper script was modified accordingly. \todo{Sorina: replace footnote by citat
 in common neuroimaging pipelines, require a standardized set of input
 and output parameters~\cite{gorgolewski2017bids}. We developed a tool
 as part of the \boutiques importer to generate a descriptor for any
-such BIDS app. We validated this tool by importing 
-BIDS apps containing the Statistical Parameter Mapping toolbox
+such BIDS app. We validated this tool by importing BIDS apps
+containing the Statistical Parameter Mapping toolbox
 (SPM)~\cite{penny2011statistical} and the ndmg pipeline mentioned
 above. Descriptors are available on Neurolinks.
 
@@ -874,31 +892,33 @@ The \boutiques descriptor specification allows describing a wide range
 of applications, but it is also getting increasingly complex through
 additions such as invocation schemas and dependencies among
 inputs. Extending the \boutiques descriptor has two main goals. First,
-accurately describing applications improves validation: incorrect input
-values and execution results are more precisely detected when the
-application descriptor is comprehensive, which is essential to improve
-the reliability and user-friendliness of execution
+accurately describing applications improves validation: incorrect
+input values and execution results are more precisely detected when
+the application descriptor is comprehensive, which is essential to
+improve the reliability and user-friendliness of execution
 platforms. Secondly, a rich descriptor schema reduces the need for
-custom wrappers to integrate applications as even convoluted command
-lines can be described: this is particularly interesting for
-applications installed in containers since adding a wrapper to the
-execution stack requires an update in the container image.
+custom application wrappers, for instance to create configuration
+files from command-line options, as even convoluted command lines can
+be described. This is particularly useful for containerized
+applications since adding a wrapper requires an update of the
+container image.
 
 Nonetheless, a complex descriptor schema has a cost for application
 developers and platforms, which we address as follows. For developers,
 we maintain the set of mandatory descriptor properties as small as
 possible so that simple applications can be described in a few lines
 only (see Listing~\ref{listing:minimal}). For platforms, we aim at
-supporting as many features as possible in the executor so that
-only the following steps need to be implemented to support \boutiques
-in a platform, regardless of the complexity of the descriptor:
+supporting as many features as possible in the \texttt{bosh} executor
+so that only the following steps need to be implemented to support
+\boutiques in a platform, regardless of the complexity of the
+descriptor:
 \begin{enumerate}
-  \item Input entry: generate the interface to allow users to enter
-    input values.
-  \item Input validation: create a JSON object from the interface,
+  \item Input entry: generate the interface to enter inputs.
+  \item Input validation: create a JSON invocation from the interface,
     validate it against the invocation schema.
-  \item Execution: generate and run the command line from the local
-    executor and input JSON object.
+  \item Input delivery: transfer the input files to the application
+    execution location.
+  \item Execution: pass the invocation to the \texttt{bosh} executor to run the application.
   \item Output delivery: from the descriptor, identify the output files
     and deliver them to the user.
 \end{enumerate}
@@ -917,19 +937,18 @@ descriptor properties.
   "tool-version": "1.0",
   "description": "A simple script to test output files",
   "command-line": "echo [PARAM] > output.txt",
-  "schema-version": "0.4",
+  "schema-version": "0.5",
   "inputs": [{
       "id": "param",
       "name": "Parameter",
-      "value-key": "[INPUT_FILE]",
-      "type": "File"
+      "value-key": "[PARAM]",
+      "type": "Number"
   }],
   "output-files": [{
       "id": "output_file",
       "name": "Output file",
       "path-template": "output.txt"
   }]
-
 }
 \end{minted}
 \caption{A minimal \boutiques descriptor.} 
@@ -938,24 +957,26 @@ descriptor properties.
 
 \subsection{Workflow support}
 
-The parallelization framework described in~\ref{sec:parallelization}
-supports workflows by considering them as both applications and
-platforms, which we think is a powerful but underexploited
-model. Workflows are applications because they are invoked like any
-other script or executable, possibly through a command line. Workflows
-are also platforms because they may invoke other applications that
-might themselves be described in \boutiques. This model is powerful
-because it shields the \boutiques specification from specific workflow
-constructs and allows a wide range of workflow engines to be described
-uniformly. 
+\boutiques intentionally does not provide a workflow language to
+compose tools, as this is already offered by several workflow
+engines. Workflows can be either composed from \boutiques tools, as we
+illustrated with the Nipype and MOTEUR engines, or described as
+\boutiques applications, as we demonstrated with the Niak fMRI
+pre-processing pipeline. Furthermore, the CBRAIN platform has a
+sub-tasking mechanism that allows \boutiques tools to submit tasks,
+which is used to parallelize workflows wrapped as \boutiques
+tools. Based on the CBRAIN experience, we may specify the sub-tasking
+mechanism in \boutiques so that other platforms can benefit from it.
+This model is powerful because it shields the \boutiques specification
+from specific workflow constructs and allows a wide range of workflow
+engines to be described and used uniformly.
 
-\todo{CBRAIN's custom property might be standardized.}
 
 \subsection{Reproducibility}
 
-\boutiques helps reproduce\footnote{in Peng's
-  sense~\cite{peng2011reproducible}} executions through containers and
-formal command-line descriptions. With \boutiques, complete sets of
+\boutiques helps computational reproducibility, in Peng's
+sense~\cite{peng2011reproducible}, through containers and formal
+command-line descriptions. With \boutiques, complete sets of
 applications could be easily migrated across execution platforms,
 including high-performance computing platforms and individual laptops,
 to reproduce analyses. The \boutiques descriptor describes the
@@ -977,17 +998,16 @@ the execution platform without being specified in the \boutiques
 descriptor. Such runtime parameters may impact reproducibility in some
 cases. To properly cover this issue, \boutiques descriptors should be
 complemented by a provenance framework that captures a detailed trace
-of the execution.
+of the execution. We plan to leverage the provenance format being
+defined by the Neuro-Imaging Data Model
+Workflow~\cite{ghosh2017capturing} initiative for this purpose.
 
-At a higher level, reproducibility is impacted by factors
-such as data sharing~\cite{poldrack2014making} which are out of the
-scope of \boutiques.
 
 \subsection{Application types}
 
 So far, \boutiques has focused on the description of non-interactive
 command-line applications. While such applications cover a large
-fractions of the tools involved in scientific data processing, other
+fraction of the tools involved in scientific data processing, other
 types of programs exist such as web services, interactive tools, and
 applications with a graphical user interface (GUI).  Such application
 classes could be described in \boutiques through a command-line
@@ -1008,11 +1028,10 @@ future. First, \boutiques moves the application porting bottleneck
 from integration to validation. Using \boutiques, functions can be
 automatically exported from frameworks such as Nipype and SPM,
 creating hundreds of richly described applications potentially usable
-by end-users. However, it remains unclear how to validate that these
-applications actually execute as expected beyond executing packaged tests
-distributed alongside a given tool. A \boutiques-specific testing
-framework could be designed and potentially fed by existing frameworks,
-to address this issue.
+by end-users. However, the automated validation of such applications
+remains challenging. A \boutiques-specific testing framework could be
+designed and potentially fed by existing frameworks, to address this
+issue.
 
 Another limitation is related to the security of containerized
 applications. Since containers are usually controlled by application
@@ -1020,7 +1039,7 @@ developers rather than platforms, which is a good thing to reduce
 application porting bottlenecks, nothing prevents developers to embed
 malicious code in their container at any stage of the process,
 possibly after a platform administrator inspected the
-container. Containers are currently bulky file archives that are
+container. Containers are bulky file archives that are
 cumbersome to inspect. Tools need to be developed to allow for an
 easier characterization of container contents, for instance through
 comparison digests with respect to validated base images. Singularity
@@ -1031,22 +1050,26 @@ but the issue of content transparency is still not avoided.
 
 \section{Related work}
 
-\todo{BIDS apps}
-
-The Common Workflow Language\footnote{\url{http://www.commonwl.org}}
-is the piece of related work most closely related to
-\boutiques. Several other application description frameworks have been
-developed but they do not support containers.
+Several frameworks have been developed to describe and integrate
+applications in various types of platforms. \boutiques focuses on (1)
+fully-automatic integration of applications, including deployment on
+heterogeneous computing resources through containers, (2)
+comprehensive input validation through a strict JSON schema, (3)
+flexible application description through a rich JSON
+schema.
 
 \subsection{Common Workflow Language}
 
-The Command Line Tool Description of the Common Workflow Language
-(CWL) overlaps with the \boutiques descriptor. According to the history
-of the CWL and \boutiques Github repositories, CWL started 6 months
-before \boutiques (September 2014 vs. May 2015). The differences
-highlighted below were identified from version 1.0 of the CWL Command
-Line Tool
-Description\footnote{\url{http://www.commonwl.org/v1.0/CommandLineTool.html}}.
+The Common Workflow Language
+(CWL\footnote{\url{http://www.commonwl.org}}) is the piece of related
+work most closely related to \boutiques as it provides a formal way to
+describe containerized applications. In particular, CWL's Command Line
+Tool Description overlaps with the \boutiques descriptor. This Section
+highlights the main differences between CWL and \boutiques, based on
+version 1.0 of the CWL Command Line Tool
+Description\footnote{\url{http://www.commonwl.org/v1.0/CommandLineTool.html}}. According
+to GitHub, CWL started 6 months before \boutiques (September 2014
+vs. May 2015).
 
 \subsubsection{Conceptual differences}
 
@@ -1062,17 +1085,16 @@ complexity of CWL application descriptions and on the possibility to
 reuse existing workflows in \boutiques. The adoption of ontologies in
 CWL may also be another consequence (see below).
 
-CWL has a formal command-line definition while \boutiques is more
+CWL imposes a strict command-line format while \boutiques is more
 flexible. CWL specifies command lines using an array containing an
 executable and a set of arguments whereas \boutiques only uses a
 string template. \boutiques' template approach may create issues in
 some cases, but it also allows developers to add simple operations to
 an application without having to write a specific wrapper. For
 instance, a \boutiques command line may easily include input
-decompression using, e.g., the tar command in addition to the main
-tool command. On the contrary, CWL applications may only have a single
-executable. Importantly, \boutiques' template system allows supporting
-configuration files (see Section~\ref{sec:configuration-files}).
+decompression using the \texttt{tar} command in addition to the main
+tool command. Importantly, \boutiques' template system allows
+supporting configuration files.
 
 CWL uses ontologies while \boutiques does not. Ontologies allow for
 richer definitions but they also have an overhead. The main
@@ -1090,7 +1112,7 @@ validation of complex workflows, it also introduces a substantial
 overhead in the specification, and platforms have to use the validator
 provided by CWL. On the contrary, a regular JSON validator can be used in \boutiques.
 \item  CWL has a rich set of types whereas \boutiques only has simple
-types. Again, this may be seen as a feature or as an overhead
+types. This may again be seen as a feature or as an overhead
 depending on the context. \boutiques tries to limit the complexity of
 the specification to facilitate its support by platforms where tools
 will be integrated.
@@ -1113,11 +1135,11 @@ using a dedicated property.
 \item CWL types are richer, not only
 semantically but also syntactically. For instance, files have
 properties for basename, dirname, location, path, checksum, etc.
-\item \boutiques supports various types of containers (Docker, Singularity,
-rootfs) while CWL supports only Docker. Both tools have rich requirements:
-for instance, they may include RAM, disk usage, and walltime estimate; 
-whereas \boutiques also supports number of requested CPU cores. CWL has hints, i.e.,
-recommendations that only lead to warnings when not respected.
+\item \boutiques supports various types of containers (Docker,
+  Singularity, rootfs) while CWL supports only Docker. Both tools have
+  rich requirements: for instance, they may include RAM, disk usage,
+  and walltime estimate. CWL has hints, i.e., recommendations that
+  only lead to warnings when not respected.
 \item In \boutiques, dependencies can be defined among inputs, e.g., to
 specify that an input may be used only when a particular flag is
 activated. This is a very useful feature to improve validation, in
@@ -1128,15 +1150,31 @@ long parameter lists for the user and enables the definition of more
 constraints within groups (e.g. mutually exclusive inputs).
 \end{itemize}
 
-\subsubsection{Other minor differences}
+\subsection{BIDS apps}
 
-The \boutiques and CWL schemas have other minor differences that we
-summarized in a public
-spreadsheet\footnote{\url{https://docs.google.com/spreadsheets/d/1eLhpxzaaMPCIUFmV5Trs-WtaMpBO-c6QDQsmhwP7QIE/edit\#gid=0}}.
+BIDS apps~\cite{gorgolewski2017bids} specify a framework for
+neuroimaging applications to process datasets complying to the Brain
+Imaging Data Structure (BIDS). They share common goals with
+\boutiques, in particular reusability across platforms through
+containerization. Conceptually, however, BIDS apps and \boutiques are
+different since BIDS apps intend to standardize application interfaces
+while \boutiques intends to describe them as flexibly as
+possible. BIDS apps have a specific set of inputs and outputs, for
+instance the input dataset, that have to be present in a specific
+order on the command line for the application to be valid. The
+specification adopted by BIDS apps simplifies the integration of
+applications in platforms as they all comply to the same
+interface. However, it is also limited to the subset of neuroimaging
+applications that process BIDS datasets and it does not formally
+describe application-specific inputs. All in all, BIDS apps and
+\boutiques complement each other: BIDS apps provide a practical way to
+integrate neuroimaging applications, while \boutiques offers a formal
+description of their specific parameters.  \boutiques descriptors can
+be generated from BIDS apps using the \texttt{bosh} importer. 
 
 \subsection{Other frameworks}
 
-Several frameworks have been created to facilitate the
+Several other frameworks have been created to facilitate the
 integration of command-line applications in platforms. In
 neuroinformatics, many platforms define a formal interface to embed
 command-line applications. Among them, the Common
@@ -1146,8 +1184,7 @@ NiftyView~\cite{Craddock2016}, GIMIAS~\cite{larrabide2009gimias},
 MedInria~\cite{larrabide2009gimias}, MeVisLab~\cite{heckel2009object}
 and MITK workbench~\cite{nolden2013medical}. The framework, however,
 remains tightly bound to the Common Toolkit's C++ implementation which
-limits its adoption, e.g., in web platforms \todo{Fr\'ed\'eric, maybe
-  you have more to say on this}.
+limits its adoption, e.g., in web platforms.
 
 In the distributed computing community, systems were also proposed to
 facilitate the embedding of applications in platforms. The Grid
@@ -1156,7 +1193,7 @@ Execution Management for Legacy Code Architecture
 grid computing systems. Interestingly, it has been used to embed
 workflow engines in the SHIWA
 platform~\cite{terstyanszky2014enabling}, in a similar but different
-way than proposed by \boutiques (see Section~\ref{sec:parallelization}).
+way than proposed by \boutiques.
 
 The recent advent of virtual containers requires a new generation of
 application description frameworks that are independent from any
@@ -1175,7 +1212,13 @@ which we plan to continuously enhance.
 
 \section{Acknowledgments}
 
-\todo{FLI}
+Pipeline integration for the MICCAI 2016 challenge was funded by the
+French National Agency for Research (ANR) through ``France
+Life-Imaging''. We also thank Compute Canada and Calcul Québec for
+providing a computing infrastructure supporting Docker and Singularity
+containers. This research was undertaken thanks in part to funding
+from the Canada First Research Excellence Fund, awarded to McGill
+University for the Healthy Brains for Healthy Lives initiative.
 
 \bibliography{biblio}
 
