@@ -55,7 +55,7 @@
 \affil[4]{Centre de Recherche de l'Institut de G\'eriatrie de Montr\'eal CRIUGM, Montréal, QC, Canada}
 \affil[5]{University of Lyon, CNRS, INSERM, CREATIS, Villeurbanne, France}
 \affil[6]{University of Southern California, Information Sciences Institute, Marina del Rey, CA, USA}
-\affil[7]{\todo{to be added}}
+\affil[7]{Wellcome Trust Centre for Neuroimaging}
 \affil[8]{Department of Psychology, Stanford University, Stanford, California, USA}
 \affil[9]{Partners MS Center, Brigham and Women's Hospital, Brookline, Massachusetts, USA}
 \affil[10]{Compute Canada}
@@ -73,59 +73,61 @@
   proper user interfaces. Due to the variety of computing platforms,
   application porting efforts are often replicated several times while
   interoperability would save cost and improve the quality of the ported
-  applications. We describe \boutiques, a descriptive framework and
+  applications. We present \boutiques, a descriptive framework and
   command line utility that allows for automatic import and exchange of
   applications across platforms. \boutiques adopts a rich, flexible
-  application description format which relies on Linux container
+  application description format that relies on Linux container
   environments Docker and Singularity to install applications
   across platforms in a lightweight manner. \boutiques is currently used
-  by three distinct virtual research platforms, and has been used to
+  by several distinct virtual research platforms, and has been used to
   describe dozens of neuroinformatics tools.
 \end{abstract}
 
 \begin{keywords}
-Keyword1; keyword 2; keyword 3 (Three to ten keywords representing the main content of the article)
+Application integration; Containers; Neuroinformatics.
 \end{keywords}
 \end{frontmatter}
 
 \section{Introduction}
 
-\todo{Intro on the relevance of pipeline sharing for reproducible and open science.}
-
 \todo{Check passive voice everywhere.}
 
 Platforms such as web services, portals, scientific gateways, workflow
 engines and virtual research environments commonly integrate
-third-party applications to facilitate the processing of large
-datasets on high-performance computing resources. Such applications,
-however, are often repeatedly and manually ported to various platforms
-whereas this porting effort would greatly benefit from being
-mutualized. Meanwhile, virtual container systems such as Docker\todo{cite} and
-Singularity\todo{cite} have emerged to facilitate the sharing of software and
-improve the reproducibility of analyses by defining immutable,
-reusable execution environments. Nevertheless, the automatic
-integration of containerized applications in platforms require formal
-annotations of container images, to describe the available command lines.
+third-party applications to enable data processing on various types of
+computing resources. Such applications, however, are often repeatedly
+and manually ported to different platforms whereas sharing this
+porting effort would contribute to Open Science and improve
+computational reproducibility. Meanwhile, software container systems
+such as Docker\footnote{\url{https://www.docker.com}} and
+Singularity~\cite{kurtzer2017singularity} have emerged to facilitate
+the sharing and migration of software by defining immutable, reusable
+execution environments.
 
-\boutiques is a system to share command-line applications across
-platforms. In \boutiques, a command line is described using a flexible
-template comprising the inputs it requires and the outputs it
-produces. Inputs may be inter-dependent and passed in configuration
-files or directly on the command line. Such formal descriptions,
-simply referred to as \emph{descriptors}, link to a container image
-where the given application and all its dependencies are
-installed. \boutiques descriptors allow for automatic application
+We present \boutiques, a system to publish, integrate and execute
+containerized command-line applications across platforms (see
+Figure~\ref{fig:diagram}).  In \boutiques, a command line is described
+using a flexible template comprising the inputs it requires and the
+outputs it produces. Inputs may be inter-dependent and passed in
+configuration files or directly on the command line. Such formal
+descriptions, simply referred to as \emph{descriptors}, link to a
+container image where the given application and all its dependencies
+are installed. \boutiques descriptors allow for automatic application
 integration in platforms, and advanced validation of input values to
 prevent errors. \boutiques also provides a simple parallelization
 framework that allows parallel applications to concurrently execute
 multiple tasks (in the remainder, tasks are called
 \emph{invocations}). \boutiques descriptors are intented to be
 produced by scientific application developers, stored alongside their
-application, indexed by common repositories, and consumed by
-execution platforms.  A set of core tools facilitate the construction,
+application, indexed by common repositories, and consumed by execution
+platforms.  A set of core tools facilitate the construction,
 validation, import, execution, and publishing of \boutiques
 descriptors.
-
+\begin{figure}
+  \includegraphics[width=\columnwidth]{boutiquesfig1.pdf}
+  \caption{Publication, integration and execution of applications with \boutiques.}
+  \label{fig:diagram}
+\end{figure}
 
 The remainder of this paper describes the \boutiques system
 (Section~\ref{sec:system}) and reports on its adoption by platforms
@@ -393,7 +395,7 @@ templates and configuration files, and writes the configuration files.
 
 Rigorous input validation is an important motivation for
 \boutiques. For this purpose, \boutiques relies on an
-application-specific JSON schema\todo{cite}, called \emph{invocation schema}, to
+application-specific JSON schema, called \emph{invocation schema}, to
 specify the input values accepted by an application. Platforms can
 rely on invocation schemas to validate inputs using
 any JSON validator, without having to develop specific code.
@@ -686,10 +688,6 @@ participant analyses on all the subjects found in a BIDS dataset and
 runs a group analysis if requested. It is available at
 \url{https://github.com/big-data-lab-team/sim/tree/master/sim/other_wf_examples/nipype}.
 
-\subsubsection{Pegasus}
-%% gk: to what extent does this exist?
-\todo{Rafael}
-
 \subsubsection{SPINE}
 SPINE (\url{http://spinevirtuallab.org}), which stands for Structured
 Planning and Implementation of New Explorations, is a web-based,
@@ -762,50 +760,54 @@ through the \texttt{bosh} publisher.
 %% description language to \boutiques. \todo{Update nipype\_cmd to
 %%   support the latest \boutiques schema and complete this paragraph.}
 
-\subsubsection{Anatomical MRI}
+\subsubsection{Anatomical imaging}
 
-\paragraph{FSL} Several tools from the FMRIB Software
-library (FSL) were ported to CBRAIN using \boutiques: BET, fsl\_anat, FAST,
-FIRST and probtrackx2. Descriptors are available on Neurolinks. \todo{add reference.}
+\paragraph{FSL} Several MRI analysis tools from the FMRIB Software
+library (FSL~\cite{jenkinson2012fsl}) were ported to CBRAIN using
+\boutiques: BET, fsl\_anat, FAST and FIRST. Descriptors are available
+on Neurolinks.
 
 \paragraph{Anima}
-The animaN4BiasCorrection tool from the
-Anima\footnote{\url{https://github.com/Inria-Visages/Anima-Public/wiki}} project was also made available 
-in VIP. The import process was straightforward. \todo{Sorina: reference?}
+\texttt{animaN4BiasCorrection}, an ITK-based bias field correction tool from the
+Anima\footnote{\url{https://github.com/Inria-Visages/Anima-Public/wiki}}
+project was also made available in VIP. The import process was
+straightforward.
 
-\subsubsection{Functional MRI}
+\subsubsection{Functional MRI (fMRI)}
 
-\paragraph{Niak} The Niak pre-processing pipeline, executed with the Pipeline System
+\paragraph{Niak} The Niak fMRI pre-processing pipeline, executed with the Pipeline System
 for Octave and Matlab (PSOM)~\cite{bellec2012pipeline}, was integrated
 in CBRAIN through \boutiques. The integration uses the parallelization
-mechanism described earlier so that even
-the invocations processing a single subject can be parallelized. It also
-allows CBRAIN to leverage the efficient agent model used in PSOM, as
-described in~\cite{GLAT-16}. The integration required some work in
-PSOM to facilitate its invocation as a non-interactive command-line
+mechanism described earlier so that even the invocations processing a
+single subject can be parallelized. It also allows CBRAIN to leverage
+the efficient agent model used in PSOM, as described
+in~\cite{GLAT-16}. The integration required some work in PSOM to
+facilitate its invocation as a non-interactive command-line
 application. The resulting CBRAIN plugin is available at
-\url{https://github.com/SIMEXP/cbrain-plugins-psom}. It can
-be used in other platforms that support the parallelization
-property. Descriptors are available on Neurolinks.
+\url{https://github.com/SIMEXP/cbrain-plugins-psom}. It can be used in
+other platforms that support the parallelization property. Descriptors
+are available on Neurolinks.
 
 \paragraph{GinFizz}
-Ginfizz, a FMRI pipeline allowing to execute multiple 
-preprocessing steps and basic analyses such as: (i) realignment (motion registration and correction),
-(ii) slice timing (temporal interpolation to correct for the delay of acquisition between slices), 
-(iii) coregistration (registering functional and structural data), (iv) normalization (registering 
-of functional and anatomical data to a match a template that has to be specified), and (iv)
-smoothing (spatial filtering to increase Signal to Noise ratio). The use of Docker containers
-(\url{https://hub.docker.com/r/fliiam/ginfizz} based on \url{https://hub.docker.com/r/miykael/nipype_level2}) 
-greatly simplifies its deployment.
-\todo{Sorina: reference?}
+We integrated the
+GinFizz\footnote{\url{https://github.com/thomashirsch/ginfizz}}
+Nipype-based fMRI pre-processing pipeline in VIP with \boutiques. \todo{Sorina, Pascal, a few lines on the technical deployment?}
+%% Ginfizz performs multiple
+%% preprocessing steps and basic analyses such as: (i) realignment
+%% (motion registration and correction), (ii) slice timing (temporal
+%% interpolation to correct for the delay of acquisition between slices),
+%% (iii) coregistration (registering functional and structural data),
+%% (iv) normalization (registering of functional and anatomical data to a
+%% match a template that has to be specified), and (iv) smoothing
+%% (spatial filtering to increase Signal to Noise ratio).
 
 \subsubsection{Diffusion imaging}
 
 \paragraph{MRTrix3}
-A few tools from the MRtrix3\footnote{\url{http://www.mrtrix.org/}}
-package for diffusion MRI processing were also made available in VIP,
+A few tools from the MRtrix3
+package~\cite{tournier2012mrtrix}\footnote{\url{http://www.mrtrix.org/}} for diffusion MRI processing were also made available in VIP,
 as well as a script developed at Creatis, which combines MRtrix3 and
-FSL tools. \todo{Sorina: replace footnote by citation, if available.}
+FSL tools.
 
 \paragraph{ndmg} The NeuroData MRI to Graphs one-click connectome estimation
 pipeline~\cite{kiar2017comprehensive}, developed in Python and leveraging FSL, was
@@ -823,17 +825,17 @@ other were vectors of variable size enclosed in brackets) that
 required the post-processing of the wrapper script generated by the
 Boutiques importer. \todo{Sorina: reference?}
 
-\paragraph{ODIN} The Odin MRI simulator\footnote{\url{http://od1n.sourceforge.net}} was imported 
+\paragraph{ODIN} The Odin MRI simulator~\cite{jochimsen2004odin}\footnote{\url{http://od1n.sourceforge.net}} was imported 
 in VIP through \boutiques. Since Odin may require important amounts of
 computing resources (the common use-case consists in iterating on a
 large number of inputs files), Odin is executed by VIP on the EGI grid
 resources, which currently do not support Docker. Consequently, the
 Odin executable was exported from the Docker image and the Odin
-wrapper script was modified accordingly. \todo{Sorina: replace footnote by citation, if available.}
+wrapper script was modified accordingly. 
 
-\subsubsection{General-purpose toolboxes}
+\subsubsection{BIDS apps}
 
-\paragraph{BIDS apps} BIDS apps, a recent effort for the adoption of the Brain Imaging Data Structure (BIDS)
+BIDS apps, an effort for the adoption of the Brain Imaging Data Structure (BIDS)
 in common neuroimaging pipelines, require a standardized set of input
 and output parameters~\cite{gorgolewski2017bids}. We developed a tool
 as part of the \boutiques importer to generate a descriptor for any
@@ -842,14 +844,16 @@ containing the Statistical Parameter Mapping toolbox
 (SPM)~\cite{penny2011statistical} and the ndmg pipeline mentioned
 above. Descriptors are available on Neurolinks.
 
-\paragraph{2016 MICCAI challenges}
+
+\subsubsection{2016 MICCAI challenges}
+
 We used \boutiques to integrate 23 pipelines in the VIP platform in
 the context of two challenges organized by the MICCAI conference in
 2016, related to the segmentation of multiple-sclerosis lesions in MR
 images (MSSEG
 challenge\footnote{\url{https://portal.fli-iam.irisa.fr/msseg-challenge/overview}})
 and of tumor volumes in PET images (PETSEG
-challenge\footnote{\url{https://portal.fli-iam.irisa.fr/petseg-challenge/overview}}). The
+challenge~\cite{hatt2018}). The
 pipelines were ported to VIP and executed on 205 subjects in a few
 weeks only, which would not have been possible without
 \boutiques. Some pipelines had to be adjusted manually once ported to
@@ -876,7 +880,7 @@ execution. Two custom properties (\texttt{vip:miccai-challenger-email}
 and \texttt{vip:miccai-challenge-team-name}) were added to the
 \boutiques descriptor to help post-process results in the specific
 context of MICCAI challenges.
-\todo{Cite Mathieu's paper.}
+
 
 \section{Discussion}
 With \boutiques, developers can port their applications once and execute
@@ -1195,7 +1199,7 @@ workflow engines in the SHIWA
 platform~\cite{terstyanszky2014enabling}, in a similar but different
 way than proposed by \boutiques.
 
-The recent advent of virtual containers requires a new generation of
+The recent advent of software containers requires a new generation of
 application description frameworks that are independent from any
 programming language and that expose a rich set of properties to
 describe command lines, as intended by \boutiques.
