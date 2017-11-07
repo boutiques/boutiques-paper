@@ -64,24 +64,18 @@
 \begin{frontmatter}
 \maketitle
 
-\begin{abstract}Integrating applications in execution platforms such as web
-  portals and workflow engines is critical to enable their sharing
-  among scientific communities and their efficient execution on
-  computing infrastructures. However, application integration remains
-  a costly human effort that consists of 1)~installing the application
-  on the target infrastructure, 2)~describing the application in a
-  format compatible with the execution platform, and 3)~generating
-  proper user interfaces. Application integration efforts are often
-  replicated several times while interoperability would improve the
-  quality of the integrations. We present \boutiques, a descriptive
-  framework and command line utility to automatically import and
-  exchange applications across platforms. \boutiques adopts a rich,
-  flexible application description format that relies on Linux
-  container environments Docker and Singularity to install
-  applications across platforms in a lightweight manner. \boutiques is
-  currently used by several distinct virtual research platforms, and
-  has been used to describe dozens of applications in the
-  neuroinformatics domain.
+\begin{abstract}
+We present \boutiques, a system to automatically publish, integrate
+and execute applications across computational platforms. \boutiques
+applications are installed through software containers described in a
+rich and flexible JSON language. A set of core tools facilitate the
+construction, validation, import, execution, and publishing of
+applications. \boutiques is currently supported by several distinct virtual
+research platforms, and it has been used to describe dozens of
+applications in the neuroinformatics domain. We expect \boutiques to
+improve the quality of application integration in computational
+platforms, to reduce redundancy of effort, to contribute to computational
+reproducibility, and to foster Open Science.
 \end{abstract}
 
 \begin{keywords}
@@ -91,14 +85,14 @@ Application integration; Containers; Neuroinformatics.
 
 \section{Introduction}
 
-Platforms such as web services, portals, scientific gateways, workflow
-engines and virtual research environments commonly integrate
-third-party applications to enable data processing on various types of
-computing resources. Such applications, however, are often manually
-and repeatedly integrated in different platforms whereas automating
-and sharing this effort would improve computational
-reproducibility~\cite{peng2011reproducible,Stodden1240} and contribute to Open
-Science. Meanwhile, software container systems such as
+Computational platforms such as web services, portals, scientific
+gateways, workflow engines and virtual research environments commonly
+integrate third-party applications to enable various types of data
+processing. Applications, however, are often manually and
+repeatedly integrated whereas automating and
+sharing this effort would improve computational
+reproducibility~\cite{peng2011reproducible,Stodden1240} and contribute
+to Open Science. Meanwhile, container systems such as
 Docker\footnote{\url{https://www.docker.com}} and
 Singularity~\cite{kurtzer2017singularity} have emerged to facilitate
 the sharing and migration of software by defining immutable, reusable
@@ -132,6 +126,11 @@ comparison with related systems.
   \caption{Publication, integration and execution of applications with \boutiques.}
   \label{fig:diagram}
 \end{figure}
+
+%% Application integration consists of 1)~installing the application
+%%   on the target infrastructure, 2)~describing the application in a
+%%   format compatible with the execution platform, and 3)~generating
+%%   proper user interfaces. 
 
 \section{System description}
 
