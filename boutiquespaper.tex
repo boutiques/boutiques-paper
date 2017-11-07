@@ -56,9 +56,9 @@
 \affil[4]{Centre de Recherche de l'Institut de G\'eriatrie de Montr\'eal CRIUGM, Montréal, QC, Canada}
 \affil[5]{University of Lyon, CNRS, INSERM, CREATIS, Villeurbanne, France}
 \affil[6]{University of Southern California, Information Sciences Institute, Marina del Rey, CA, USA}
-\affil[7]{Wellcome Trust Centre for Neuroimaging}
+\affil[7]{Wellcome Trust Centre for Neuroimaging, London, UK}
 \affil[8]{Department of Psychology, Stanford University, Stanford, California, USA}
-\affil[9]{Partners MS Center, Brigham and Women's Hospital, Brookline, Massachusetts, USA}
+\affil[9]{Center for Neurological Imaging, Department of Radiology, Brigham and Women's Hospital, Boston, Massachusetts, USA}
 \affil[10]{Compute Canada}
 
 \begin{frontmatter}
@@ -519,7 +519,7 @@ the input data, parameters and hardware infrastructure.
 \subsection{Custom properties}
 
 Custom properties may be added to the Boutiques specification without
-restriction. Custom properties are corralled in a specific JSON object
+restriction. Custom properties are grouped together in a specific JSON object
 to facilitate validation. They may be useful to implement
 platform-specific features but they should be used with care to avoid
 making applications dependent on a particular platform or replacing
@@ -682,7 +682,7 @@ Planning and Implementation of New Explorations, is a web-based,
 collaborative platform (virtual laboratory) designed to support the
 design and execution of experiments centered on specific scientific
 questions.  SPINE enables distributed data collection and management,
-as well as experiment design, execution, and review. Boutiques serves
+as well as experiment design, execution, and review. Boutiques will serve
 as SPINE's algorithm and workflow repository, and enables unequivocal
 referencing of specific workflows applied to specified datasets within
 an experiment, thereby describing the provenance and facilitating the
@@ -829,7 +829,7 @@ the Brain Imaging Data Structure (BIDS) in common neuroimaging
 pipelines, require a standardized set of input and output
 parameters. We developed a tool as part of the \boutiques importer to
 generate a descriptor for any such BIDS app. We validated this tool by
-importing BIDS apps containing the Statistical Parameter Mapping
+importing BIDS apps containing the Statistical Parametric Mapping
 toolbox (SPM)~\cite{penny2011statistical} and the ndmg pipeline
 mentioned above. Descriptors are on Neurolinks.
 
@@ -979,8 +979,8 @@ descriptor. Such runtime parameters may impact reproducibility in some
 cases. To properly cover this issue, \boutiques descriptors should be
 complemented by a provenance framework that captures a detailed trace
 of the execution. We plan to leverage the provenance format being
-defined by the Neuro-Imaging Data Model
-Workflow~\cite{ghosh2017capturing} initiative for this purpose.
+defined by the NeuroImaging Data
+Model-Workflow~\cite{ghosh2017capturing} initiative for this purpose.
 
 
 \subsection{Application types}
