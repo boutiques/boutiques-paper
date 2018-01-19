@@ -1,13 +1,8 @@
 % GigaScience template
 \documentclass[a4paper,num-refs]{oup-contemporary}
 
-%%% Journal toggle; only specific options recognised.
-%%% (Only "gigascience" and "general" are implemented now. Support for other journals is planned.)
-\journal{gigascience}
-
 \usepackage{graphicx}
 \usepackage{siunitx}
-\papercat{Paper}
 
 %%%% Packages %%%%
 
@@ -25,7 +20,7 @@
 \newcommand{\notimplementedyet}[1]{\color{blue}\emph{#1}\footnote{Still needs to be implemented}\color{black}\xspace}
 \algrenewcommand{\algorithmiccomment}[1]{\# \textit{#1}} % so that comments in algorithms are preprended by '#' instead of a small right arrow
 
-\title{Boutiques: a flexible framework for automated application integration in computing platforms}
+\title{Boutiques: a flexible framework to integrate command-line applications in computing platforms}
 
 \begin{document}
 
@@ -36,6 +31,7 @@
 \author[4]{Pierre Bellec}
 \author[2,3]{R\'emi Bernard}
 \author[5]{Axel Bonnet}
+\author[2,3]{Shawn T Brown}
 \author[5]{Sorina Camarasu-Pop}
 \author[5]{Fr\'ed\'eric Cervenansky}
 \author[2,3]{Samir Das}
@@ -61,35 +57,34 @@
 \affil[9]{Center for Neurological Imaging, Department of Radiology, Brigham and Women's Hospital, Boston, Massachusetts, USA}
 \affil[10]{Compute Canada}
 
-\begin{frontmatter}
 \maketitle
 
 \begin{abstract}
 We present \boutiques, a system to automatically publish, integrate
-and execute applications across computational platforms. \boutiques
-applications are installed through software containers described in a
-rich and flexible JSON language. A set of core tools facilitate the
-construction, validation, import, execution, and publishing of
-applications. \boutiques is currently supported by several distinct virtual
-research platforms, and it has been used to describe dozens of
-applications in the neuroinformatics domain. We expect \boutiques to
-improve the quality of application integration in computational
-platforms, to reduce redundancy of effort, to contribute to computational
-reproducibility, and to foster Open Science.
+and execute command-line applications applications across
+computational platforms. \boutiques applications are installed through
+software containers described in a rich and flexible JSON language. A
+set of core tools facilitate the construction, validation, import,
+execution, and publishing of applications. \boutiques is currently
+supported by several distinct virtual research platforms, and it has
+been used to describe dozens of applications in the neuroinformatics
+domain. We expect \boutiques to improve the quality of application
+integration in computational platforms, to reduce redundancy of
+effort, to contribute to computational reproducibility, and to foster
+Open Science.
 \end{abstract}
 
 \begin{keywords}
 Application integration; Containers; Neuroinformatics.
 \end{keywords}
-\end{frontmatter}
 
 \section{Introduction}
 
-Computational platforms such as web services, portals, scientific
+Computational platforms such as web services, portals, science
 gateways, workflow engines and virtual research environments commonly
 integrate third-party applications to enable various types of data
 processing. Applications, however, are often manually and
-repeatedly integrated whereas automating and
+repeatedly integrated in such platforms whereas automating and
 sharing this effort would improve computational
 reproducibility~\cite{peng2011reproducible,Stodden1240} and contribute
 to Open Science. Meanwhile, container systems such as
@@ -105,15 +100,16 @@ using a flexible template comprising the inputs it requires and the
 outputs it produces. Inputs may be passed directly on the command line
 or through configuration files. They may also be inter-dependent, for
 instance mutually exclusive. Such formal descriptions, simply referred
-to as \emph{descriptors}, link to a container image where the given
-application is installed. \boutiques descriptors allow for automatic
-application integration in platforms, and advanced validation of input
-values to prevent errors.  \boutiques descriptors are intended to be
-produced by scientific application developers, stored alongside their
-application, indexed by common repositories, and consumed by execution
-platforms.  A set of core tools facilitate the construction,
-validation, import, execution, and publishing of \boutiques
-descriptors.
+to as \emph{descriptors}, can be parsed in any programming language,
+can describe command lines regardless of their implementation,
+and link to a container image where the application is
+installed. \boutiques descriptors allow for automatic application
+integration in platforms, and advanced validation of input values to
+prevent errors.  \boutiques descriptors are intended to be produced by
+application developers, stored alongside their application, indexed by
+common repositories, and consumed by execution platforms.  A set of
+core tools facilitate the construction, validation, import, execution,
+and publishing of \boutiques descriptors.
 
 The remainder of this paper describes the \boutiques system
 and reports on its adoption by platforms
