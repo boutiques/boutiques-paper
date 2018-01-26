@@ -9,8 +9,8 @@
 {\textbf{Reviewer comment:}\begin{quote}}% begin code
 {\end{quote}}%  
 \newenvironment{answer}%          environment name
-{\textbf{Answer:}\begin{small}\begin{quote}}% begin code
-{\end{quote}\end{small}}%  
+{\textbf{Answer:}\begin{quote}}% begin code
+{\end{quote}}%  
 
 \newcommand{\todo}[1]{\color{red}#1\color{black}}
 
@@ -168,9 +168,9 @@ be updated and tested by the tool developers as their implementation
 evolves. Instead, the NeuroLinks index provides a way to reference
 descriptors without having to store them directly. The search
 functionality, however, is a great one and we have discussed the following 
-implementation in \texttt{bosh} over the NeuroLinks index.
+implementation in \texttt{bosh} over the NeuroLinks index:
 \begin{enumerate}
-\item Make Boutiques entries in Neurolinks immutable:
+\item Make Boutiques entries in NeuroLinks immutable:
   \begin{enumerate}
   \item modify bosh publish to commit a URL of a particular commit of the descriptor instead of the latest version.
   \item add the version number of the identifier.
@@ -186,7 +186,7 @@ implementation in \texttt{bosh} over the NeuroLinks index.
 \end{answer}
 This will be implemented as part of issue \href{https://github.com/boutiques/boutiques/issues/34}{34}. We have updated the manuscript accordingly. The paragraph on the Publisher now reads as follows:
 \begin{quote}
-\emph{Publisher} As Boutiques has primarily been adopted in the neuroinformatics
+\emph{Publisher.} As Boutiques has primarily been adopted in the neuroinformatics
 community, the publisher gets a further description (such as author,
 website, etc.) of the described application, and adds an index to it
 on
@@ -200,7 +200,7 @@ by the tool developers directly. We are currently extending
 NeuroLinks using the command-line or Python API. The publishing
 functionality could be extended to new repositories for other domains,
 such as Bioconductor for
-bioinformatics~\cite{gentleman2004bioconductor}.
+bioinformatics.
 \end{quote}
 
 
