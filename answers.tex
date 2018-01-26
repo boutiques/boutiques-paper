@@ -16,6 +16,8 @@
 
 \newcommand{\revised}[1]{\color{blue} #1\color{black}\xspace}
 
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=black,filecolor=black,urlcolor=black}
 
 \begin{document}
 
@@ -138,7 +140,7 @@ whether `bosh` can execute on bare metal.
 
 \begin{review}
 When trying to run the example in
-https://github.com/boutiques/boutiques/tree/https://github.com/boutiques/boutiques/tree/5678d6f84bc1863741c6b8c595f037f622936c5c/tools/python/boutiques/schema/examples/example1/tools/python/boutiques/schema/examples/example1,
+\url{https://github.com/boutiques/boutiques/tree/5678d6f84bc1863741c6b8c595f037f622936c5c/tools/python/boutiques/schema/examples/example1/tools/python/boutiques/schema/examples/example1},
 validation of the invocation and descriptor functioned as
 described. For instance, validation failed when `enum\_input` and
 `num\_input`, mutually exclusive parameters, were both
@@ -156,11 +158,52 @@ with `bosh exec`.
 \begin{review}
 Furthermore, the feature of `bosh` to upload descriptors to a common repository (i.e., NeuroLinks) is an important one. While links to descriptors are certainly useful, I would like to suggest a common repository of the descriptor files themselves. Such a repository would reduce redundancy in coding effort because contributors could see which programs already have descriptors. Upstream software maintainers could maintain their Boutiques descriptors in such a repository. The burden on new users might also be reduced because they would have access to all Boutiques descriptors in a single location. If a common repository like this were in place, `bosh` might be extended to accept descriptors in a more abstract form. For example, instead of specifying a path to an existing descriptor file, a user could specify "fsl.bet.v1", and `bosh` could pull the relevant descriptor from the common repository. A similar effect might be achieved using the existing JSON file that lists the
 tools on the NeuroLinks website.
-
-\todo{to be discussed.}
-
-In conclusion, Boutiques is a framework that flexibly specifies command-line programs and improves reproducibility through the use of software containers. Other frameworks can leverage Boutiques to create self-contained workflows that only depend on a container implementation like Docker or Singularity.
 \end{review}
+
+\begin{answer}
+We thank the reviewer for such a relevant comment. We deliberately
+chose to not publish tools to a common repository because we believe
+that they should be stored in the tool repositories so that they can
+be updated and tested by the tool developers as their implementation
+evolves. Instead, the NeuroLinks index provides a way to reference
+descriptors without having to store them directly. The search
+functionality, however, is a great one and we have discussed the following 
+implementation in \texttt{bosh} over the NeuroLinks index.
+\begin{enumerate}
+\item Make Boutiques entries in Neurolinks immutable:
+  \begin{enumerate}
+  \item modify bosh publish to commit a URL of a particular commit of the descriptor instead of the latest version.
+  \item add the version number of the identifier.
+  \item write guidelines to accept PRs about Boutiques descriptors in Neurolinks.
+  \end{enumerate}
+\item Extend \texttt{bosh} by implementing:
+  \begin{enumerate}
+  \item \texttt{bosh search} that greps in \url{https://raw.githubusercontent.com/brainhack101/neurolinks/master/jsons/tool.json} and returns a table containing the identifiers and (truncated) descriptions of the Boutiques tools. 
+  \item \texttt{bosh get} that downloads a descriptor based on its neurolinks identifier.
+  \item \texttt{bosh launch <simulate|exec> <neurolinks\_id>}  that calls \texttt{bosh get} to get the descriptor and launch the tool.
+  \end{enumerate}
+\end{enumerate}
+\end{answer}
+This will be implemented as part of issue \href{https://github.com/boutiques/boutiques/issues/34}{34}. We have updated the manuscript accordingly. The paragraph on the Publisher now reads as follows:
+\begin{quote}
+\emph{Publisher} As Boutiques has primarily been adopted in the neuroinformatics
+community, the publisher gets a further description (such as author,
+website, etc.) of the described application, and adds an index to it
+on
+NeuroLinks\footnote{\url{https://brainhack101.github.io/neurolinks}},
+a repository containing links to neuroinformatics resources and
+tools. We intentionally opted for publishing descriptors to an index
+such as NeuroLinks rather than to a common Boutiques repository so
+that descriptors remain in the tool repositories and can be maintained
+by the tool developers directly. We are currently extending
+\texttt{bosh} to enable users to search for Boutiques tools in
+NeuroLinks using the command-line or Python API. The publishing
+functionality could be extended to new repositories for other domains,
+such as Bioconductor for
+bioinformatics~\cite{gentleman2004bioconductor}.
+\end{quote}
+
+
 
 \todo{Make a new release and push it to pip}
 
