@@ -1,6 +1,7 @@
 # How to get a pdf
 
 A pdf is uploaded for every release of the paper:
+* [Release 1.1](https://github.com/boutiques/boutiques-paper/releases/download/1.1/boutiquespaper.pdf)
 * [Release 1.0](https://github.com/boutiques/boutiques-paper/releases/download/1.0/boutiquespaper.pdf)
 * [Release 0.1](https://github.com/glatard/boutiques-paper/files/586804/paper.pdf)
 
