@@ -97,7 +97,7 @@ paper.
 
 \begin{answer}
 The main features of Boutiques mentioned in section ``Other
-frameworkds'' are (1) its support for containerized applications and
+frameworks'' are (1) its support for containerized applications and
 (2) its independence from any particular programming language. While
 (1) was already mentioned in the introduction, (2) indeed wasn't. We
 updated the following sentence in the introduction, to address this
@@ -153,6 +153,10 @@ with `bosh exec`.
 \begin{answer}
   We thank the reviewer for spotting this. This was fixed in
   \url{https://github.com/boutiques/boutiques/pull/200}.
+
+  We released a
+  new version of Boutiques (0.5.5) that contains the fixes 
+  mentioned above.
 \end{answer}
 
 \begin{review}
@@ -187,8 +191,8 @@ implementation in \texttt{bosh} over the NeuroLinks index:
 This will be implemented as part of issue \href{https://github.com/boutiques/boutiques/issues/34}{34}. We have updated the manuscript accordingly. The paragraph on the Publisher now reads as follows:
 \begin{quote}
 \emph{Publisher.} As Boutiques has primarily been adopted in the neuroinformatics
-community, the publisher gets a further description (such as author,
-website, etc.) of the described application, and adds an index to it
+community, the publisher gets more information about the described application (such as author,
+website, etc.), and adds an index to it
 on
 NeuroLinks\footnote{\url{https://brainhack101.github.io/neurolinks}},
 a repository containing links to neuroinformatics resources and
@@ -202,9 +206,5 @@ functionality could be extended to new repositories for other domains,
 such as Bioconductor for
 bioinformatics.
 \end{quote}
-
-
-
-\todo{Make a new release and push it to pip}
 
 \end{document}
