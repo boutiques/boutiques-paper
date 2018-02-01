@@ -1,0 +1,210 @@
+\documentclass[a4]{article}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage[x11names,dvipsnames,table]{xcolor} %for use in color links
+
+\usepackage{hyperref}
+\usepackage{xspace}
+\newenvironment{review}%          environment name
+{\textbf{Reviewer comment:}\begin{quote}}% begin code
+{\end{quote}}%  
+\newenvironment{answer}%          environment name
+{\textbf{Answer:}\begin{quote}}% begin code
+{\end{quote}}%  
+
+\newcommand{\todo}[1]{\color{red}#1\color{black}}
+
+\newcommand{\revised}[1]{\color{blue} #1\color{black}\xspace}
+
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=black,filecolor=black,urlcolor=black}
+
+\begin{document}
+
+\section{Reviewer \#1}
+
+\begin{review}
+This is a very clear and readable manuscript describing an apparently
+simple but powerful framework for constructing automated workflows
+from command-line-driven applications. While reading the manuscript, I
+kept thinking "this sounds very like CWL", so I was pleased to see an
+extended discussion of the similarities and differences between the
+two systems. In general I think it is helpful to have a few competing
+solutions in domains such as this. My only, small, critique, is that
+the words "command-line" should be present in (ideally) the title and
+(at least) the abstract in order to qualify "application(s)".
+\end{review}
+
+\begin{answer}
+We thank the reviewer for his valuable feedback. We added the words
+``command-line'' in the title and abstract as per the reviewer's
+suggestion.
+\end{answer}
+
+\section{Reviewer \#2}
+
+\begin{review}
+Boutiques is a specification that abstracts command-line programs,
+their arguments, and their expected outputs. The goal of the
+specification is to simplify application integration, reduce code
+redundancy, and support reproducible science. Following the Boutiques
+specification, a command-line program is documented in a descriptor
+file, which follows the JSON specification. A descriptor file
+specifies the arguments and expected outputs of a program. The file
+includes a template of the command-line instruction, the location of a
+software container that includes the program, information about each
+parameter (e.g., what type of argument it expects, if any), and
+relationships within groups of related parameters (e.g., parameters in
+a group might be mutually exclusive). Potential arguments to a program
+may be validated against the information in that program's
+descriptor. Early validation is a key feature of the Boutiques
+specification, because it identifies issues to the user prior to the
+program's runtime. The command-line template is also advantageous
+because it allows for shell functions to be used, like piping and
+input/output redirection. As a side effect of the level of detail
+required by the Boutiques specification, the descriptor file also
+serves as precise usage documentation of a program.
+
+Moreover, the paper describes the Boutiques core tools, which I
+understood to be a Python implementation of the Boutiques
+specification. These core tools include `bosh`, a command-line program
+which enables users to validate Boutiques descriptors and invocation
+files, easily run containerized programs, convert BIDS apps to
+Boutiques descriptors, and publish their Boutiques descriptors to the
+NeuroLinks website. `bosh` can run containers in Docker, Singularity,
+or rootfs format. This feature satisfies the needs of both local
+execution and execution on high performance computing clusters. The
+inclusion of containers in the Boutiques specification lessens the
+burden on the user because the user does not have to install the
+software on the host machine.
+\end{review}
+
+\begin{answer}
+  We thank the reviewer for his thorough review of our manuscript.
+\end{answer}
+
+
+\begin{review}
+I would recommend a minor revision of this paper. The descriptor
+schema and core tools were described and reasoned well, but the
+overall goal of Boutiques could be clarified earlier in the paper. I
+found the last sentence of the section titled "Other frameworks" to be
+a concise and informative summary of the goal of Boutiques and the
+advantages of Boutiques over other, similar frameworks. The authors
+might consider adding a similar sentence to the introduction of the
+paper.
+\end{review}
+
+\begin{answer}
+The main features of Boutiques mentioned in section ``Other
+frameworks'' are (1) its support for containerized applications and
+(2) its independence from any particular programming language. While
+(1) was already mentioned in the introduction, (2) indeed wasn't. We
+updated the following sentence in the introduction, to address this
+issue:
+
+\begin{quote}
+  Such formal descriptions, simply referred
+to as \emph{descriptors}, \color{blue}can be parsed in any programming language,
+can describe command lines regardless of their implementation,\color{black}
+and link to a container image where the application is
+installed.
+\end{quote}
+
+\end{answer}
+
+\begin{review}
+The work could also benefit from minor clarification of the descriptor
+specification and minor updates to the core tools. Overall, I found
+the descriptor schema well-documented, intuitive, modular, and
+relatively complete (keeping in mind the ability to specify custom
+parameters). I also found the various listings in the paper and the
+online documentation helpful. I installed Boutiques version 0.5.3
+(Python 3.6.3 on OS X 10.11.6) to test the minimal Boutiques
+descriptor in Listing 5. This descriptor passed the validation step,
+but when attempting to conduct a simulation run of the descriptor
+given an input JSON file with the contents `{"param": 5}`, a
+`KeyError` was produced, indicating that the key "container-image" was
+not present in the descriptor. This led me to wonder whether
+"container-image" is a required field in the descriptor schema and
+whether `bosh` can execute on bare metal.
+\end{review}
+
+\begin{answer}
+  The reviewer is right that no test of bare metal tools were included
+  in the code base and that `bosh exec` was crashing on them. This was
+  fixed in \url{https://github.com/boutiques/boutiques/pull/200}. We
+  thank the reviewer for spotting this.
+\end{answer}
+
+
+\begin{review}
+When trying to run the example in
+\url{https://github.com/boutiques/boutiques/tree/5678d6f84bc1863741c6b8c595f037f622936c5c/tools/python/boutiques/schema/examples/example1/tools/python/boutiques/schema/examples/example1},
+validation of the invocation and descriptor functioned as
+described. For instance, validation failed when `enum\_input` and
+`num\_input`, mutually exclusive parameters, were both
+specified. Validation did not fail, however, when attempting to run a
+'simulation' or 'launch' with the same invalid inputs. The authors
+should consider including the validation step when running the program
+with `bosh exec`.
+\end{review}
+
+\begin{answer}
+  We thank the reviewer for spotting this. This was fixed in
+  \url{https://github.com/boutiques/boutiques/pull/200}.
+
+  We released a
+  new version of Boutiques (0.5.5) that contains the fixes 
+  mentioned above.
+\end{answer}
+
+\begin{review}
+Furthermore, the feature of `bosh` to upload descriptors to a common repository (i.e., NeuroLinks) is an important one. While links to descriptors are certainly useful, I would like to suggest a common repository of the descriptor files themselves. Such a repository would reduce redundancy in coding effort because contributors could see which programs already have descriptors. Upstream software maintainers could maintain their Boutiques descriptors in such a repository. The burden on new users might also be reduced because they would have access to all Boutiques descriptors in a single location. If a common repository like this were in place, `bosh` might be extended to accept descriptors in a more abstract form. For example, instead of specifying a path to an existing descriptor file, a user could specify "fsl.bet.v1", and `bosh` could pull the relevant descriptor from the common repository. A similar effect might be achieved using the existing JSON file that lists the
+tools on the NeuroLinks website.
+\end{review}
+
+\begin{answer}
+We thank the reviewer for such a relevant comment. We deliberately
+chose to not publish tools to a common repository because we believe
+that they should be stored in the tool repositories so that they can
+be updated and tested by the tool developers as their implementation
+evolves. Instead, the NeuroLinks index provides a way to reference
+descriptors without having to store them directly. The search
+functionality, however, is a great one and we have discussed the following 
+implementation in \texttt{bosh} over the NeuroLinks index:
+\begin{enumerate}
+\item Make Boutiques entries in NeuroLinks immutable:
+  \begin{enumerate}
+  \item modify bosh publish to commit a URL of a particular commit of the descriptor instead of the latest version.
+  \item add the version number of the identifier.
+  \item write guidelines to accept PRs about Boutiques descriptors in Neurolinks.
+  \end{enumerate}
+\item Extend \texttt{bosh} by implementing:
+  \begin{enumerate}
+  \item \texttt{bosh search} that greps in \url{https://raw.githubusercontent.com/brainhack101/neurolinks/master/jsons/tool.json} and returns a table containing the identifiers and (truncated) descriptions of the Boutiques tools. 
+  \item \texttt{bosh get} that downloads a descriptor based on its neurolinks identifier.
+  \item \texttt{bosh launch <simulate|exec> <neurolinks\_id>}  that calls \texttt{bosh get} to get the descriptor and launch the tool.
+  \end{enumerate}
+\end{enumerate}
+\end{answer}
+This will be implemented as part of issue \href{https://github.com/boutiques/boutiques/issues/34}{34}. We have updated the manuscript accordingly. The paragraph on the Publisher now reads as follows:
+\begin{quote}
+\emph{Publisher.} As Boutiques has primarily been adopted in the neuroinformatics
+community, the publisher gets more information about the described application (such as author,
+website, etc.), and adds an index to it
+on
+NeuroLinks\footnote{\url{https://brainhack101.github.io/neurolinks}},
+a repository containing links to neuroinformatics resources and
+tools. We intentionally opted for publishing descriptors to an index
+such as NeuroLinks rather than to a common Boutiques repository so
+that descriptors remain in the tool repositories and can be maintained
+by the tool developers directly. We are currently extending
+\texttt{bosh} to enable users to search for Boutiques tools in
+NeuroLinks using the command-line or Python API. The publishing
+functionality could be extended to new repositories for other domains,
+such as Bioconductor for
+bioinformatics.
+\end{quote}
+
+\end{document}
