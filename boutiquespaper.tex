@@ -1,6 +1,8 @@
 % GigaScience template
 \documentclass[a4paper,num-refs]{oup-contemporary}
 
+\journal{gigascience}
+
 \usepackage{graphicx}
 \usepackage{siunitx}
 
@@ -13,11 +15,7 @@
 \usepackage{xspace}
 
 %%%% Commands %%%%
-
-\newcommand{\note}[2]{\pdfmargincomment[color=yellow,author=#1,open=true]{#2}}
-\newcommand{\todo}[1]{\color{red}TODO: #1\color{black}}
 \newcommand{\boutiques}{Boutiques\xspace}
-\newcommand{\notimplementedyet}[1]{\color{blue}\emph{#1}\footnote{Still needs to be implemented}\color{black}\xspace}
 \algrenewcommand{\algorithmiccomment}[1]{\# \textit{#1}} % so that comments in algorithms are preprended by '#' instead of a small right arrow
 
 \title{Boutiques: a flexible framework to integrate command-line applications in computing platforms}
@@ -1202,6 +1200,21 @@ containers. This research was undertaken thanks in part to funding
 from the Canada First Research Excellence Fund, awarded to McGill
 University for the Healthy Brains for Healthy Lives initiative. We also
 thank the developers of all the applications described with \boutiques.
+
+\section{Availability of supporting source code and requirements}
+\begin{itemize}
+\item Project name: Boutiques
+\item Project RRID: SCR\_016073
+\item Project home page: \url{http://boutiques.github.io}
+\item Operating system(s): Platform independent
+\item Programming language: Python and JSON schema
+\item Other requirements: None
+\item License: MIT
+\end{itemize}
+
+\section{Availability of supporting data}
+
+Boutiques is available on GitHub (\url{https://github.com/boutiques/boutiques}) and Zenodo~\cite{tristan_glatard_2018_1164290}. This paper is based on release 0.5.5.
 
 \section{Competing interests}
 
