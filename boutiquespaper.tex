@@ -86,7 +86,7 @@ repeatedly integrated in such platforms whereas automating and
 sharing this effort would improve computational
 reproducibility~\cite{peng2011reproducible,Stodden1240} and contribute
 to Open Science. Meanwhile, container systems such as
-Docker (\url{https://www.docker.com}) and
+\href{https://www.docker.com}{Docker} and
 Singularity~\cite{kurtzer2017singularity} have emerged to facilitate
 the sharing and migration of software by defining immutable, reusable
 execution environments.
@@ -579,7 +579,7 @@ apps~\cite{gorgolewski2017bids}.
 community, the publisher gets more information about the described application (such as author,
 website, etc.), and adds an index to it
 on
-NeuroLinks (\url{https://brainhack101.github.io/neurolinks}),
+\href{https://brainhack101.github.io/neurolinks}{NeuroLinks},
 a repository containing links to neuroinformatics resources and
 tools. We intentionally opted for publishing descriptors to an index
 such as NeuroLinks rather than to a common \boutiques repository so
@@ -600,7 +600,7 @@ supported in the platforms enumerated below.
 
 \subsubsection{CBRAIN}
 
-CBRAIN (\url{http://github.com/aces/cbrain}) ~\cite{SHER-14} is a web
+\href{http://github.com/aces/cbrain}{CBRAIN}~\cite{SHER-14} is a web
 platform to process data distributed into multiple storage
 locations on computing clusters and clouds. CBRAIN offers transparent
 access to remote data sources, distributed computing sites, and an
@@ -665,19 +665,19 @@ edit lists using their own tools such as scripts or spreadsheet
 applications.
 
 \subsubsection{Nipype}
-Nipype
-(\url{http://nipype.readthedocs.io/en/latest})~\cite{gorgolewski2011nipype}
+\href{http://nipype.readthedocs.io/en/latest}{Nipype}
+~\cite{gorgolewski2011nipype}
 is a workflow engine widely used in neuroinformatics. Nipype workflows
 can be composed from \boutiques applications using the Python API. As
 an example, we implemented
-NipBIDS (\url{https://github.com/big-data-lab-team/sim/tree/master/sim/other_wf_examples/nipype}),
+\href{https://github.com/big-data-lab-team/sim/tree/master/sim/other_wf_examples/nipype}{NipBIDS},
 a Nipype workflow to process BIDS datasets using BIDS apps imported as
 \boutiques applications. NipBIDS iterates participant analyses on all
 the subjects found in a BIDS dataset and runs a group analysis if
 requested.
 
 \subsubsection{SPINE}
-SPINE (\url{http://spinevirtuallab.org}), which stands for Structured
+\href{http://spinevirtuallab.org}{SPINE}, which stands for Structured
 Planning and Implementation of New Explorations, is a web-based,
 collaborative platform (virtual laboratory) designed to support the
 design and execution of experiments centered on specific scientific
@@ -701,13 +701,13 @@ The Virtual Imaging Platform (VIP)~\cite{GLAT-13} is a web portal for
 medical simulation and image data analysis. VIP makes applications
 available as services, and connects them to the biomed Virtual
 Organization (VO) in the European Grid
-Infrastructure (\url{https://www.egi.eu}). The biomed VO
+Infrastructure (\href{http://www.egi.eu}{EGI}). The biomed VO
 interconnects approximately 65 computing sites world-wide and provides
 access to 130 computing clusters and 5~PB of storage.  The VIP service
 is deployed at the Creatis
 laboratory in Lyon
-and it uses the DIRAC French national
-service (\url{https://dirac.france-grilles.fr}) to execute
+and it uses the \href{https://dirac.france-grilles.fr}{DIRAC} French national
+service to execute
 jobs on EGI grid and cloud resources.  As of October 2017, VIP counts
 more than 1,000 registered users and a growing number of available
 applications.
@@ -754,7 +754,7 @@ on Neurolinks.
 
 \paragraph{Anima}
 \texttt{animaN4BiasCorrection}, an ITK-based bias field correction application from the
-Anima (\url{https://github.com/Inria-Visages/Anima-Public/wiki})
+\href{https://github.com/Inria-Visages/Anima-Public/wiki}{Anima}
 project was made available in VIP through \boutiques. 
 
 \subsubsection{Functional MRI (fMRI)}
@@ -765,15 +765,15 @@ in CBRAIN through \boutiques. The integration uses the CBRAIN
 sub-tasking mechanism described earlier so that even the invocations
 processing a single subject can be parallelized. It also allows CBRAIN
 to leverage the efficient agent model used in PSOM, as described
-in~\cite{GLAT-16}. The integration required some work in PSOM to
-facilitate its invocation as a non-interactive command-line
-application. The resulting CBRAIN plugin is available at
-\url{https://github.com/SIMEXP/cbrain-plugins-psom}.  Descriptors
-are on Neurolinks.
+in~\cite{GLAT-16}. The integration required some work in PSOM to 
+facilitate its invocation as a non-interactive command-line 
+application. The resulting CBRAIN plugin is available on 
+\href{https://github.com/SIMEXP/cbrain-plugins-psom}{GitHub}.  
+Descriptors are on Neurolinks.
 
 \paragraph{GinFizz}
 We integrated the
-GinFizz (\url{https://github.com/thomashirsch/ginfizz})
+\href{https://github.com/thomashirsch/ginfizz}{GinFizz}
 Nipype-based fMRI pre-processing pipeline in VIP with \boutiques.  A
 few technical issues coming from the management of users in Docker
 containers had to be addressed: to enable the execution in \boutiques
@@ -794,14 +794,14 @@ initially.
 \subsubsection{Diffusion imaging}
 
 \paragraph{MRTrix3}
-A few applications from the MRtrix3
-package~\cite{tournier2012mrtrix} (\url{http://www.mrtrix.org}) for diffusion MRI processing were also made available in VIP,
+A few applications from the \href{http://www.mrtrix.org}{MRtrix3}
+package~\cite{tournier2012mrtrix} for diffusion MRI processing were also made available in VIP,
 as well as a pipeline developed at Creatis, which combines MRtrix3 and
 FSL applications.
 
 \paragraph{ndmg} The NeuroData MRI to Graphs one-click connectome estimation
 pipeline~\cite{kiar2017comprehensive}, developed in Python and leveraging FSL, was
-exported to \boutiques and is available at \url{https://github.com/neurodata/boutiques-tools}.
+exported to \boutiques and is available \href{online}{https://github.com/neurodata/boutiques-tools}.
 The ndmg pipeline is deployed in CBRAIN via its \boutiques descriptor, and is available
 both through Docker and Singularity container environments.
 
@@ -815,7 +815,7 @@ other were vectors of variable size enclosed in brackets) that
 required the post-processing of the wrapper script generated by the
 \boutiques importer.
 
-\paragraph{ODIN} The Odin MRI simulator~\cite{jochimsen2004odin} (\url{http://od1n.sourceforge.net}) was integrated
+\paragraph{ODIN} The \href{http://od1n.sourceforge.net}{Odin} MRI simulator~\cite{jochimsen2004odin} was integrated
 in VIP through \boutiques. Since Odin requires important amounts of
 computing resources it is executed by VIP on the EGI grid that
 currently does not support Docker. The Docker image was used just for
@@ -839,8 +839,8 @@ mentioned above. Descriptors are on Neurolinks.
 We used \boutiques to integrate 23 pipelines in the VIP platform in
 the context of two challenges organized by the MICCAI conference in
 2016, related to the segmentation of multiple-sclerosis lesions in MR
-images (MSSEG
-challenge -- \url{https://portal.fli-iam.irisa.fr/msseg-challenge/overview})
+images (\href{https://portal.fli-iam.irisa.fr/msseg-challenge/overview}{MSSEG}
+challenge)
 and of tumor volumes in PET images (PETSEG
 challenge~\cite{hatt2018}). The
 pipelines were integrated in VIP and executed on 205 subjects in a few
@@ -849,7 +849,7 @@ the platform for the following reasons:
 \begin{enumerate}
 \item A pipeline
   required a GPU, which we enabled through the
-  \texttt{nvidia-docker} (\url{https://github.com/NVIDIA/nvidia-docker})
+  \href{https://github.com/NVIDIA/nvidia-docker}{nvidia-docker}
   tool not supported in Boutiques although it could be a possible extension.
 \item A pipeline required more than 10 GB of data dependencies (atlas
   data) which exceeded the maximum size allowed for Docker containers
@@ -1041,13 +1041,13 @@ schema.
 \subsection{Common Workflow Language}
 
 The Common Workflow Language
-(CWL -- \url{http://www.commonwl.org}) is the work most closely
+(\href{http://www.commonwl.org}{CWL}) is the work most closely
 related to \boutiques as it provides a formal way to describe
 containerized applications. In particular, CWL's Command Line Tool
 Description overlaps with the \boutiques descriptor. This Section
 highlights the main differences between CWL and \boutiques, based on
-version 1.0 of the CWL Command Line Tool
-Description (\url{http://www.commonwl.org/v1.0/CommandLineTool.html}). According
+version 1.0 of the CWL \href{http://www.commonwl.org/v1.0/CommandLineTool.html}{Command Line Tool
+Description}. According
 to GitHub, CWL started 6 months before \boutiques (September 2014
 vs. May 2015).
 
@@ -1157,8 +1157,8 @@ be generated from BIDS apps using the \texttt{bosh} importer.
 Several other frameworks have been created to facilitate the
 integration of command-line applications in platforms. In
 neuroinformatics, many platforms define a formal interface to embed
-command-line applications. Among them, the Common
-Toolkit (\url{http://www.commontk.org}) interoperates with
+command-line applications. Among them, the \href{http://www.commontk.org}{Common
+Toolkit} interoperates with
 several platforms such as 3D Slicer~\cite{pieper20043d},
 NiftyView~\cite{Craddock2016}, GIMIAS~\cite{larrabide2009gimias},
 MedInria~\cite{larrabide2009gimias}, MeVisLab~\cite{heckel2009object}
